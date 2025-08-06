@@ -42,7 +42,7 @@ function ModelScene() {
 
     gl.toneMapping = THREE.LinearToneMapping;
 
-    camera.position.z = 1;
+    camera.position.z = 1.4;
     camera.position.y = 0.1;
   }, [])
 

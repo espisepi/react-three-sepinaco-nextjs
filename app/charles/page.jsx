@@ -27,6 +27,9 @@ const CharlesScene = dynamic(() => import('@/features/charles-webpage/components
 export default function Page() {
   return (
     <>
+      <div className='flex w-full flex-col items-start justify-center p-12 text-center md:w-2/5 md:text-left'>
+        <h1 className='my-4 text-5xl font-bold leading-tight'>Loading...</h1>
+      </div>
       <View className='absolute top-0 flex h-screen w-full flex-col items-center justify-center'>
         {/* <Blob /> */}
         <Common />
