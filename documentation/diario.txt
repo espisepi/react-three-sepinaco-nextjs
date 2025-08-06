@@ -1,0 +1,11 @@
+
+
+=======================
+
+Seguir estructura de proyecto: 
+
+- https://github.com/alan2207/bulletproof-react/blob/master/apps/nextjs-app/README.md
+
+- https://github.com/alan2207/bulletproof-react/tree/master
+
+=========================
