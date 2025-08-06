@@ -54,7 +54,7 @@ function ModelScene() {
 export function CharlesScene() {
   return (
     <>
-      <Sky scale={1000} sunPosition={[500, 150, -1000]} turbidity={0.1} />
+      {/* <Sky scale={1000} sunPosition={[500, 150, -1000]} turbidity={0.1} /> */}
       <ModelScene />
       <OrbitControls target={new THREE.Vector3(0, 0.1, 0)} />
     </>
