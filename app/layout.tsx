@@ -1,12 +1,17 @@
 import { Layout } from '@/components/dom/Layout'
 import '@/global.css'
+import { ReactNode } from 'react'
 
 export const metadata = {
   title: 'Next.js + Three.js',
   description: 'A minimal starter for Nextjs + React-three-fiber and Threejs.',
 }
 
-export default function RootLayout({ children }) {
+interface RootLayoutProps {
+  children: ReactNode
+}
+
+export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang='en' className='antialiased'>
       {/*

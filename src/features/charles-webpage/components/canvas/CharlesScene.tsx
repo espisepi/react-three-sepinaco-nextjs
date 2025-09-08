@@ -8,12 +8,13 @@ function ModelScene() {
   // console.log(gltf);
   const [texture, texture_disp, texture_norm] = useLoader(THREE.TextureLoader, ['img/1.png', 'img/1_disp.png', 'img/1_norm.png']);
   const [text_env] = useLoader(THREE.TextureLoader, ['img/2_new.png']);
-  gltf.scene.traverse((o) => {
+
+  gltf.scene.traverse((o: THREE.Object3D) => {
     if (o.name === 'Sphere') {
 
       // console.log(o)
 
-      o.material = new THREE.MeshPhysicalMaterial({
+      (o as THREE.Mesh).material = new THREE.MeshPhysicalMaterial({
         clearcoat: 1.0,
         // clearcoatRoughness: 0.1,
         metalness: 0.0,
@@ -29,11 +30,13 @@ function ModelScene() {
   });
 
   const sphere = useMemo(() => {
-    return gltf.nodes.Sphere;
-  }, []);
+    return gltf.nodes?.Sphere as THREE.Mesh;
+  }, [gltf.nodes]);
 
   useFrame((state, dt) => {
-    sphere.rotation.y -= dt * 0.05;
+    if (sphere) {
+      sphere.rotation.y -= dt * 0.05;
+    }
   })
 
   const { scene, gl, camera } = useThree();
@@ -44,8 +47,9 @@ function ModelScene() {
 
     camera.position.z = 1.4;
     camera.position.y = 0.1;
-  }, [])
+  }, [scene, gl, camera, text_env])
 
+  // @ts-ignore - Three.js JSX elements
   return <primitive object={gltf.scene} />;
 }
 

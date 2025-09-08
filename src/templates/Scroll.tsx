@@ -7,8 +7,7 @@
 // 3 - enjoy
 import { addEffect, useFrame } from '@react-three/fiber'
 import Lenis from '@studio-freight/lenis'
-import { useEffect } from 'react'
-import { useRef } from 'react'
+import { useEffect, useRef, ReactNode } from 'react'
 import * as THREE from 'three'
 
 const state = {
@@ -18,16 +17,26 @@ const state = {
 
 const { damp } = THREE.MathUtils
 
-export default function Scroll({ children }) {
-  const content = useRef(null)
-  const wrapper = useRef(null)
+interface ScrollProps {
+  children: ReactNode
+}
+
+interface ScrollTickerProps {
+  smooth?: number
+}
+
+export default function Scroll({ children }: ScrollProps) {
+  const content = useRef<HTMLDivElement>(null)
+  const wrapper = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const lenis = new Lenis({
+      // @ts-ignore - Lenis wrapper type
       wrapper: wrapper.current,
+      // @ts-ignore - Lenis content type
       content: content.current,
       duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // https://www.desmos.com/calculator/brs54l4xou
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // https://www.desmos.com/calculator/brs54l4xou
       direction: 'vertical', // vertical, horizontal
       gestureDirection: 'vertical', // vertical, horizontal, both
       smooth: true,
@@ -36,7 +45,7 @@ export default function Scroll({ children }) {
       infinite: false,
     })
 
-    lenis.on('scroll', ({ scroll, progress }) => {
+    lenis.on('scroll', ({ scroll, progress }: { scroll: number; progress: number }) => {
       state.top = scroll
       state.progress = progress
     })
@@ -69,7 +78,7 @@ export default function Scroll({ children }) {
   )
 }
 
-export const ScrollTicker = ({ smooth = 9999999 }) => {
+export const ScrollTicker = ({ smooth = 9999999 }: ScrollTickerProps) => {
   useFrame(({ viewport, camera }, delta) => {
     camera.position.y = damp(camera.position.y, -state.progress * viewport.height, smooth, delta)
   })

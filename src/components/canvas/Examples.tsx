@@ -7,24 +7,45 @@ import { useMemo, useRef, useState } from 'react'
 import { Line, useCursor, MeshDistortMaterial } from '@react-three/drei'
 import { useRouter } from 'next/navigation'
 
-export const Blob = ({ route = '/', ...props }) => {
+interface BlobProps {
+  route?: string
+  [key: string]: any
+}
+
+interface LogoProps {
+  route?: string
+  [key: string]: any
+}
+
+interface DuckProps {
+  [key: string]: any
+}
+
+interface DogProps {
+  [key: string]: any
+}
+
+export const Blob = ({ route = '/', ...props }: BlobProps) => {
   const router = useRouter()
   const [hovered, hover] = useState(false)
   useCursor(hovered)
   return (
+    // @ts-ignore - Three.js JSX elements
     <mesh
       onClick={() => router.push(route)}
       onPointerOver={() => hover(true)}
       onPointerOut={() => hover(false)}
       {...props}>
+      {/* @ts-ignore - Three.js JSX elements */}
       <sphereGeometry args={[1, 64, 64]} />
       <MeshDistortMaterial roughness={0.5} color={hovered ? 'hotpink' : '#1fb2f5'} />
+      {/* @ts-ignore - Three.js JSX elements */}
     </mesh>
   )
 }
 
-export const Logo = ({ route = '/blob', ...props }) => {
-  const mesh = useRef(null)
+export const Logo = ({ route = '/blob', ...props }: LogoProps) => {
+  const mesh = useRef<THREE.Group>(null)
   const router = useRouter()
 
   const [hovered, hover] = useState(false)
@@ -32,13 +53,16 @@ export const Logo = ({ route = '/blob', ...props }) => {
 
   useCursor(hovered)
   useFrame((state, delta) => {
-    const t = state.clock.getElapsedTime()
-    mesh.current.rotation.y = Math.sin(t) * (Math.PI / 8)
-    mesh.current.rotation.x = Math.cos(t) * (Math.PI / 8)
-    mesh.current.rotation.z -= delta / 4
+    if (mesh.current) {
+      const t = state.clock.getElapsedTime()
+      mesh.current.rotation.y = Math.sin(t) * (Math.PI / 8)
+      mesh.current.rotation.x = Math.cos(t) * (Math.PI / 8)
+      mesh.current.rotation.z -= delta / 4
+    }
   })
 
   return (
+    // @ts-ignore - Three.js JSX elements
     <group ref={mesh} {...props}>
       {/* @ts-ignore */}
       <Line worldUnits points={points} color='#1fb2f5' lineWidth={0.15} />
@@ -46,23 +70,30 @@ export const Logo = ({ route = '/blob', ...props }) => {
       <Line worldUnits points={points} color='#1fb2f5' lineWidth={0.15} rotation={[0, 0, 1]} />
       {/* @ts-ignore */}
       <Line worldUnits points={points} color='#1fb2f5' lineWidth={0.15} rotation={[0, 0, -1]} />
+      {/* @ts-ignore - Three.js JSX elements */}
       <mesh onClick={() => router.push(route)} onPointerOver={() => hover(true)} onPointerOut={() => hover(false)}>
+        {/* @ts-ignore - Three.js JSX elements */}
         <sphereGeometry args={[0.55, 64, 64]} />
+        {/* @ts-ignore - Three.js JSX elements */}
         <meshPhysicalMaterial roughness={0.5} color={hovered ? 'hotpink' : '#1fb2f5'} />
+        {/* @ts-ignore - Three.js JSX elements */}
       </mesh>
+      {/* @ts-ignore - Three.js JSX elements */}
     </group>
   )
 }
 
-export function Duck(props) {
+export function Duck(props: DuckProps) {
   const { scene } = useGLTF('/duck.glb')
 
   useFrame((state, delta) => (scene.rotation.y += delta))
 
+  // @ts-ignore - Three.js JSX elements
   return <primitive object={scene} {...props} />
 }
-export function Dog(props) {
+export function Dog(props: DogProps) {
   const { scene } = useGLTF('/dog.glb')
 
+  // @ts-ignore - Three.js JSX elements
   return <primitive object={scene} {...props} />
 }
