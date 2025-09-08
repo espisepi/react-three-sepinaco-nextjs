@@ -10,9 +10,8 @@ const Layout = ({ children }) => {
   const ref = useRef()
   const pathname = usePathname()
 
-  // Don't show navigation on blog pages and charles page to avoid conflicts
+  // Don't show navigation on blog pages to avoid conflicts
   const isBlogPage = pathname?.startsWith('/blog')
-  const isCharlesPage = pathname?.startsWith('/charles')
 
   return (
     <div
@@ -26,7 +25,7 @@ const Layout = ({ children }) => {
       }}
     >
       {/* Navigation */}
-      {!isBlogPage && !isCharlesPage && (
+      {!isBlogPage && (
         <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
@@ -65,11 +64,12 @@ const Layout = ({ children }) => {
       )}
 
       {/* Main content */}
-      <div className={!isBlogPage && !isCharlesPage ? 'pt-16' : ''}>
+      <div className={!isBlogPage ? 'pt-16' : ''}>
         {children}
       </div>
 
-      {(
+      {/* 3D Scene - only show on non-blog pages */}
+      {!isBlogPage && (
         <Scene
           style={{
             position: 'fixed',
