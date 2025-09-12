@@ -9,6 +9,8 @@ to create new r3f page: copy/paste page "blob/" and modify it.
 
 # ir creando la tienda siguiendo el proyecto de fernando herrera udemy: https://github.com/DevTalles-corp/next-teslo-shop
 
+# Arquitectura del proyecto https://github.com/alan2207/bulletproof-react/tree/master/apps/nextjs-app
+
 # react-three-sepinaco-nextjs
 
 This project was bootstrapped with [`create-r3f-app`](https://github.com/utsuboco/create-r3f-app)
