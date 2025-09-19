@@ -72,12 +72,32 @@ export default function WheelOfFortunePage() {
     setPanels(panels.map(panel =>
       panel.id === id ? { ...panel, text } : panel
     ))
+
+    // Si el panel modificado es el resultado actual, actualizar también el resultado
+    if (result && result.id === id) {
+      setResult({ ...result, text })
+    }
+
+    // Si el panel modificado es el panel actual, actualizar también el panel actual
+    if (currentPanel && currentPanel.id === id) {
+      setCurrentPanel({ ...currentPanel, text })
+    }
   }
 
   const updatePanelColor = (id: string, color: string) => {
     setPanels(panels.map(panel =>
       panel.id === id ? { ...panel, color } : panel
     ))
+
+    // Si el panel modificado es el resultado actual, actualizar también el resultado
+    if (result && result.id === id) {
+      setResult({ ...result, color })
+    }
+
+    // Si el panel modificado es el panel actual, actualizar también el panel actual
+    if (currentPanel && currentPanel.id === id) {
+      setCurrentPanel({ ...currentPanel, color })
+    }
   }
 
   return (
@@ -110,18 +130,6 @@ export default function WheelOfFortunePage() {
 
           {/* Controls */}
           <div className='space-y-6'>
-            <WheelControls
-              panels={panels}
-              isSpinning={isSpinning}
-              onSpin={handleSpin}
-              onAddPanel={addPanel}
-              onRemovePanel={removePanel}
-              onUpdatePanel={updatePanel}
-              onUpdatePanelColor={updatePanelColor}
-              spinDuration={spinDuration}
-              onSpinDurationChange={setSpinDuration}
-            />
-
             {/* Panel actual que apunta el puntero */}
             {currentPanel && (
               <div className='bg-white/10 backdrop-blur-sm rounded-2xl p-6'>
@@ -137,9 +145,23 @@ export default function WheelOfFortunePage() {
               </div>
             )}
 
+            {/* Resultado del giro */}
             {result && (
               <WheelResult result={result} />
             )}
+
+            {/* Controles de la ruleta */}
+            <WheelControls
+              panels={panels}
+              isSpinning={isSpinning}
+              onSpin={handleSpin}
+              onAddPanel={addPanel}
+              onRemovePanel={removePanel}
+              onUpdatePanel={updatePanel}
+              onUpdatePanelColor={updatePanelColor}
+              spinDuration={spinDuration}
+              onSpinDurationChange={setSpinDuration}
+            />
           </div>
         </div>
       </div>
