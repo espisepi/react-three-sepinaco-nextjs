@@ -163,8 +163,8 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration }: WheelSceneP
         <mesh key={panel.id} geometry={segmentGeometry} material={materials[index]} rotation={[0, 0, 0]}>
           {/* Texto en cada segmento */}
           <Text
-            position={[Math.cos(midAngle) * 1.2, Math.sin(midAngle) * 1.2, 0.11]}
-            rotation={[0, 0, midAngle - Math.PI / 2]}
+            position={[Math.cos(midAngle) * 1.2, 0.11, Math.sin(midAngle) * 1.2]}
+            rotation={[0, 0, midAngle + Math.PI / 2]}
             fontSize={0.15}
             color="white"
             anchorX="center"
