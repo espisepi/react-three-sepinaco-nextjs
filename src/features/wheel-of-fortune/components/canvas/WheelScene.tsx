@@ -56,7 +56,7 @@ function Wheel({ panels, isSpinning, onSpinComplete }: WheelSceneProps) {
     )
   }, [panels])
 
-  // Crear mesh para cada segmento
+  // Crear mesh para cada segmento usando cilindros individuales (mejor orientación)
   const wheelSegments = useMemo(() => {
     const segments = panels.length
     const anglePerSegment = (Math.PI * 2) / segments
@@ -64,30 +64,18 @@ function Wheel({ panels, isSpinning, onSpinComplete }: WheelSceneProps) {
     return panels.map((panel, index) => {
       const startAngle = index * anglePerSegment
       const endAngle = (index + 1) * anglePerSegment
+      const midAngle = startAngle + anglePerSegment / 2
 
-      // Crear geometría para cada segmento
-      const segmentShape = new THREE.Shape()
-      segmentShape.moveTo(0, 0)
-      segmentShape.lineTo(Math.cos(startAngle) * 2, Math.sin(startAngle) * 2)
-      segmentShape.arc(0, 0, 2, startAngle, endAngle, false)
-      segmentShape.lineTo(0, 0)
-
-      const segmentGeometry = new THREE.ExtrudeGeometry(segmentShape, {
-        depth: 0.1,
-        bevelEnabled: true,
-        bevelThickness: 0.05,
-        bevelSize: 0.02,
-        bevelOffset: 0,
-        bevelSegments: 3
-      })
+      // Crear geometría de cilindro para cada segmento (orientación correcta)
+      const segmentGeometry = new THREE.CylinderGeometry(2.05, 2.05, 0.1, 32, 1, false, startAngle, anglePerSegment)
 
       return (
         // @ts-ignore - Three.js JSX elements
-        <mesh key={panel.id} geometry={segmentGeometry} material={materials[index]}>
+        <mesh key={panel.id} geometry={segmentGeometry} material={materials[index]} rotation={[0, 0, 0]}>
           {/* Texto en cada segmento */}
           <Text
-            position={[Math.cos(startAngle + anglePerSegment / 2) * 1.2, Math.sin(startAngle + anglePerSegment / 2) * 1.2, 0.11]}
-            rotation={[0, 0, startAngle + anglePerSegment / 2]}
+            position={[Math.cos(midAngle) * 1.2, Math.sin(midAngle) * 1.2, 0.11]}
+            rotation={[0, 0, midAngle]}
             fontSize={0.15}
             color="white"
             anchorX="center"
@@ -152,12 +140,12 @@ function Wheel({ panels, isSpinning, onSpinComplete }: WheelSceneProps) {
 
   return (
     // @ts-ignore - Three.js JSX elements
-    <group ref={wheelRef}>
+    <group ref={wheelRef} rotation={[Math.PI / 2, 0, 0]}> {/* Rotación de 90° en X para orientar la ruleta frontalmente */}
       {/* Base de la ruleta */}
       {/* @ts-ignore - Three.js JSX elements */}
       <mesh position={[0, 0, -0.1]}>
         {/* @ts-ignore - Three.js JSX elements */}
-        <cylinderGeometry args={[2.1, 2.1, 0.05]} />
+        <cylinderGeometry args={[2.05, 2.05, 0.05]} /> {/* Tamaño ajustado para coincidir con paneles - era 2.1 */}
         {/* @ts-ignore - Three.js JSX elements */}
         <meshPhysicalMaterial color="#333" metalness={0.8} roughness={0.2} />
         {/* @ts-ignore - Three.js JSX elements */}
@@ -176,9 +164,9 @@ function Wheel({ panels, isSpinning, onSpinComplete }: WheelSceneProps) {
         {/* @ts-ignore - Three.js JSX elements */}
       </mesh>
 
-      {/* Puntero */}
+      {/* Puntero - Posición ajustada para la nueva orientación */}
       {/* @ts-ignore - Three.js JSX elements */}
-      <mesh position={[0, 2.2, 0]} rotation={[0, 0, 0]}>
+      <mesh position={[0, 0, 2.2]} rotation={[0, 0, 0]}>
         {/* @ts-ignore - Three.js JSX elements */}
         <coneGeometry args={[0.1, 0.3]} />
         {/* @ts-ignore - Three.js JSX elements */}
