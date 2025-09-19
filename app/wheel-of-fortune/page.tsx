@@ -154,6 +154,11 @@ export default function WheelOfFortunePage() {
               )}
             </div>
 
+            {/* Resultado del giro */}
+            {result && (
+              <WheelResult result={result} raycastResult={raycastHitPanel} />
+            )}
+
             {/* Panel detectado por raycasting */}
             {raycastHitPanel && (
               <div className='bg-white/10 backdrop-blur-sm rounded-2xl p-6'>
@@ -278,11 +283,6 @@ export default function WheelOfFortunePage() {
                   )}
                 </div>
               </div>
-            )}
-
-            {/* Resultado del giro */}
-            {result && (
-              <WheelResult result={result} />
             )}
 
             {/* Controles de la ruleta */}
