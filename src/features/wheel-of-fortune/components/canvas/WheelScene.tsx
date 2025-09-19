@@ -439,6 +439,13 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPane
 
 export function WheelScene({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPanelChange, onRaycastHit }: WheelSceneProps) {
   const pointerRef = useRef<THREE.Mesh | null>(null)
+  const { camera } = useThree()
+
+  // Configurar posición inicial de la cámara más alejada
+  useEffect(() => {
+    camera.position.set(0, 0, 8) // Posición inicial más alejada en el eje Z
+    camera.lookAt(0, 0, 0) // Mirar hacia el centro de la ruleta
+  }, [camera])
 
   return (
     <>
@@ -496,8 +503,8 @@ export function WheelScene({ panels, isSpinning, onSpinComplete, spinDuration, o
         enablePan={false}
         enableZoom={true}
         enableRotate={true}
-        minDistance={3}
-        maxDistance={8}
+        minDistance={1}
+        maxDistance={12}
         target={[0, 0, 0]}
       />
 
