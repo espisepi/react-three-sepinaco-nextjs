@@ -230,67 +230,6 @@ export default function WheelOfFortunePage() {
               </div>
             )}
 
-            {/* Controles de tamaño del canvas */}
-            <div className='bg-white/10 backdrop-blur-sm rounded-2xl p-6'>
-              <h3 className='text-xl font-bold text-white mb-4'>📐 Tamaño del Canvas</h3>
-              <div className='space-y-4'>
-                {/* Slider para el ancho */}
-                <div>
-                  <label className='block text-sm font-medium text-gray-300 mb-2'>
-                    Ancho: {canvasWidth}%
-                  </label>
-                  <input
-                    type='range'
-                    min='50'
-                    max='100'
-                    value={canvasWidth}
-                    onChange={(e) => setCanvasWidth(Number(e.target.value))}
-                    className='w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
-                    style={{
-                      background: `linear-gradient(to right, #8B5CF6 0%, #8B5CF6 ${((canvasWidth - 50) / (100 - 50)) * 100}%, #374151 ${((canvasWidth - 50) / (100 - 50)) * 100}%, #374151 100%)`
-                    }}
-                  />
-                  <div className='flex justify-between text-xs text-gray-400 mt-1'>
-                    <span>50%</span>
-                    <span>100%</span>
-                  </div>
-                </div>
-
-                {/* Slider para la altura */}
-                <div>
-                  <label className='block text-sm font-medium text-gray-300 mb-2'>
-                    Altura: {canvasHeight}vh
-                  </label>
-                  <input
-                    type='range'
-                    min='20'
-                    max='100'
-                    value={canvasHeight}
-                    onChange={(e) => setCanvasHeight(Number(e.target.value))}
-                    className='w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
-                    style={{
-                      background: `linear-gradient(to right, #10B981 0%, #10B981 ${((canvasHeight - 20) / (100 - 20)) * 100}%, #374151 ${((canvasHeight - 20) / (100 - 20)) * 100}%, #374151 100%)`
-                    }}
-                  />
-                  <div className='flex justify-between text-xs text-gray-400 mt-1'>
-                    <span>20vh</span>
-                    <span>100vh</span>
-                  </div>
-                </div>
-
-                {/* Botón de reset */}
-                <button
-                  onClick={() => {
-                    setCanvasWidth(100)
-                    setCanvasHeight(getDefaultCanvasHeight())
-                  }}
-                  className='w-full rounded-lg px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 transition-all duration-300'
-                >
-                  🔄 Restablecer Tamaño
-                </button>
-              </div>
-            </div>
-
             {/* Panel detectado por raycasting */}
             {/* {raycastHitPanel && (
               <div className='bg-white/10 backdrop-blur-sm rounded-2xl p-6'>
@@ -429,6 +368,67 @@ export default function WheelOfFortunePage() {
               spinDuration={spinDuration}
               onSpinDurationChange={setSpinDuration}
             />
+
+            {/* Controles de tamaño del canvas */}
+            <div className='bg-white/10 backdrop-blur-sm rounded-2xl p-6'>
+              <h3 className='text-xl font-bold text-white mb-4'>📐 Tamaño del Canvas</h3>
+              <div className='space-y-4'>
+                {/* Slider para el ancho */}
+                <div>
+                  <label className='block text-sm font-medium text-gray-300 mb-2'>
+                    Ancho: {canvasWidth}%
+                  </label>
+                  <input
+                    type='range'
+                    min='50'
+                    max='100'
+                    value={canvasWidth}
+                    onChange={(e) => setCanvasWidth(Number(e.target.value))}
+                    className='w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                    style={{
+                      background: `linear-gradient(to right, #8B5CF6 0%, #8B5CF6 ${((canvasWidth - 50) / (100 - 50)) * 100}%, #374151 ${((canvasWidth - 50) / (100 - 50)) * 100}%, #374151 100%)`
+                    }}
+                  />
+                  <div className='flex justify-between text-xs text-gray-400 mt-1'>
+                    <span>50%</span>
+                    <span>100%</span>
+                  </div>
+                </div>
+
+                {/* Slider para la altura */}
+                <div>
+                  <label className='block text-sm font-medium text-gray-300 mb-2'>
+                    Altura: {canvasHeight}vh
+                  </label>
+                  <input
+                    type='range'
+                    min='20'
+                    max='100'
+                    value={canvasHeight}
+                    onChange={(e) => setCanvasHeight(Number(e.target.value))}
+                    className='w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                    style={{
+                      background: `linear-gradient(to right, #10B981 0%, #10B981 ${((canvasHeight - 20) / (100 - 20)) * 100}%, #374151 ${((canvasHeight - 20) / (100 - 20)) * 100}%, #374151 100%)`
+                    }}
+                  />
+                  <div className='flex justify-between text-xs text-gray-400 mt-1'>
+                    <span>20vh</span>
+                    <span>100vh</span>
+                  </div>
+                </div>
+
+                {/* Botón de reset */}
+                <button
+                  onClick={() => {
+                    setCanvasWidth(100)
+                    setCanvasHeight(getDefaultCanvasHeight())
+                  }}
+                  className='w-full rounded-lg px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 transition-all duration-300'
+                >
+                  🔄 Restablecer Tamaño
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
