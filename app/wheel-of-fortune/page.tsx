@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic'
 import { Suspense, useState, useEffect } from 'react'
-import { WheelControls, WheelResult } from '@/features/wheel-of-fortune/components'
+import { WheelControls } from '@/features/wheel-of-fortune/components'
 import { WheelPanel } from '@/types/wheel'
 
 const WheelScene = dynamic(() => import('@/features/wheel-of-fortune/components/canvas/WheelScene').then((mod) => mod.WheelScene), { ssr: false })
@@ -206,11 +206,6 @@ export default function WheelOfFortunePage() {
 
           {/* Controls */}
           <div className='space-y-6'>
-            {/* Resultado del giro */}
-            {result && (
-              <WheelResult result={result} raycastResult={raycastHitPanel} />
-            )}
-
             {/* Botón de girar */}
             <div className='bg-white/10 backdrop-blur-sm rounded-2xl p-6'>
               <h3 className='text-xl font-bold text-white mb-4'>🎯 Control de la Ruleta</h3>
@@ -401,6 +396,8 @@ export default function WheelOfFortunePage() {
               spinDuration={spinDuration}
               onSpinDurationChange={setSpinDuration}
               remainingTime={remainingTime}
+              result={result}
+              raycastResult={raycastHitPanel}
             />
 
             {/* Controles de tamaño del canvas */}

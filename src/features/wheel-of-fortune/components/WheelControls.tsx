@@ -14,6 +14,8 @@ interface WheelControlsProps {
   spinDuration: number
   onSpinDurationChange: (duration: number) => void
   remainingTime?: number
+  result?: WheelPanel | null
+  raycastResult?: WheelPanel | null
 }
 
 export function WheelControls({
@@ -26,7 +28,9 @@ export function WheelControls({
   onUpdatePanelColor,
   spinDuration,
   onSpinDurationChange,
-  remainingTime
+  remainingTime,
+  result,
+  raycastResult
 }: WheelControlsProps) {
   const [editingPanel, setEditingPanel] = useState<string | null>(null)
   const [editText, setEditText] = useState('')
@@ -136,6 +140,42 @@ export function WheelControls({
           </p>
         </div>
       </div>
+
+      {/* Resultado del giro */}
+      {result && (
+        <div className='bg-gradient-to-r from-green-500/20 to-emerald-500/20 backdrop-blur-sm rounded-xl p-6 border border-green-400/30'>
+          <h3 className='text-xl font-bold text-white mb-4'>🏆 Resultado del Giro</h3>
+          <div className='text-center'>
+            <div className='mb-4'>
+              <div
+                className='inline-block px-6 py-3 rounded-xl text-white font-bold text-lg shadow-lg'
+                style={{ backgroundColor: result.color }}
+              >
+                🎉 {result.text} 🎉
+              </div>
+            </div>
+            <div className='space-y-2 text-sm text-gray-300'>
+              <div className='flex justify-between'>
+                <span>Panel Ganador:</span>
+                <span className='text-white font-semibold'>{result.text}</span>
+              </div>
+              <div className='flex justify-between'>
+                <span>ID:</span>
+                <span className='text-white font-mono'>{result.id}</span>
+              </div>
+              <div className='flex justify-between'>
+                <span>Color:</span>
+                <span className='text-white font-mono'>{result.color}</span>
+              </div>
+            </div>
+            <div className='mt-4 p-3 bg-green-500/10 rounded-lg border border-green-400/20'>
+              <p className='text-green-300 text-sm font-medium'>
+                ✅ ¡Felicidades! Has ganado este premio
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Gestión de paneles */}
       <div className='bg-white/10 backdrop-blur-sm rounded-xl p-6'>
