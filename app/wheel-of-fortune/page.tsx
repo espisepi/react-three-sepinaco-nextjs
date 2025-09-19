@@ -39,7 +39,7 @@ export default function WheelOfFortunePage() {
   const [raycastHitPanel, setRaycastHitPanel] = useState<WheelPanel | null>(null) // Panel detectado por raycasting
   const [enableOrbitControls, setEnableOrbitControls] = useState(false) // Control de OrbitControls - desactivado por defecto
   const [canvasWidth, setCanvasWidth] = useState(100) // Ancho del canvas en porcentaje
-  const [canvasHeight, setCanvasHeight] = useState(96) // Altura del canvas en unidades Tailwind (h-96 = 24rem = 384px)
+  const [canvasHeight, setCanvasHeight] = useState(50) // Altura del canvas en porcentaje de viewport height (50vh por defecto)
 
   const handleSpin = () => {
     if (isSpinning || panels.length === 0) return
@@ -129,7 +129,7 @@ export default function WheelOfFortunePage() {
                 className='flex flex-col items-center justify-center'
                 style={{
                   width: `${canvasWidth}%`,
-                  height: `${canvasHeight * 4}px` // Convertir unidades Tailwind a píxeles (h-96 = 24rem = 384px)
+                  height: `${canvasHeight}vh` // Usar viewport height directamente
                 }}
               >
                 <Suspense fallback={null}>
@@ -236,23 +236,22 @@ export default function WheelOfFortunePage() {
                 {/* Slider para la altura */}
                 <div>
                   <label className='block text-sm font-medium text-gray-300 mb-2'>
-                    Altura: {canvasHeight * 4}px ({canvasHeight} unidades)
+                    Altura: {canvasHeight}vh
                   </label>
                   <input
                     type='range'
-                    min='48'
-                    max='128'
-                    step='4'
+                    min='20'
+                    max='100'
                     value={canvasHeight}
                     onChange={(e) => setCanvasHeight(Number(e.target.value))}
                     className='w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
                     style={{
-                      background: `linear-gradient(to right, #10B981 0%, #10B981 ${((canvasHeight - 48) / (128 - 48)) * 100}%, #374151 ${((canvasHeight - 48) / (128 - 48)) * 100}%, #374151 100%)`
+                      background: `linear-gradient(to right, #10B981 0%, #10B981 ${((canvasHeight - 20) / (100 - 20)) * 100}%, #374151 ${((canvasHeight - 20) / (100 - 20)) * 100}%, #374151 100%)`
                     }}
                   />
                   <div className='flex justify-between text-xs text-gray-400 mt-1'>
-                    <span>192px</span>
-                    <span>512px</span>
+                    <span>20vh</span>
+                    <span>100vh</span>
                   </div>
                 </div>
 
