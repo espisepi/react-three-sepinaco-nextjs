@@ -136,6 +136,11 @@ export default function WheelOfFortunePage() {
 
           {/* Controls */}
           <div className='space-y-6'>
+            {/* Resultado del giro */}
+            {result && (
+              <WheelResult result={result} raycastResult={raycastHitPanel} />
+            )}
+
             {/* Botón de girar */}
             <div className='bg-white/10 backdrop-blur-sm rounded-2xl p-6'>
               <h3 className='text-xl font-bold text-white mb-4'>🎯 Control de la Ruleta</h3>
@@ -153,11 +158,6 @@ export default function WheelOfFortunePage() {
                 <p className='mt-2 text-sm text-red-300'>Agrega al menos un panel para poder girar</p>
               )}
             </div>
-
-            {/* Resultado del giro */}
-            {result && (
-              <WheelResult result={result} raycastResult={raycastHitPanel} />
-            )}
 
 
             {/* Panel detectado por raycasting */}
