@@ -35,6 +35,7 @@ export default function WheelOfFortunePage() {
   const [isSpinning, setIsSpinning] = useState(false)
   const [result, setResult] = useState<WheelPanel | null>(null)
   const [spinDuration, setSpinDuration] = useState(3) // Duración en segundos
+  const [currentPanel, setCurrentPanel] = useState<WheelPanel | null>(null) // Panel actual que apunta el puntero
 
   const handleSpin = () => {
     if (isSpinning || panels.length === 0) return
@@ -45,6 +46,10 @@ export default function WheelOfFortunePage() {
   const handleSpinComplete = (selectedPanel: WheelPanel) => {
     setIsSpinning(false)
     setResult(selectedPanel)
+  }
+
+  const handleCurrentPanelChange = (panel: WheelPanel | null) => {
+    setCurrentPanel(panel)
   }
 
   const addPanel = () => {
@@ -89,6 +94,7 @@ export default function WheelOfFortunePage() {
                     isSpinning={isSpinning}
                     onSpinComplete={handleSpinComplete}
                     spinDuration={spinDuration}
+                    onCurrentPanelChange={handleCurrentPanelChange}
                   />
                   <Common color={'#1a1a2e'} />
                 </Suspense>
@@ -108,6 +114,21 @@ export default function WheelOfFortunePage() {
               spinDuration={spinDuration}
               onSpinDurationChange={setSpinDuration}
             />
+
+            {/* Panel actual que apunta el puntero */}
+            {currentPanel && (
+              <div className='bg-white/10 backdrop-blur-sm rounded-2xl p-6'>
+                <h3 className='text-xl font-bold text-white mb-4'>🎯 Panel Actual</h3>
+                <div className='text-center'>
+                  <div
+                    className='inline-block px-4 py-2 rounded-lg text-white font-semibold'
+                    style={{ backgroundColor: currentPanel.color }}
+                  >
+                    {currentPanel.text}
+                  </div>
+                </div>
+              </div>
+            )}
 
             {result && (
               <WheelResult result={result} />
