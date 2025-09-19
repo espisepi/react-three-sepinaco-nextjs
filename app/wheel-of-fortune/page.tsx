@@ -74,6 +74,12 @@ export default function WheelOfFortunePage() {
     ))
   }
 
+  const updatePanelColor = (id: string, color: string) => {
+    setPanels(panels.map(panel =>
+      panel.id === id ? { ...panel, color } : panel
+    ))
+  }
+
   return (
     <div className='min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900'>
       <div className='container mx-auto px-4 py-8'>
@@ -111,6 +117,7 @@ export default function WheelOfFortunePage() {
               onAddPanel={addPanel}
               onRemovePanel={removePanel}
               onUpdatePanel={updatePanel}
+              onUpdatePanelColor={updatePanelColor}
               spinDuration={spinDuration}
               onSpinDurationChange={setSpinDuration}
             />
