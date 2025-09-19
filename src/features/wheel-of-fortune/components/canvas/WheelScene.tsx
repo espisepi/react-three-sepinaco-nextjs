@@ -11,6 +11,90 @@ interface WheelSceneProps {
   spinDuration: number
 }
 
+// Componente para mostrar los ejes X, Y, Z visualmente
+function AxesHelper() {
+  return (
+    // @ts-ignore - Three.js JSX elements
+    <group position={[0, 0, 0]}>
+      {/* Eje X - Rojo */}
+      {/* @ts-ignore - Three.js JSX elements */}
+      <group>
+        {/* @ts-ignore - Three.js JSX elements */}
+        <mesh position={[1, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
+          {/* @ts-ignore - Three.js JSX elements */}
+          <coneGeometry args={[0.1, 0.3, 8]} />
+          {/* @ts-ignore - Three.js JSX elements */}
+          <meshBasicMaterial color="red" />
+          {/* @ts-ignore - Three.js JSX elements */}
+        </mesh>
+        {/* @ts-ignore - Three.js JSX elements */}
+        <mesh position={[0.5, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+          {/* @ts-ignore - Three.js JSX elements */}
+          <cylinderGeometry args={[0.02, 0.02, 1]} />
+          {/* @ts-ignore - Three.js JSX elements */}
+          <meshBasicMaterial color="red" />
+          {/* @ts-ignore - Three.js JSX elements */}
+        </mesh>
+        <Text position={[1.5, 0, 0]} fontSize={0.2} color="red">
+          X
+        </Text>
+        {/* @ts-ignore - Three.js JSX elements */}
+      </group>
+
+      {/* Eje Y - Verde */}
+      {/* @ts-ignore - Three.js JSX elements */}
+      <group>
+        {/* @ts-ignore - Three.js JSX elements */}
+        <mesh position={[0, 1, 0]} rotation={[0, 0, 0]}>
+          {/* @ts-ignore - Three.js JSX elements */}
+          <coneGeometry args={[0.1, 0.3, 8]} />
+          {/* @ts-ignore - Three.js JSX elements */}
+          <meshBasicMaterial color="green" />
+          {/* @ts-ignore - Three.js JSX elements */}
+        </mesh>
+        {/* @ts-ignore - Three.js JSX elements */}
+        <mesh position={[0, 0.5, 0]} rotation={[0, 0, 0]}>
+          {/* @ts-ignore - Three.js JSX elements */}
+          <cylinderGeometry args={[0.02, 0.02, 1]} />
+          {/* @ts-ignore - Three.js JSX elements */}
+          <meshBasicMaterial color="green" />
+          {/* @ts-ignore - Three.js JSX elements */}
+        </mesh>
+        <Text position={[0, 1.5, 0]} fontSize={0.2} color="green">
+          Y
+        </Text>
+        {/* @ts-ignore - Three.js JSX elements */}
+      </group>
+
+      {/* Eje Z - Azul */}
+      {/* @ts-ignore - Three.js JSX elements */}
+      <group>
+        {/* @ts-ignore - Three.js JSX elements */}
+        <mesh position={[0, 0, 1]} rotation={[Math.PI / 2, 0, 0]}>
+          {/* @ts-ignore - Three.js JSX elements */}
+          <coneGeometry args={[0.1, 0.3, 8]} />
+          {/* @ts-ignore - Three.js JSX elements */}
+          <meshBasicMaterial color="blue" />
+          {/* @ts-ignore - Three.js JSX elements */}
+        </mesh>
+        {/* @ts-ignore - Three.js JSX elements */}
+        <mesh position={[0, 0, 0.5]} rotation={[Math.PI / 2, 0, 0]}>
+          {/* @ts-ignore - Three.js JSX elements */}
+          <cylinderGeometry args={[0.02, 0.02, 1]} />
+          {/* @ts-ignore - Three.js JSX elements */}
+          <meshBasicMaterial color="blue" />
+          {/* @ts-ignore - Three.js JSX elements */}
+        </mesh>
+        <Text position={[0, 0, 1.5]} fontSize={0.2} color="blue">
+          Z
+        </Text>
+        {/* @ts-ignore - Three.js JSX elements */}
+      </group>
+      {/* @ts-ignore - Three.js JSX elements */}
+    </group>
+  )
+}
+
 function Wheel({ panels, isSpinning, onSpinComplete, spinDuration }: WheelSceneProps) {
   const wheelRef = useRef<THREE.Group>(null)
   const [rotationSpeed, setRotationSpeed] = useState(0)
@@ -80,7 +164,7 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration }: WheelSceneP
           {/* Texto en cada segmento */}
           <Text
             position={[Math.cos(midAngle) * 1.2, Math.sin(midAngle) * 1.2, 0.11]}
-            rotation={[0, 0, midAngle]}
+            rotation={[0, 0, midAngle - Math.PI / 2]}
             fontSize={0.15}
             color="white"
             anchorX="center"
@@ -278,6 +362,9 @@ export function WheelScene({ panels, isSpinning, onSpinComplete, spinDuration }:
         maxDistance={8}
         target={[0, 0, 0]}
       />
+
+      {/* Helper de orientación 3D personalizado */}
+      <AxesHelper />
     </>
   )
 }
