@@ -11,6 +11,7 @@ interface WheelSceneProps {
   spinDuration: number
   onCurrentPanelChange?: (panel: WheelPanel | null) => void
   onRaycastHit?: (panel: WheelPanel | null) => void
+  enableOrbitControls?: boolean
 }
 
 interface WheelProps extends WheelSceneProps {
@@ -437,7 +438,7 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPane
   )
 }
 
-export function WheelScene({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPanelChange, onRaycastHit }: WheelSceneProps) {
+export function WheelScene({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPanelChange, onRaycastHit, enableOrbitControls = false }: WheelSceneProps) {
   const pointerRef = useRef<THREE.Mesh | null>(null)
   const { camera } = useThree()
 
@@ -499,14 +500,16 @@ export function WheelScene({ panels, isSpinning, onSpinComplete, spinDuration, o
       </mesh>
 
       {/* Controles de cámara */}
-      <OrbitControls
-        enablePan={false}
-        enableZoom={true}
-        enableRotate={true}
-        minDistance={1}
-        maxDistance={12}
-        target={[0, 0, 0]}
-      />
+      {enableOrbitControls && (
+        <OrbitControls
+          enablePan={false}
+          enableZoom={true}
+          enableRotate={true}
+          minDistance={1}
+          maxDistance={12}
+          target={[0, 0, 0]}
+        />
+      )}
 
       {/* Helper de orientación 3D personalizado */}
       {/* <AxesHelper /> */}

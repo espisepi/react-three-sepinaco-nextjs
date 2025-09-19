@@ -37,6 +37,7 @@ export default function WheelOfFortunePage() {
   const [spinDuration, setSpinDuration] = useState(3) // Duración en segundos
   const [currentPanel, setCurrentPanel] = useState<WheelPanel | null>(null) // Panel actual que apunta el puntero
   const [raycastHitPanel, setRaycastHitPanel] = useState<WheelPanel | null>(null) // Panel detectado por raycasting
+  const [enableOrbitControls, setEnableOrbitControls] = useState(false) // Control de OrbitControls - desactivado por defecto
 
   const handleSpin = () => {
     if (isSpinning || panels.length === 0) return
@@ -55,6 +56,10 @@ export default function WheelOfFortunePage() {
 
   const handleRaycastHit = (panel: WheelPanel | null) => {
     setRaycastHitPanel(panel)
+  }
+
+  const toggleOrbitControls = () => {
+    setEnableOrbitControls(!enableOrbitControls)
   }
 
   const addPanel = () => {
@@ -127,6 +132,7 @@ export default function WheelOfFortunePage() {
                     spinDuration={spinDuration}
                     onCurrentPanelChange={handleCurrentPanelChange}
                     onRaycastHit={handleRaycastHit}
+                    enableOrbitControls={enableOrbitControls}
                   />
                   <Common color={'#1a1a2e'} />
                 </Suspense>
@@ -144,16 +150,28 @@ export default function WheelOfFortunePage() {
             {/* Botón de girar */}
             <div className='bg-white/10 backdrop-blur-sm rounded-2xl p-6'>
               <h3 className='text-xl font-bold text-white mb-4'>🎯 Control de la Ruleta</h3>
-              <button
-                onClick={handleSpin}
-                disabled={isSpinning || panels.length === 0}
-                className={`w-full rounded-lg px-6 py-4 text-lg font-bold text-white transition-all duration-300 ${isSpinning || panels.length === 0
-                  ? 'cursor-not-allowed bg-gray-500'
-                  : 'bg-gradient-to-r from-pink-500 to-purple-600 shadow-lg hover:scale-105 hover:from-pink-600 hover:to-purple-700'
-                  }`}
-              >
-                {isSpinning ? '🔄 Girando...' : '🎰 ¡GIRAR RULETA!'}
-              </button>
+              <div className='space-y-3'>
+                <button
+                  onClick={handleSpin}
+                  disabled={isSpinning || panels.length === 0}
+                  className={`w-full rounded-lg px-6 py-4 text-lg font-bold text-white transition-all duration-300 ${isSpinning || panels.length === 0
+                    ? 'cursor-not-allowed bg-gray-500'
+                    : 'bg-gradient-to-r from-pink-500 to-purple-600 shadow-lg hover:scale-105 hover:from-pink-600 hover:to-purple-700'
+                    }`}
+                >
+                  {isSpinning ? '🔄 Girando...' : '🎰 ¡GIRAR RULETA!'}
+                </button>
+
+                <button
+                  onClick={toggleOrbitControls}
+                  className={`w-full rounded-lg px-6 py-3 text-base font-bold text-white transition-all duration-300 ${enableOrbitControls
+                    ? 'bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg hover:scale-105 hover:from-blue-600 hover:to-purple-700'
+                    : 'bg-gradient-to-r from-amber-500 to-orange-600 shadow-lg hover:scale-105 hover:from-amber-600 hover:to-orange-700'
+                    }`}
+                >
+                  {enableOrbitControls ? '🎮 Controles Activados' : '🚫 Controles Desactivados'}
+                </button>
+              </div>
               {panels.length === 0 && (
                 <p className='mt-2 text-sm text-red-300'>Agrega al menos un panel para poder girar</p>
               )}
