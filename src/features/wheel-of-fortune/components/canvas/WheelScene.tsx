@@ -97,7 +97,7 @@ function Wheel({ panels, isSpinning, onSpinComplete }: WheelSceneProps) {
 
       // Calcular rotación objetivo aleatoria
       const randomAngle = Math.random() * Math.PI * 2
-      const currentRotation = wheelRef.current?.rotation.z || 0
+      const currentRotation = wheelRef.current?.rotation.y || 0
       const fullRotations = 8 + Math.random() * 7 // 8-15 vueltas completas para más emoción (era 5-10)
       setTargetRotation(currentRotation + fullRotations * Math.PI * 2 + randomAngle)
     }
@@ -105,7 +105,7 @@ function Wheel({ panels, isSpinning, onSpinComplete }: WheelSceneProps) {
 
   useFrame((state, delta) => {
     if (wheelRef.current && isDecelerating) {
-      const currentRotation = wheelRef.current.rotation.z
+      const currentRotation = wheelRef.current.rotation.y
       const rotationDiff = targetRotation - currentRotation
 
       if (Math.abs(rotationDiff) > 0.01) {
@@ -113,7 +113,7 @@ function Wheel({ panels, isSpinning, onSpinComplete }: WheelSceneProps) {
         const deceleration = 0.98
         setRotationSpeed(prev => prev * deceleration)
 
-        wheelRef.current.rotation.z += rotationSpeed * delta
+        wheelRef.current.rotation.y += rotationSpeed * delta // Rotación sobre eje Y (vertical como ruleta real)
 
         // Asegurar que la velocidad mínima sea suficiente para llegar al objetivo (era 0.01)
         if (rotationSpeed < 0.05 && Math.abs(rotationDiff) > 0.1) {
@@ -121,12 +121,12 @@ function Wheel({ panels, isSpinning, onSpinComplete }: WheelSceneProps) {
         }
       } else {
         // Detener la ruleta
-        wheelRef.current.rotation.z = targetRotation
+        wheelRef.current.rotation.y = targetRotation
         setIsDecelerating(false)
         setRotationSpeed(0)
 
-        // Determinar qué panel está seleccionado
-        const normalizedRotation = ((wheelRef.current.rotation.z % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2)
+        // Determinar qué panel está seleccionado (ajustado para rotación sobre eje Y)
+        const normalizedRotation = ((wheelRef.current.rotation.y % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2)
         const anglePerSegment = (Math.PI * 2) / panels.length
         const selectedIndex = Math.floor((Math.PI * 2 - normalizedRotation) / anglePerSegment) % panels.length
         const selectedPanel = panels[selectedIndex]
