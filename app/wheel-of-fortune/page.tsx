@@ -159,6 +159,30 @@ export default function WheelOfFortunePage() {
               <WheelResult result={result} raycastResult={raycastHitPanel} />
             )}
 
+
+            {/* Panel detectado por raycasting */}
+            {raycastHitPanel && (
+              <div className='bg-white/10 backdrop-blur-sm rounded-2xl p-6'>
+                <h3 className='text-xl font-bold text-white mb-4'>🎯 Panel Detectado</h3>
+                <div className='text-center'>
+                  <div
+                    className='inline-block px-4 py-2 rounded-lg text-white font-semibold mb-3'
+                    style={{ backgroundColor: raycastHitPanel.color }}
+                  >
+                    {raycastHitPanel.text}
+                  </div>
+                  <div className='space-y-2 text-sm text-gray-300'>
+                    <div className='flex justify-between'>
+                      <span>Color:</span>
+                      <span className='text-white font-mono'>{raycastHitPanel.color}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+
+
             {/* Panel detectado por raycasting */}
             {raycastHitPanel && (
               <div className='bg-white/10 backdrop-blur-sm rounded-2xl p-6'>

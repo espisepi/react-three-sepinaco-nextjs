@@ -27,14 +27,14 @@ export function WheelResult({ result, raycastResult }: WheelResultProps) {
           </p>
         </div>
 
-        <div className='mt-4 text-xs text-gray-400'>
+        {/* <div className='mt-4 text-xs text-gray-400'>
           Panel ID: {displayResult.id}
-        </div>
+        </div> */}
 
         {/* Indicador del método de detección */}
-        <div className='mt-3 text-xs text-gray-400'>
+        {/* <div className='mt-3 text-xs text-gray-400'>
           Método: {raycastResult ? '🎯 Raycasting 3D' : '📐 Cálculo Matemático'}
-        </div>
+        </div> */}
       </div>
     </div>
   )
