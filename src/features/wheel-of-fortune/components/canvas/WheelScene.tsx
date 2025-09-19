@@ -8,13 +8,18 @@ interface WheelSceneProps {
   panels: WheelPanel[]
   isSpinning: boolean
   onSpinComplete: (panel: WheelPanel) => void
+  spinDuration: number
 }
 
-function Wheel({ panels, isSpinning, onSpinComplete }: WheelSceneProps) {
+function Wheel({ panels, isSpinning, onSpinComplete, spinDuration }: WheelSceneProps) {
   const wheelRef = useRef<THREE.Group>(null)
   const [rotationSpeed, setRotationSpeed] = useState(0)
-  const [targetRotation, setTargetRotation] = useState(0)
   const [isDecelerating, setIsDecelerating] = useState(false)
+  const [isSlowingDown, setIsSlowingDown] = useState(false)
+  const spinStartTime = useRef<number>(0)
+  const spinTimer = useRef<NodeJS.Timeout | null>(null)
+  const slowDownTimer = useRef<NodeJS.Timeout | null>(null)
+  const hasStartedSpinning = useRef<boolean>(false)
 
   // Crear geometría de la ruleta
   const wheelGeometry = useMemo(() => {
@@ -89,52 +94,97 @@ function Wheel({ panels, isSpinning, onSpinComplete }: WheelSceneProps) {
     })
   }, [panels, materials])
 
-  // Lógica de rotación optimizada para mayor velocidad y emoción
+  // Lógica de rotación con desaceleración realista
   useEffect(() => {
-    if (isSpinning && !isDecelerating) {
-      setRotationSpeed(2.5) // Velocidad inicial más rápida (era 0.3)
+    if (isSpinning && !isDecelerating && !hasStartedSpinning.current) {
+      console.log('🚀 Iniciando giro con duración:', spinDuration, 'segundos')
+      hasStartedSpinning.current = true
+      setRotationSpeed(4) // Velocidad inicial más rápida
       setIsDecelerating(true)
+      setIsSlowingDown(false)
+      spinStartTime.current = Date.now()
 
-      // Calcular rotación objetivo aleatoria
-      const randomAngle = Math.random() * Math.PI * 2
-      const currentRotation = wheelRef.current?.rotation.y || 0
-      const fullRotations = 8 + Math.random() * 7 // 8-15 vueltas completas para más emoción (era 5-10)
-      setTargetRotation(currentRotation + fullRotations * Math.PI * 2 + randomAngle)
+      // Calcular cuándo empezar a desacelerar (80% del tiempo total)
+      const slowDownStartTime = spinDuration * 0.8 * 1000
+      const totalStopTime = spinDuration * 1000
+
+      // Timer para empezar la desaceleración gradual
+      slowDownTimer.current = setTimeout(() => {
+        console.log('🐌 Iniciando desaceleración gradual')
+        setIsSlowingDown(true)
+      }, slowDownStartTime)
+
+      // Timer para parar completamente
+      spinTimer.current = setTimeout(() => {
+        console.log('⏰ Parando completamente')
+        setIsDecelerating(false)
+        setIsSlowingDown(false)
+        setRotationSpeed(0)
+        hasStartedSpinning.current = false
+
+        // Determinar qué panel está seleccionado
+        if (wheelRef.current) {
+          const normalizedRotation = ((wheelRef.current.rotation.y % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2)
+          const anglePerSegment = (Math.PI * 2) / panels.length
+          const selectedIndex = Math.floor((Math.PI * 2 - normalizedRotation) / anglePerSegment) % panels.length
+          const selectedPanel = panels[selectedIndex]
+
+          console.log('🎯 Panel seleccionado:', selectedPanel)
+          if (selectedPanel) {
+            onSpinComplete(selectedPanel)
+          }
+        }
+      }, totalStopTime)
     }
-  }, [isSpinning, isDecelerating])
+
+    // Reset cuando no está girando
+    if (!isSpinning) {
+      hasStartedSpinning.current = false
+      setIsDecelerating(false)
+      setIsSlowingDown(false)
+      setRotationSpeed(0)
+      if (spinTimer.current) {
+        clearTimeout(spinTimer.current)
+        spinTimer.current = null
+      }
+      if (slowDownTimer.current) {
+        clearTimeout(slowDownTimer.current)
+        slowDownTimer.current = null
+      }
+    }
+  }, [isSpinning]) // Solo depende de isSpinning
+
+  // Cleanup del timer solo cuando el componente se desmonta
+  useEffect(() => {
+    return () => {
+      if (spinTimer.current) {
+        console.log('🧹 Limpiando timer al desmontar')
+        clearTimeout(spinTimer.current)
+        spinTimer.current = null
+      }
+      if (slowDownTimer.current) {
+        console.log('🧹 Limpiando slowDown timer al desmontar')
+        clearTimeout(slowDownTimer.current)
+        slowDownTimer.current = null
+      }
+    }
+  }, [])
 
   useFrame((state, delta) => {
     if (wheelRef.current && isDecelerating) {
-      const currentRotation = wheelRef.current.rotation.y
-      const rotationDiff = targetRotation - currentRotation
-
-      if (Math.abs(rotationDiff) > 0.01) {
-        // Desaceleración más gradual para mantener velocidad más tiempo (era 0.95)
-        const deceleration = 0.98
-        setRotationSpeed(prev => prev * deceleration)
-
-        wheelRef.current.rotation.y += rotationSpeed * delta // Rotación sobre eje Y (vertical como ruleta real)
-
-        // Asegurar que la velocidad mínima sea suficiente para llegar al objetivo (era 0.01)
-        if (rotationSpeed < 0.05 && Math.abs(rotationDiff) > 0.1) {
-          setRotationSpeed(0.05)
-        }
-      } else {
-        // Detener la ruleta
-        wheelRef.current.rotation.y = targetRotation
-        setIsDecelerating(false)
-        setRotationSpeed(0)
-
-        // Determinar qué panel está seleccionado (ajustado para rotación sobre eje Y)
-        const normalizedRotation = ((wheelRef.current.rotation.y % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2)
-        const anglePerSegment = (Math.PI * 2) / panels.length
-        const selectedIndex = Math.floor((Math.PI * 2 - normalizedRotation) / anglePerSegment) % panels.length
-        const selectedPanel = panels[selectedIndex]
-
-        if (selectedPanel) {
-          onSpinComplete(selectedPanel)
-        }
+      // Aplicar desaceleración gradual si está en fase de desaceleración
+      if (isSlowingDown) {
+        // Desaceleración gradual: reduce la velocidad progresivamente
+        const decelerationFactor = 0.95 // Reduce 5% por frame
+        setRotationSpeed(prev => {
+          const newSpeed = prev * decelerationFactor
+          // Velocidad mínima para evitar que se detenga completamente antes del tiempo
+          return Math.max(newSpeed, 0.1)
+        })
       }
+
+      // Rotación con la velocidad actual
+      wheelRef.current.rotation.y += rotationSpeed * delta
     }
   })
 
@@ -178,7 +228,7 @@ function Wheel({ panels, isSpinning, onSpinComplete }: WheelSceneProps) {
   )
 }
 
-export function WheelScene({ panels, isSpinning, onSpinComplete }: WheelSceneProps) {
+export function WheelScene({ panels, isSpinning, onSpinComplete, spinDuration }: WheelSceneProps) {
   return (
     <>
       {/* Iluminación */}
@@ -194,6 +244,7 @@ export function WheelScene({ panels, isSpinning, onSpinComplete }: WheelScenePro
         panels={panels}
         isSpinning={isSpinning}
         onSpinComplete={onSpinComplete}
+        spinDuration={spinDuration}
       />
 
       {/* Controles de cámara */}

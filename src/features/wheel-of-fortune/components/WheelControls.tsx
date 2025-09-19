@@ -10,6 +10,8 @@ interface WheelControlsProps {
     onAddPanel: () => void
     onRemovePanel: (id: string) => void
     onUpdatePanel: (id: string, text: string) => void
+    spinDuration: number
+    onSpinDurationChange: (duration: number) => void
 }
 
 export function WheelControls({
@@ -18,7 +20,9 @@ export function WheelControls({
     onSpin,
     onAddPanel,
     onRemovePanel,
-    onUpdatePanel
+    onUpdatePanel,
+    spinDuration,
+    onSpinDurationChange
 }: WheelControlsProps) {
     const [editingPanel, setEditingPanel] = useState<string | null>(null)
     const [editText, setEditText] = useState('')
@@ -50,8 +54,8 @@ export function WheelControls({
                     onClick={onSpin}
                     disabled={isSpinning || panels.length === 0}
                     className={`w-full rounded-lg px-6 py-4 text-lg font-bold text-white transition-all duration-300 ${isSpinning || panels.length === 0
-                            ? 'cursor-not-allowed bg-gray-500'
-                            : 'bg-gradient-to-r from-pink-500 to-purple-600 shadow-lg hover:scale-105 hover:from-pink-600 hover:to-purple-700'
+                        ? 'cursor-not-allowed bg-gray-500'
+                        : 'bg-gradient-to-r from-pink-500 to-purple-600 shadow-lg hover:scale-105 hover:from-pink-600 hover:to-purple-700'
                         }`}
                 >
                     {isSpinning ? '🔄 Girando...' : '🎰 ¡GIRAR RULETA!'}
@@ -59,6 +63,35 @@ export function WheelControls({
                 {panels.length === 0 && (
                     <p className='mt-2 text-sm text-red-300'>Agrega al menos un panel para poder girar</p>
                 )}
+            </div>
+
+            {/* Control de duración del giro */}
+            <div className='bg-white/10 backdrop-blur-sm rounded-xl p-6'>
+                <h3 className='text-xl font-bold text-white mb-4'>⏱️ Duración del Giro</h3>
+                <div className='space-y-4'>
+                    <div>
+                        <label className='block text-sm font-medium text-gray-300 mb-2'>
+                            Duración: {spinDuration} segundos
+                        </label>
+                        <input
+                            type='range'
+                            min='1'
+                            max='10'
+                            step='0.5'
+                            value={spinDuration}
+                            onChange={(e) => onSpinDurationChange(parseFloat(e.target.value))}
+                            disabled={isSpinning}
+                            className='w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider'
+                        />
+                        <div className='flex justify-between text-xs text-gray-400 mt-1'>
+                            <span>1s</span>
+                            <span>10s</span>
+                        </div>
+                    </div>
+                    <p className='text-sm text-gray-300'>
+                        Ajusta cuánto tiempo quieres que gire la ruleta. Más tiempo = más vueltas.
+                    </p>
+                </div>
             </div>
 
             {/* Gestión de paneles */}
