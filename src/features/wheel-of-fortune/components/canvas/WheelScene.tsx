@@ -115,6 +115,16 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPane
   // Referencias para raycasting
   const { raycaster, camera, scene } = useThree()
 
+  // Aplicar rotación inicial aleatoria cuando se monta el componente o cambian los paneles
+  useEffect(() => {
+    if (wheelRef.current && !isSpinning) {
+      const randomInitialRotation = Math.random() * Math.PI * 2 // Rotación aleatoria completa (0 a 2π)
+      wheelRef.current.rotation.y = randomInitialRotation
+      console.log('🎲 Rotación inicial aleatoria aplicada:', randomInitialRotation.toFixed(3), 'radianes')
+      console.log('🎲 Rotación inicial aleatoria aplicada:', (randomInitialRotation * 180 / Math.PI).toFixed(1), 'grados')
+    }
+  }, [panels, isSpinning]) // Se ejecuta cuando cambian los paneles o el estado de giro
+
   // Crear geometría de la ruleta
   const wheelGeometry = useMemo(() => {
     const segments = panels.length
