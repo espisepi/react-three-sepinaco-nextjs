@@ -220,12 +220,12 @@ export default function WheelOfFortunePage() {
                   >
                     {raycastHitPanel.text}
                   </div>
-                  <div className='space-y-2 text-sm text-gray-300'>
+                  {/* <div className='space-y-2 text-sm text-gray-300'>
                     <div className='flex justify-between'>
                       <span>Color:</span>
                       <span className='text-white font-mono'>{raycastHitPanel.color}</span>
                     </div>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             )}
