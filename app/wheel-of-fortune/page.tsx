@@ -38,6 +38,8 @@ export default function WheelOfFortunePage() {
   const [currentPanel, setCurrentPanel] = useState<WheelPanel | null>(null) // Panel actual que apunta el puntero
   const [raycastHitPanel, setRaycastHitPanel] = useState<WheelPanel | null>(null) // Panel detectado por raycasting
   const [enableOrbitControls, setEnableOrbitControls] = useState(false) // Control de OrbitControls - desactivado por defecto
+  const [canvasWidth, setCanvasWidth] = useState(100) // Ancho del canvas en porcentaje
+  const [canvasHeight, setCanvasHeight] = useState(96) // Altura del canvas en unidades Tailwind (h-96 = 24rem = 384px)
 
   const handleSpin = () => {
     if (isSpinning || panels.length === 0) return
@@ -123,7 +125,13 @@ export default function WheelOfFortunePage() {
           {/* 3D Wheel */}
           <div className='lg:col-span-2'>
             <div className='bg-white/10 backdrop-blur-sm rounded-2xl p-6'>
-              <View className='flex h-96 w-full flex-col items-center justify-center'>
+              <View
+                className='flex flex-col items-center justify-center'
+                style={{
+                  width: `${canvasWidth}%`,
+                  height: `${canvasHeight * 4}px` // Convertir unidades Tailwind a píxeles (h-96 = 24rem = 384px)
+                }}
+              >
                 <Suspense fallback={null}>
                   <WheelScene
                     panels={panels}
@@ -199,7 +207,67 @@ export default function WheelOfFortunePage() {
               </div>
             )}
 
+            {/* Controles de tamaño del canvas */}
+            <div className='bg-white/10 backdrop-blur-sm rounded-2xl p-6'>
+              <h3 className='text-xl font-bold text-white mb-4'>📐 Tamaño del Canvas</h3>
+              <div className='space-y-4'>
+                {/* Slider para el ancho */}
+                <div>
+                  <label className='block text-sm font-medium text-gray-300 mb-2'>
+                    Ancho: {canvasWidth}%
+                  </label>
+                  <input
+                    type='range'
+                    min='50'
+                    max='100'
+                    value={canvasWidth}
+                    onChange={(e) => setCanvasWidth(Number(e.target.value))}
+                    className='w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                    style={{
+                      background: `linear-gradient(to right, #8B5CF6 0%, #8B5CF6 ${((canvasWidth - 50) / (100 - 50)) * 100}%, #374151 ${((canvasWidth - 50) / (100 - 50)) * 100}%, #374151 100%)`
+                    }}
+                  />
+                  <div className='flex justify-between text-xs text-gray-400 mt-1'>
+                    <span>50%</span>
+                    <span>100%</span>
+                  </div>
+                </div>
 
+                {/* Slider para la altura */}
+                <div>
+                  <label className='block text-sm font-medium text-gray-300 mb-2'>
+                    Altura: {canvasHeight * 4}px ({canvasHeight} unidades)
+                  </label>
+                  <input
+                    type='range'
+                    min='48'
+                    max='128'
+                    step='4'
+                    value={canvasHeight}
+                    onChange={(e) => setCanvasHeight(Number(e.target.value))}
+                    className='w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                    style={{
+                      background: `linear-gradient(to right, #10B981 0%, #10B981 ${((canvasHeight - 48) / (128 - 48)) * 100}%, #374151 ${((canvasHeight - 48) / (128 - 48)) * 100}%, #374151 100%)`
+                    }}
+                  />
+                  <div className='flex justify-between text-xs text-gray-400 mt-1'>
+                    <span>192px</span>
+                    <span>512px</span>
+                  </div>
+                </div>
+
+                {/* Botón de reset */}
+                <button
+                  onClick={() => {
+                    setCanvasWidth(100)
+                    setCanvasHeight(96)
+                  }}
+                  className='w-full rounded-lg px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 transition-all duration-300'
+                >
+                  🔄 Restablecer Tamaño
+                </button>
+              </div>
+            </div>
 
             {/* Panel detectado por raycasting */}
             {/* {raycastHitPanel && (
