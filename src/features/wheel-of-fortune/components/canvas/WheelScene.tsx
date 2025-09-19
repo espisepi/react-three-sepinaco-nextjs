@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import React, { useRef, useMemo, useEffect, useState } from 'react'
-import { useFrame } from '@react-three/fiber'
+import { useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls, Text } from '@react-three/drei'
 import { WheelPanel } from '@/types/wheel'
 
@@ -10,6 +10,11 @@ interface WheelSceneProps {
   onSpinComplete: (panel: WheelPanel) => void
   spinDuration: number
   onCurrentPanelChange?: (panel: WheelPanel | null) => void
+  onRaycastHit?: (panel: WheelPanel | null) => void
+}
+
+interface WheelProps extends WheelSceneProps {
+  pointerRef: React.RefObject<THREE.Mesh | null>
 }
 
 // Componente para mostrar los ejes X, Y, Z visualmente
@@ -96,7 +101,7 @@ function AxesHelper() {
   )
 }
 
-function Wheel({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPanelChange }: WheelSceneProps) {
+function Wheel({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPanelChange, onRaycastHit, pointerRef }: WheelProps) {
   const wheelRef = useRef<THREE.Group>(null)
   const [rotationSpeed, setRotationSpeed] = useState(0)
   const [isDecelerating, setIsDecelerating] = useState(false)
@@ -106,6 +111,9 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPane
   const slowDownTimer = useRef<NodeJS.Timeout | null>(null)
   const hasStartedSpinning = useRef<boolean>(false)
   const hasLoggedSegments = useRef<boolean>(false)
+
+  // Referencias para raycasting
+  const { raycaster, camera, scene } = useThree()
 
   // Crear geometría de la ruleta
   const wheelGeometry = useMemo(() => {
@@ -182,7 +190,13 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPane
 
       return (
         // @ts-ignore - Three.js JSX elements
-        <mesh key={panel.id} geometry={segmentGeometry} material={materials[index]} rotation={[0, 0, 0]}>
+        <mesh
+          key={panel.id}
+          geometry={segmentGeometry}
+          material={materials[index]}
+          rotation={[0, 0, 0]}
+          userData={{ panelIndex: index }}
+        >
           {/* Texto en cada segmento */}
           <Text
             position={[Math.cos(midAngle) * 1.2, 0.11, Math.sin(midAngle) * 1.2]}
@@ -291,6 +305,35 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPane
 
   useFrame((state, delta) => {
     if (wheelRef.current) {
+      // Raycasting para detectar el panel con el que choca el cono
+      if (pointerRef.current && onRaycastHit) {
+        // Crear un rayo desde la posición del cono hacia el centro de la ruleta
+        const pointerPosition = pointerRef.current.position.clone()
+        const centerPosition = new THREE.Vector3(0, 0, 0)
+        const direction = centerPosition.clone().sub(pointerPosition).normalize()
+
+        raycaster.set(pointerPosition, direction)
+
+        // Obtener todos los meshes de los paneles
+        const panelMeshes = wheelRef.current.children.filter(child =>
+          child instanceof THREE.Mesh && child.userData.panelIndex !== undefined
+        ) as THREE.Mesh[]
+
+        const intersects = raycaster.intersectObjects(panelMeshes)
+
+        if (intersects.length > 0) {
+          const hitMesh = intersects[0].object as THREE.Mesh
+          const panelIndex = hitMesh.userData.panelIndex
+          const hitPanel = panels[panelIndex]
+
+          if (hitPanel) {
+            onRaycastHit(hitPanel)
+          }
+        } else {
+          onRaycastHit(null)
+        }
+      }
+
       // Actualizar panel actual en tiempo real (siempre, no solo cuando está girando)
       if (onCurrentPanelChange) {
         const normalizedRotation = ((wheelRef.current.rotation.y % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2)
@@ -384,7 +427,9 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPane
   )
 }
 
-export function WheelScene({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPanelChange }: WheelSceneProps) {
+export function WheelScene({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPanelChange, onRaycastHit }: WheelSceneProps) {
+  const pointerRef = useRef<THREE.Mesh | null>(null)
+
   return (
     <>
       {/* Iluminación */}
@@ -402,15 +447,37 @@ export function WheelScene({ panels, isSpinning, onSpinComplete, spinDuration, o
         onSpinComplete={onSpinComplete}
         spinDuration={spinDuration}
         onCurrentPanelChange={onCurrentPanelChange}
+        onRaycastHit={onRaycastHit}
+        pointerRef={pointerRef}
       />
 
       {/* Puntero fijo - Fuera del grupo de la ruleta para que no gire */}
       {/* @ts-ignore - Three.js JSX elements */}
-      <mesh position={[0, 2.2, 0]} rotation={[0, 0, 0]}>
+      <mesh ref={pointerRef} position={[0, 2.2, 0]} rotation={[0, 0, 0]}>
         {/* @ts-ignore - Three.js JSX elements */}
         <coneGeometry args={[0.1, 0.3]} />
         {/* @ts-ignore - Three.js JSX elements */}
         <meshPhysicalMaterial color="#red" metalness={0.8} roughness={0.2} />
+        {/* @ts-ignore - Three.js JSX elements */}
+      </mesh>
+
+      {/* Círculo wireframe alrededor del cono para debug - DESACTIVADO */}
+      {/* @ts-ignore - Three.js JSX elements */}
+      {/* <mesh position={[0, 2.2, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        @ts-ignore - Three.js JSX elements */}
+      {/* <ringGeometry args={[0.15, 0.2, 32]} />
+        @ts-ignore - Three.js JSX elements */}
+      {/* <meshBasicMaterial color="#00ff00" wireframe={true} />
+        @ts-ignore - Three.js JSX elements */}
+      {/* </mesh> */}
+
+      {/* Línea de raycasting para debug */}
+      {/* @ts-ignore - Three.js JSX elements */}
+      <mesh position={[0, 1.1, 0]} rotation={[0, 0, 0]}>
+        {/* @ts-ignore - Three.js JSX elements */}
+        <cylinderGeometry args={[0.005, 0.005, 2.2]} />
+        {/* @ts-ignore - Three.js JSX elements */}
+        <meshBasicMaterial color="#ffff00" />
         {/* @ts-ignore - Three.js JSX elements */}
       </mesh>
 

@@ -36,6 +36,7 @@ export default function WheelOfFortunePage() {
   const [result, setResult] = useState<WheelPanel | null>(null)
   const [spinDuration, setSpinDuration] = useState(3) // Duración en segundos
   const [currentPanel, setCurrentPanel] = useState<WheelPanel | null>(null) // Panel actual que apunta el puntero
+  const [raycastHitPanel, setRaycastHitPanel] = useState<WheelPanel | null>(null) // Panel detectado por raycasting
 
   const handleSpin = () => {
     if (isSpinning || panels.length === 0) return
@@ -50,6 +51,10 @@ export default function WheelOfFortunePage() {
 
   const handleCurrentPanelChange = (panel: WheelPanel | null) => {
     setCurrentPanel(panel)
+  }
+
+  const handleRaycastHit = (panel: WheelPanel | null) => {
+    setRaycastHitPanel(panel)
   }
 
   const addPanel = () => {
@@ -121,6 +126,7 @@ export default function WheelOfFortunePage() {
                     onSpinComplete={handleSpinComplete}
                     spinDuration={spinDuration}
                     onCurrentPanelChange={handleCurrentPanelChange}
+                    onRaycastHit={handleRaycastHit}
                   />
                   <Common color={'#1a1a2e'} />
                 </Suspense>
@@ -147,6 +153,24 @@ export default function WheelOfFortunePage() {
                 <p className='mt-2 text-sm text-red-300'>Agrega al menos un panel para poder girar</p>
               )}
             </div>
+
+            {/* Panel detectado por raycasting */}
+            {raycastHitPanel && (
+              <div className='bg-white/10 backdrop-blur-sm rounded-2xl p-6'>
+                <h3 className='text-xl font-bold text-white mb-4'>🎯 Panel Detectado por Raycasting</h3>
+                <div className='text-center'>
+                  <div
+                    className='inline-block px-4 py-2 rounded-lg text-white font-semibold'
+                    style={{ backgroundColor: raycastHitPanel.color }}
+                  >
+                    {raycastHitPanel.text}
+                  </div>
+                </div>
+                <div className='mt-2 text-sm text-gray-300 text-center'>
+                  Color: {raycastHitPanel.color}
+                </div>
+              </div>
+            )}
 
             {/* Panel actual que apunta el puntero */}
             {currentPanel && (
