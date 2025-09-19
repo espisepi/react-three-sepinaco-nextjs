@@ -183,6 +183,50 @@ export default function WheelOfFortunePage() {
               </div>
             )}
 
+            {/* Resultado por raycasting */}
+            {raycastHitPanel && (
+              <div className='bg-gradient-to-r from-green-500/20 to-emerald-500/20 backdrop-blur-sm rounded-2xl p-6 border border-green-400/30'>
+                <h3 className='text-xl font-bold text-white mb-4'>🏆 Resultado por Raycasting</h3>
+                <div className='text-center'>
+                  <div className='mb-4'>
+                    <div
+                      className='inline-block px-6 py-3 rounded-xl text-white font-bold text-lg shadow-lg'
+                      style={{ backgroundColor: raycastHitPanel.color }}
+                    >
+                      🎉 {raycastHitPanel.text} 🎉
+                    </div>
+                  </div>
+                  <div className='space-y-2 text-sm text-gray-300'>
+                    <div className='flex justify-between'>
+                      <span>Panel Ganador:</span>
+                      <span className='text-white font-semibold'>{raycastHitPanel.text}</span>
+                    </div>
+                    <div className='flex justify-between'>
+                      <span>ID:</span>
+                      <span className='text-white font-mono'>{raycastHitPanel.id}</span>
+                    </div>
+                    <div className='flex justify-between'>
+                      <span>Color:</span>
+                      <span className='text-white font-mono'>{raycastHitPanel.color}</span>
+                    </div>
+                    <div className='flex justify-between'>
+                      <span>Método de Detección:</span>
+                      <span className='text-green-400 font-semibold'>Raycasting 3D</span>
+                    </div>
+                    <div className='flex justify-between'>
+                      <span>Precisión:</span>
+                      <span className='text-green-400 font-semibold'>Alta</span>
+                    </div>
+                  </div>
+                  <div className='mt-4 p-3 bg-green-500/10 rounded-lg border border-green-400/20'>
+                    <p className='text-green-300 text-sm font-medium'>
+                      ✅ Panel detectado mediante intersección de rayos 3D
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Panel actual que apunta el puntero */}
             {currentPanel && (
               <div className='bg-white/10 backdrop-blur-sm rounded-2xl p-6'>
