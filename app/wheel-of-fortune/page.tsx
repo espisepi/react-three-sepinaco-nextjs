@@ -1,7 +1,7 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import { Suspense, useState } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import { WheelControls, WheelResult } from '@/features/wheel-of-fortune/components'
 import { WheelPanel } from '@/types/wheel'
 
@@ -24,6 +24,14 @@ const View = dynamic(() => import('@/components/canvas/View').then((mod) => mod.
 const Common = dynamic(() => import('@/components/canvas/View').then((mod) => mod.Common), { ssr: false })
 
 export default function WheelOfFortunePage() {
+  // Función para obtener la altura por defecto basada en el tamaño de pantalla
+  const getDefaultCanvasHeight = () => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 1024 ? 72 : 50 // 72vh para desktop (lg+), 50vh para mobile
+    }
+    return 50 // Valor por defecto para SSR
+  }
+
   const [panels, setPanels] = useState<WheelPanel[]>([
     { id: '1', text: 'Premio 1', color: '#FF6B6B' },
     { id: '2', text: 'Premio 2', color: '#4ECDC4' },
@@ -39,7 +47,22 @@ export default function WheelOfFortunePage() {
   const [raycastHitPanel, setRaycastHitPanel] = useState<WheelPanel | null>(null) // Panel detectado por raycasting
   const [enableOrbitControls, setEnableOrbitControls] = useState(false) // Control de OrbitControls - desactivado por defecto
   const [canvasWidth, setCanvasWidth] = useState(100) // Ancho del canvas en porcentaje
-  const [canvasHeight, setCanvasHeight] = useState(50) // Altura del canvas en porcentaje de viewport height (50vh por defecto)
+  const [canvasHeight, setCanvasHeight] = useState(getDefaultCanvasHeight()) // Altura del canvas responsiva
+
+  // Actualizar altura por defecto cuando cambie el tamaño de ventana
+  useEffect(() => {
+    const handleResize = () => {
+      const newDefaultHeight = window.innerWidth >= 1024 ? 72 : 50
+      // Solo actualizar si el usuario no ha modificado manualmente el slider
+      // (esto es una aproximación simple, en un caso real podrías trackear si el usuario ha interactuado)
+      if (canvasHeight === 50 || canvasHeight === 72) {
+        setCanvasHeight(newDefaultHeight)
+      }
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [canvasHeight])
 
   const handleSpin = () => {
     if (isSpinning || panels.length === 0) return
@@ -259,7 +282,7 @@ export default function WheelOfFortunePage() {
                 <button
                   onClick={() => {
                     setCanvasWidth(100)
-                    setCanvasHeight(96)
+                    setCanvasHeight(getDefaultCanvasHeight())
                   }}
                   className='w-full rounded-lg px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 transition-all duration-300'
                 >
