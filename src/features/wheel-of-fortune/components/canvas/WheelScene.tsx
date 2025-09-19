@@ -94,27 +94,31 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration }: WheelSceneP
     })
   }, [panels, materials])
 
-  // Lógica de rotación con desaceleración realista
+  // Lógica de rotación con física realista
   useEffect(() => {
     if (isSpinning && !isDecelerating && !hasStartedSpinning.current) {
       console.log('🚀 Iniciando giro con duración:', spinDuration, 'segundos')
       hasStartedSpinning.current = true
-      setRotationSpeed(4) // Velocidad inicial más rápida
+
+      // Calcular velocidad inicial basada en la duración (más tiempo = más fuerza = más velocidad)
+      // Fórmula más realista: velocidad moderada y proporcional
+      const baseSpeed = 2.0 // Velocidad base moderada
+      const durationFactor = Math.pow(spinDuration, 0.8) * 0.4 // Curva más suave
+      const randomVariation = (Math.random() - 0.5) * 0.2 // Variación aleatoria pequeña
+      const initialSpeed = baseSpeed + durationFactor + randomVariation
+
+      // Limitar velocidad máxima para evitar giros demasiado rápidos
+      const maxSpeed = Math.min(5, 2.5 + spinDuration * 0.3)
+      const finalSpeed = Math.min(initialSpeed, maxSpeed)
+
+      console.log('💪 Velocidad inicial calculada:', finalSpeed.toFixed(2), 'rad/s')
+      console.log('📏 Duración:', spinDuration, 's - Factor:', durationFactor.toFixed(2))
+      setRotationSpeed(finalSpeed)
       setIsDecelerating(true)
       setIsSlowingDown(false)
       spinStartTime.current = Date.now()
 
-      // Calcular cuándo empezar a desacelerar (80% del tiempo total)
-      const slowDownStartTime = spinDuration * 0.8 * 1000
-      const totalStopTime = spinDuration * 1000
-
-      // Timer para empezar la desaceleración gradual
-      slowDownTimer.current = setTimeout(() => {
-        console.log('🐌 Iniciando desaceleración gradual')
-        setIsSlowingDown(true)
-      }, slowDownStartTime)
-
-      // Timer para parar completamente
+      // Timer único para parar completamente
       spinTimer.current = setTimeout(() => {
         console.log('⏰ Parando completamente')
         setIsDecelerating(false)
@@ -134,7 +138,7 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration }: WheelSceneP
             onSpinComplete(selectedPanel)
           }
         }
-      }, totalStopTime)
+      }, spinDuration * 1000)
     }
 
     // Reset cuando no está girando
@@ -172,15 +176,33 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration }: WheelSceneP
 
   useFrame((state, delta) => {
     if (wheelRef.current && isDecelerating) {
-      // Aplicar desaceleración gradual si está en fase de desaceleración
-      if (isSlowingDown) {
-        // Desaceleración gradual: reduce la velocidad progresivamente
-        const decelerationFactor = 0.95 // Reduce 5% por frame
-        setRotationSpeed(prev => {
-          const newSpeed = prev * decelerationFactor
-          // Velocidad mínima para evitar que se detenga completamente antes del tiempo
-          return Math.max(newSpeed, 0.1)
-        })
+      const timeSinceStart = (Date.now() - spinStartTime.current) / 1000
+      const totalDuration = spinDuration
+
+      // Calcular progreso del giro completo (0 a 1)
+      const totalProgress = Math.min(1, timeSinceStart / totalDuration)
+
+      // Física más realista: velocidad constante hasta el 80%, luego desaceleración gradual
+      let decelerationFactor = 1
+
+      if (totalProgress > 0.8) {
+        // Solo en los últimos 20% del tiempo aplicar desaceleración
+        const slowDownProgress = (totalProgress - 0.8) / 0.2
+        const easeOutProgress = 1 - Math.pow(1 - slowDownProgress, 3) // Curva cúbica suave
+        decelerationFactor = 1 - (easeOutProgress * 0.85) // Reduce hasta 85%
+      }
+      // En los primeros 80% del tiempo, mantener velocidad constante (decelerationFactor = 1)
+
+      setRotationSpeed(prev => {
+        const newSpeed = prev * decelerationFactor
+        // Velocidad mínima más alta para evitar paro muy rápido
+        const minSpeed = Math.max(0.05, prev * 0.02)
+        return Math.max(newSpeed, minSpeed)
+      })
+
+      // Debug menos frecuente para evitar spam
+      if (Math.floor(timeSinceStart * 5) % 5 === 0) { // Cada 0.2 segundos
+        console.log(`🔄 Progreso: ${(totalProgress * 100).toFixed(1)}% - Velocidad: ${rotationSpeed.toFixed(3)} - Factor: ${decelerationFactor.toFixed(3)}`)
       }
 
       // Rotación con la velocidad actual
