@@ -130,6 +130,24 @@ export default function WheelOfFortunePage() {
 
           {/* Controls */}
           <div className='space-y-6'>
+            {/* Botón de girar */}
+            <div className='bg-white/10 backdrop-blur-sm rounded-2xl p-6'>
+              <h3 className='text-xl font-bold text-white mb-4'>🎯 Control de la Ruleta</h3>
+              <button
+                onClick={handleSpin}
+                disabled={isSpinning || panels.length === 0}
+                className={`w-full rounded-lg px-6 py-4 text-lg font-bold text-white transition-all duration-300 ${isSpinning || panels.length === 0
+                  ? 'cursor-not-allowed bg-gray-500'
+                  : 'bg-gradient-to-r from-pink-500 to-purple-600 shadow-lg hover:scale-105 hover:from-pink-600 hover:to-purple-700'
+                  }`}
+              >
+                {isSpinning ? '🔄 Girando...' : '🎰 ¡GIRAR RULETA!'}
+              </button>
+              {panels.length === 0 && (
+                <p className='mt-2 text-sm text-red-300'>Agrega al menos un panel para poder girar</p>
+              )}
+            </div>
+
             {/* Panel actual que apunta el puntero */}
             {currentPanel && (
               <div className='bg-white/10 backdrop-blur-sm rounded-2xl p-6'>
