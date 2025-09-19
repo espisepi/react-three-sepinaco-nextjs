@@ -13,6 +13,7 @@ interface WheelControlsProps {
   onUpdatePanelColor: (id: string, color: string) => void
   spinDuration: number
   onSpinDurationChange: (duration: number) => void
+  remainingTime?: number
 }
 
 export function WheelControls({
@@ -24,7 +25,8 @@ export function WheelControls({
   onUpdatePanel,
   onUpdatePanelColor,
   spinDuration,
-  onSpinDurationChange
+  onSpinDurationChange,
+  remainingTime
 }: WheelControlsProps) {
   const [editingPanel, setEditingPanel] = useState<string | null>(null)
   const [editText, setEditText] = useState('')
@@ -106,6 +108,29 @@ export function WheelControls({
               <span>10s</span>
             </div>
           </div>
+
+          {/* Contador de tiempo restante */}
+          {isSpinning && remainingTime !== undefined && (
+            <div className='bg-gradient-to-r from-orange-500/20 to-red-500/20 backdrop-blur-sm rounded-lg p-4 border border-orange-400/30'>
+              <div className='text-center'>
+                <div className='text-2xl font-bold text-orange-400 mb-2'>
+                  ⏰ {remainingTime.toFixed(1)}s
+                </div>
+                <div className='text-sm text-gray-300'>
+                  Tiempo restante de giro
+                </div>
+                <div className='mt-2 w-full bg-gray-700 rounded-full h-2'>
+                  <div
+                    className='bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full transition-all duration-100'
+                    style={{
+                      width: `${Math.max(0, (remainingTime / spinDuration) * 100)}%`
+                    }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <p className='text-sm text-gray-300'>
             Ajusta cuánto tiempo quieres que gire la ruleta. Más tiempo = más vueltas.
           </p>

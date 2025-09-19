@@ -106,10 +106,8 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPane
   const wheelRef = useRef<THREE.Group>(null)
   const [rotationSpeed, setRotationSpeed] = useState(0)
   const [isDecelerating, setIsDecelerating] = useState(false)
-  const [isSlowingDown, setIsSlowingDown] = useState(false)
   const spinStartTime = useRef<number>(0)
   const spinTimer = useRef<NodeJS.Timeout | null>(null)
-  const slowDownTimer = useRef<NodeJS.Timeout | null>(null)
   const hasStartedSpinning = useRef<boolean>(false)
   const hasLoggedSegments = useRef<boolean>(false)
 
@@ -225,35 +223,28 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPane
     })
   }, [panels, materials])
 
-  // Lógica de rotación con física realista
+  // Lógica de rotación continua durante toda la duración
   useEffect(() => {
-    if (isSpinning && !isDecelerating && !hasStartedSpinning.current) {
-      console.log('🚀 Iniciando giro con duración:', spinDuration, 'segundos')
+    if (isSpinning && !hasStartedSpinning.current) {
+      console.log('🚀 Iniciando giro continuo con duración:', spinDuration, 'segundos')
       hasStartedSpinning.current = true
 
-      // Calcular velocidad inicial basada en la duración (más tiempo = más fuerza = más velocidad)
-      // Fórmula más realista: velocidad moderada y proporcional
-      const baseSpeed = 2.0 // Velocidad base moderada
-      const durationFactor = Math.pow(spinDuration, 0.8) * 0.4 // Curva más suave
-      const randomVariation = (Math.random() - 0.5) * 0.2 // Variación aleatoria pequeña
-      const initialSpeed = baseSpeed + durationFactor + randomVariation
+      // Velocidad constante basada en la duración
+      // Más tiempo = más vueltas, pero velocidad constante
+      const baseSpeed = 3.0 // Velocidad base constante
+      const durationFactor = Math.min(spinDuration * 0.5, 2.0) // Factor limitado
+      const constantSpeed = baseSpeed + durationFactor
 
-      // Limitar velocidad máxima para evitar giros demasiado rápidos
-      const maxSpeed = Math.min(5, 2.5 + spinDuration * 0.3)
-      const finalSpeed = Math.min(initialSpeed, maxSpeed)
-
-      console.log('💪 Velocidad inicial calculada:', finalSpeed.toFixed(2), 'rad/s')
+      console.log('💪 Velocidad constante calculada:', constantSpeed.toFixed(2), 'rad/s')
       console.log('📏 Duración:', spinDuration, 's - Factor:', durationFactor.toFixed(2))
-      setRotationSpeed(finalSpeed)
-      setIsDecelerating(true)
-      setIsSlowingDown(false)
+      setRotationSpeed(constantSpeed)
+      setIsDecelerating(true) // Mantener el estado para la lógica de rotación
       spinStartTime.current = Date.now()
 
       // Timer único para parar completamente
       spinTimer.current = setTimeout(() => {
         console.log('⏰ Parando completamente')
         setIsDecelerating(false)
-        setIsSlowingDown(false)
         setRotationSpeed(0)
         hasStartedSpinning.current = false
 
@@ -285,18 +276,13 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPane
     if (!isSpinning) {
       hasStartedSpinning.current = false
       setIsDecelerating(false)
-      setIsSlowingDown(false)
       setRotationSpeed(0)
       if (spinTimer.current) {
         clearTimeout(spinTimer.current)
         spinTimer.current = null
       }
-      if (slowDownTimer.current) {
-        clearTimeout(slowDownTimer.current)
-        slowDownTimer.current = null
-      }
     }
-  }, [isSpinning]) // Solo depende de isSpinning
+  }, [isSpinning, spinDuration]) // Depende de isSpinning y spinDuration
 
   // Cleanup del timer solo cuando el componente se desmonta
   useEffect(() => {
@@ -305,11 +291,6 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPane
         console.log('🧹 Limpiando timer al desmontar')
         clearTimeout(spinTimer.current)
         spinTimer.current = null
-      }
-      if (slowDownTimer.current) {
-        console.log('🧹 Limpiando slowDown timer al desmontar')
-        clearTimeout(slowDownTimer.current)
-        slowDownTimer.current = null
       }
     }
   }, [])
@@ -371,7 +352,7 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPane
         onCurrentPanelChange(currentPanel)
       }
 
-      // Lógica de rotación solo cuando está girando
+      // Lógica de rotación continua - velocidad constante durante toda la duración
       if (isDecelerating) {
         const timeSinceStart = (Date.now() - spinStartTime.current) / 1000
         const totalDuration = spinDuration
@@ -379,30 +360,12 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPane
         // Calcular progreso del giro completo (0 a 1)
         const totalProgress = Math.min(1, timeSinceStart / totalDuration)
 
-        // Física más realista: velocidad constante hasta el 80%, luego desaceleración gradual
-        let decelerationFactor = 1
-
-        if (totalProgress > 0.8) {
-          // Solo en los últimos 20% del tiempo aplicar desaceleración
-          const slowDownProgress = (totalProgress - 0.8) / 0.2
-          const easeOutProgress = 1 - Math.pow(1 - slowDownProgress, 3) // Curva cúbica suave
-          decelerationFactor = 1 - (easeOutProgress * 0.85) // Reduce hasta 85%
-        }
-        // En los primeros 80% del tiempo, mantener velocidad constante (decelerationFactor = 1)
-
-        setRotationSpeed(prev => {
-          const newSpeed = prev * decelerationFactor
-          // Velocidad mínima más alta para evitar paro muy rápido
-          const minSpeed = Math.max(0.05, prev * 0.02)
-          return Math.max(newSpeed, minSpeed)
-        })
-
-        // Debug menos frecuente para evitar spam
-        if (Math.floor(timeSinceStart * 5) % 5 === 0) { // Cada 0.2 segundos
-          console.log(`🔄 Progreso: ${(totalProgress * 100).toFixed(1)}% - Velocidad: ${rotationSpeed.toFixed(3)} - Factor: ${decelerationFactor.toFixed(3)}`)
+        // Debug ocasional para mostrar progreso
+        if (Math.floor(timeSinceStart * 2) % 2 === 0) { // Cada 0.5 segundos
+          console.log(`🔄 Progreso: ${(totalProgress * 100).toFixed(1)}% - Velocidad constante: ${rotationSpeed.toFixed(3)} rad/s`)
         }
 
-        // Rotación con la velocidad actual (cambiar dirección para que coincida con la detección)
+        // Rotación con velocidad constante durante toda la duración
         wheelRef.current.rotation.y -= rotationSpeed * delta
       }
     }

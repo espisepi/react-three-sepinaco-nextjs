@@ -48,6 +48,7 @@ export default function WheelOfFortunePage() {
   const [enableOrbitControls, setEnableOrbitControls] = useState(false) // Control de OrbitControls - desactivado por defecto
   const [canvasWidth, setCanvasWidth] = useState(100) // Ancho del canvas en porcentaje
   const [canvasHeight, setCanvasHeight] = useState(getDefaultCanvasHeight()) // Altura del canvas responsiva
+  const [remainingTime, setRemainingTime] = useState<number | undefined>(undefined) // Tiempo restante del giro
 
   // Actualizar altura por defecto cuando cambie el tamaño de ventana
   useEffect(() => {
@@ -63,6 +64,38 @@ export default function WheelOfFortunePage() {
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [canvasHeight])
+
+  // Calcular tiempo restante durante el giro
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null
+
+    if (isSpinning) {
+      const startTime = Date.now()
+      setRemainingTime(spinDuration)
+
+      interval = setInterval(() => {
+        const elapsed = (Date.now() - startTime) / 1000
+        const remaining = Math.max(0, spinDuration - elapsed)
+
+        if (remaining <= 0) {
+          setRemainingTime(0)
+          if (interval) {
+            clearInterval(interval)
+          }
+        } else {
+          setRemainingTime(remaining)
+        }
+      }, 100) // Actualizar cada 100ms para suavidad
+    } else {
+      setRemainingTime(undefined)
+    }
+
+    return () => {
+      if (interval) {
+        clearInterval(interval)
+      }
+    }
+  }, [isSpinning, spinDuration])
 
   const handleSpin = () => {
     if (isSpinning || panels.length === 0) return
@@ -367,6 +400,7 @@ export default function WheelOfFortunePage() {
               onUpdatePanelColor={updatePanelColor}
               spinDuration={spinDuration}
               onSpinDurationChange={setSpinDuration}
+              remainingTime={remainingTime}
             />
 
             {/* Controles de tamaño del canvas */}
