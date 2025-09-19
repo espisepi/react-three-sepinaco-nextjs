@@ -502,7 +502,7 @@ export function WheelScene({ panels, isSpinning, onSpinComplete, spinDuration, o
       />
 
       {/* Helper de orientación 3D personalizado */}
-      <AxesHelper />
+      {/* <AxesHelper /> */}
     </>
   )
 }

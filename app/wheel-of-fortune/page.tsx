@@ -184,7 +184,7 @@ export default function WheelOfFortunePage() {
 
 
             {/* Panel detectado por raycasting */}
-            {raycastHitPanel && (
+            {/* {raycastHitPanel && (
               <div className='bg-white/10 backdrop-blur-sm rounded-2xl p-6'>
                 <h3 className='text-xl font-bold text-white mb-4'>🎯 Panel Detectado por Raycasting</h3>
                 <div className='text-center'>
@@ -210,10 +210,10 @@ export default function WheelOfFortunePage() {
                   </div>
                 </div>
               </div>
-            )}
+            )} */}
 
             {/* Resultado por raycasting */}
-            {raycastHitPanel && (
+            {/* {raycastHitPanel && (
               <div className='bg-gradient-to-r from-green-500/20 to-emerald-500/20 backdrop-blur-sm rounded-2xl p-6 border border-green-400/30'>
                 <h3 className='text-xl font-bold text-white mb-4'>🏆 Resultado por Raycasting</h3>
                 <div className='text-center'>
@@ -254,10 +254,10 @@ export default function WheelOfFortunePage() {
                   </div>
                 </div>
               </div>
-            )}
+            )} */}
 
             {/* Panel actual que apunta el puntero */}
-            {currentPanel && (
+            {/* {currentPanel && (
               <div className='bg-white/10 backdrop-blur-sm rounded-2xl p-6'>
                 <h3 className='text-xl font-bold text-white mb-4'>🎯 Panel Actual (Matemático)</h3>
                 <div className='text-center'>
@@ -283,10 +283,10 @@ export default function WheelOfFortunePage() {
                   </div>
                 </div>
               </div>
-            )}
+            )} */}
 
             {/* Comparación de métodos de detección */}
-            {currentPanel && raycastHitPanel && (
+            {/* {currentPanel && raycastHitPanel && (
               <div className='bg-white/10 backdrop-blur-sm rounded-2xl p-6'>
                 <h3 className='text-xl font-bold text-white mb-4'>⚖️ Comparación de Métodos</h3>
                 <div className='space-y-3'>
@@ -307,7 +307,7 @@ export default function WheelOfFortunePage() {
                   )}
                 </div>
               </div>
-            )}
+            )} */}
 
             {/* Controles de la ruleta */}
             <WheelControls
