@@ -160,14 +160,25 @@ export default function WheelOfFortunePage() {
                 <h3 className='text-xl font-bold text-white mb-4'>🎯 Panel Detectado por Raycasting</h3>
                 <div className='text-center'>
                   <div
-                    className='inline-block px-4 py-2 rounded-lg text-white font-semibold'
+                    className='inline-block px-4 py-2 rounded-lg text-white font-semibold mb-3'
                     style={{ backgroundColor: raycastHitPanel.color }}
                   >
                     {raycastHitPanel.text}
                   </div>
-                </div>
-                <div className='mt-2 text-sm text-gray-300 text-center'>
-                  Color: {raycastHitPanel.color}
+                  <div className='space-y-2 text-sm text-gray-300'>
+                    <div className='flex justify-between'>
+                      <span>ID del Panel:</span>
+                      <span className='text-white font-mono'>{raycastHitPanel.id}</span>
+                    </div>
+                    <div className='flex justify-between'>
+                      <span>Color:</span>
+                      <span className='text-white font-mono'>{raycastHitPanel.color}</span>
+                    </div>
+                    <div className='flex justify-between'>
+                      <span>Método:</span>
+                      <span className='text-green-400 font-semibold'>Raycasting 3D</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -175,14 +186,52 @@ export default function WheelOfFortunePage() {
             {/* Panel actual que apunta el puntero */}
             {currentPanel && (
               <div className='bg-white/10 backdrop-blur-sm rounded-2xl p-6'>
-                <h3 className='text-xl font-bold text-white mb-4'>🎯 Panel Actual</h3>
+                <h3 className='text-xl font-bold text-white mb-4'>🎯 Panel Actual (Matemático)</h3>
                 <div className='text-center'>
                   <div
-                    className='inline-block px-4 py-2 rounded-lg text-white font-semibold'
+                    className='inline-block px-4 py-2 rounded-lg text-white font-semibold mb-3'
                     style={{ backgroundColor: currentPanel.color }}
                   >
                     {currentPanel.text}
                   </div>
+                  <div className='space-y-2 text-sm text-gray-300'>
+                    <div className='flex justify-between'>
+                      <span>ID del Panel:</span>
+                      <span className='text-white font-mono'>{currentPanel.id}</span>
+                    </div>
+                    <div className='flex justify-between'>
+                      <span>Color:</span>
+                      <span className='text-white font-mono'>{currentPanel.color}</span>
+                    </div>
+                    <div className='flex justify-between'>
+                      <span>Método:</span>
+                      <span className='text-blue-400 font-semibold'>Cálculo Angular</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Comparación de métodos de detección */}
+            {currentPanel && raycastHitPanel && (
+              <div className='bg-white/10 backdrop-blur-sm rounded-2xl p-6'>
+                <h3 className='text-xl font-bold text-white mb-4'>⚖️ Comparación de Métodos</h3>
+                <div className='space-y-3'>
+                  <div className='flex justify-between items-center p-3 bg-white/5 rounded-lg'>
+                    <span className='text-gray-300'>Coincidencia:</span>
+                    <span className={`font-semibold ${currentPanel.id === raycastHitPanel.id ? 'text-green-400' : 'text-red-400'}`}>
+                      {currentPanel.id === raycastHitPanel.id ? '✅ Sí' : '❌ No'}
+                    </span>
+                  </div>
+                  {currentPanel.id === raycastHitPanel.id ? (
+                    <div className='text-center text-green-400 text-sm'>
+                      Ambos métodos detectan el mismo panel correctamente
+                    </div>
+                  ) : (
+                    <div className='text-center text-red-400 text-sm'>
+                      Los métodos detectan paneles diferentes
+                    </div>
+                  )}
                 </div>
               </div>
             )}
