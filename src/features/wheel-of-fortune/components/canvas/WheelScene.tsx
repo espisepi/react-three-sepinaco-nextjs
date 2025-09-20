@@ -154,8 +154,8 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPane
     if (wheelRef.current) {
       const randomInitialRotation = Math.random() * Math.PI * 2 // Rotación aleatoria completa (0 a 2π)
       wheelRef.current.rotation.y = randomInitialRotation
-      console.log('🎲 Rotación inicial aleatoria aplicada:', randomInitialRotation.toFixed(3), 'radianes')
-      console.log('🎲 Rotación inicial aleatoria aplicada:', (randomInitialRotation * 180 / Math.PI).toFixed(1), 'grados')
+      // console.log('🎲 Rotación inicial aleatoria aplicada:', randomInitialRotation.toFixed(3), 'radianes')
+      // console.log('🎲 Rotación inicial aleatoria aplicada:', (randomInitialRotation * 180 / Math.PI).toFixed(1), 'grados')
     }
   }, []) // Solo se ejecuta una vez al montar el componente
 
@@ -231,21 +231,21 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPane
     const segments = panels.length
     const anglePerSegment = (Math.PI * 2) / segments
 
-    // Debug inicial solo una vez
+    // Debug inicial solo una vez - comentado para producción
     if (!hasLoggedSegments.current) {
-      console.log('🏗️ CREANDO SEGMENTOS:')
-      console.log('  📊 Total de paneles:', segments)
-      console.log('  📐 Ángulo por segmento:', anglePerSegment.toFixed(3), 'radianes')
-      console.log('  📐 Ángulo por segmento:', (anglePerSegment * 180 / Math.PI).toFixed(1), 'grados')
+      // console.log('🏗️ CREANDO SEGMENTOS:')
+      // console.log('  📊 Total de paneles:', segments)
+      // console.log('  📐 Ángulo por segmento:', anglePerSegment.toFixed(3), 'radianes')
+      // console.log('  📐 Ángulo por segmento:', (anglePerSegment * 180 / Math.PI).toFixed(1), 'grados')
 
       panels.forEach((panel, index) => {
         const startAngle = index * anglePerSegment
         const endAngle = (index + 1) * anglePerSegment
         const midAngle = startAngle + anglePerSegment / 2
-        console.log(`  🎯 Panel ${index + 1} (${panel.text}):`)
-        console.log(`    📐 Ángulo inicio: ${startAngle.toFixed(3)} rad (${(startAngle * 180 / Math.PI).toFixed(1)}°)`)
-        console.log(`    📐 Ángulo final: ${endAngle.toFixed(3)} rad (${(endAngle * 180 / Math.PI).toFixed(1)}°)`)
-        console.log(`    📐 Ángulo medio: ${midAngle.toFixed(3)} rad (${(midAngle * 180 / Math.PI).toFixed(1)}°)`)
+        // console.log(`  🎯 Panel ${index + 1} (${panel.text}):`)
+        // console.log(`    📐 Ángulo inicio: ${startAngle.toFixed(3)} rad (${(startAngle * 180 / Math.PI).toFixed(1)}°)`)
+        // console.log(`    📐 Ángulo final: ${endAngle.toFixed(3)} rad (${(endAngle * 180 / Math.PI).toFixed(1)}°)`)
+        // console.log(`    📐 Ángulo medio: ${midAngle.toFixed(3)} rad (${(midAngle * 180 / Math.PI).toFixed(1)}°)`)
       })
 
       hasLoggedSegments.current = true
@@ -270,12 +270,25 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPane
         >
           {/* Texto en cada segmento */}
           <Text
-            position={[Math.sin(midAngle), 0.11, Math.cos(midAngle)]}
-            rotation={[0, Math.PI, 0]}
+            position={[
+              Math.sin(midAngle) + (panel.textPositionX || 0),
+              0.11 + (panel.textPositionY || 0),
+              Math.cos(midAngle) + (panel.textPositionZ || 0)
+            ]}
+            rotation={[
+              ((panel.textRotationX ? (panel.textRotationX + 90) : 90) * Math.PI) / 180,
+              Math.PI + ((panel.textRotationY ?? 0) * Math.PI) / 180,
+              ((panel.textRotationZ ? (panel.textRotationZ + 30) : 30) * Math.PI) / 180
+            ]}
             fontSize={0.15}
             color="white"
             anchorX="center"
             anchorY="middle"
+            scale={[
+              panel.textScaleX || 1,
+              panel.textScaleY || 1,
+              panel.textScaleZ || 1
+            ]}
           >
             {panel.text}
           </Text>
@@ -288,7 +301,7 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPane
   // Lógica de rotación continua durante toda la duración
   useEffect(() => {
     if (isSpinning && !hasStartedSpinning.current) {
-      console.log('🚀 Iniciando giro continuo con duración:', spinDuration, 'segundos')
+      // console.log('🚀 Iniciando giro continuo con duración:', spinDuration, 'segundos')
       hasStartedSpinning.current = true
 
       // Velocidad constante basada en la duración
@@ -297,15 +310,15 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPane
       const durationFactor = Math.min(spinDuration * 0.5, 2.0) // Factor limitado
       const constantSpeed = baseSpeed + durationFactor
 
-      console.log('💪 Velocidad constante calculada:', constantSpeed.toFixed(2), 'rad/s')
-      console.log('📏 Duración:', spinDuration, 's - Factor:', durationFactor.toFixed(2))
+      // console.log('💪 Velocidad constante calculada:', constantSpeed.toFixed(2), 'rad/s')
+      // console.log('📏 Duración:', spinDuration, 's - Factor:', durationFactor.toFixed(2))
       setRotationSpeed(constantSpeed)
       setIsDecelerating(true) // Mantener el estado para la lógica de rotación
       spinStartTime.current = Date.now()
 
       // Timer único para parar completamente
       spinTimer.current = setTimeout(() => {
-        console.log('⏰ Parando completamente')
+        // console.log('⏰ Parando completamente')
         setIsDecelerating(false)
         setRotationSpeed(0)
         hasStartedSpinning.current = false
@@ -320,13 +333,13 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPane
           const selectedIndex = Math.floor(compensatedRotation / anglePerSegment) % panels.length
           const selectedPanel = panels[selectedIndex]
 
-          console.log('🎯 Panel seleccionado:', selectedPanel)
-          console.log('🔄 Rotación normalizada:', normalizedRotation.toFixed(3))
-          console.log('🔧 Rotación compensada:', compensatedRotation.toFixed(3))
-          console.log('📐 Ángulo por segmento:', anglePerSegment.toFixed(3))
-          console.log('🎲 Índice seleccionado:', selectedIndex)
-          console.log('📊 Cálculo directo:', (compensatedRotation / anglePerSegment).toFixed(3))
-          console.log('🎯 Panel que debería estar arriba:', panels[0])
+          // console.log('🎯 Panel seleccionado:', selectedPanel)
+          // console.log('🔄 Rotación normalizada:', normalizedRotation.toFixed(3))
+          // console.log('🔧 Rotación compensada:', compensatedRotation.toFixed(3))
+          // console.log('📐 Ángulo por segmento:', anglePerSegment.toFixed(3))
+          // console.log('🎲 Índice seleccionado:', selectedIndex)
+          // console.log('📊 Cálculo directo:', (compensatedRotation / anglePerSegment).toFixed(3))
+          // console.log('🎯 Panel que debería estar arriba:', panels[0])
           if (selectedPanel) {
             onSpinComplete(selectedPanel)
           }
@@ -344,13 +357,13 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPane
         spinTimer.current = null
       }
     }
-  }, [isSpinning, spinDuration]) // Depende de isSpinning y spinDuration
+  }, [isSpinning, spinDuration, onSpinComplete, panels]) // Depende de isSpinning, spinDuration, onSpinComplete y panels
 
   // Cleanup del timer solo cuando el componente se desmonta
   useEffect(() => {
     return () => {
       if (spinTimer.current) {
-        console.log('🧹 Limpiando timer al desmontar')
+        // console.log('🧹 Limpiando timer al desmontar')
         clearTimeout(spinTimer.current)
         spinTimer.current = null
       }
@@ -398,17 +411,17 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPane
         const selectedIndex = Math.floor(compensatedRotation / anglePerSegment) % panels.length
         const currentPanel = panels[selectedIndex]
 
-        // Debug detallado solo cuando está girando y cada 2 segundos
+        // Debug detallado solo cuando está girando y cada 2 segundos - comentado para producción
         if (isDecelerating && Math.floor(state.clock.elapsedTime * 0.5) % 1 === 0) {
-          console.log('🔍 DEBUG DETALLADO (GIRANDO):')
-          console.log('  📐 Rotación Y:', wheelRef.current.rotation.y.toFixed(3))
-          console.log('  🔄 Rotación normalizada:', normalizedRotation.toFixed(3))
-          console.log('  🔧 Rotación compensada:', compensatedRotation.toFixed(3))
-          console.log('  📏 Ángulo por segmento:', anglePerSegment.toFixed(3))
-          console.log('  🎯 Índice calculado:', selectedIndex)
-          console.log('  🎪 Panel detectado:', currentPanel?.text)
-          console.log('  📊 Cálculo directo:', (compensatedRotation / anglePerSegment).toFixed(3))
-          console.log('  🎲 Posición del puntero: [0, 2.2, 0]')
+          // console.log('🔍 DEBUG DETALLADO (GIRANDO):')
+          // console.log('  📐 Rotación Y:', wheelRef.current.rotation.y.toFixed(3))
+          // console.log('  🔄 Rotación normalizada:', normalizedRotation.toFixed(3))
+          // console.log('  🔧 Rotación compensada:', compensatedRotation.toFixed(3))
+          // console.log('  📏 Ángulo por segmento:', anglePerSegment.toFixed(3))
+          // console.log('  🎯 Índice calculado:', selectedIndex)
+          // console.log('  🎪 Panel detectado:', currentPanel?.text)
+          // console.log('  📊 Cálculo directo:', (compensatedRotation / anglePerSegment).toFixed(3))
+          // console.log('  🎲 Posición del puntero: [0, 2.2, 0]')
         }
 
         onCurrentPanelChange(currentPanel)
@@ -422,9 +435,9 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPane
         // Calcular progreso del giro completo (0 a 1)
         const totalProgress = Math.min(1, timeSinceStart / totalDuration)
 
-        // Debug ocasional para mostrar progreso
+        // Debug ocasional para mostrar progreso - comentado para producción
         if (Math.floor(timeSinceStart * 2) % 2 === 0) { // Cada 0.5 segundos
-          console.log(`🔄 Progreso: ${(totalProgress * 100).toFixed(1)}% - Velocidad constante: ${rotationSpeed.toFixed(3)} rad/s`)
+          // console.log(`🔄 Progreso: ${(totalProgress * 100).toFixed(1)}% - Velocidad constante: ${rotationSpeed.toFixed(3)} rad/s`)
         }
 
         // Rotación con velocidad constante durante toda la duración

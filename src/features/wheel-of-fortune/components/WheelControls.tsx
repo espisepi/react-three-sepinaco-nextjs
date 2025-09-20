@@ -15,6 +15,9 @@ interface WheelControlsProps {
   onUpdatePanelTextureScale: (id: string, scale: number) => void
   onUpdatePanelTextureRotation: (id: string, rotation: number) => void
   onUpdatePanelTextureOffset: (id: string, offsetX: number, offsetY: number) => void
+  onUpdateTextPosition: (id: string, x: number, y: number, z: number) => void
+  onUpdateTextRotation: (id: string, x: number, y: number, z: number) => void
+  onUpdateTextScale: (id: string, x: number, y: number, z: number) => void
   spinDuration: number
   onSpinDurationChange: (duration: number) => void
   remainingTime?: number
@@ -34,6 +37,9 @@ export function WheelControls({
   onUpdatePanelTextureScale,
   onUpdatePanelTextureRotation,
   onUpdatePanelTextureOffset,
+  onUpdateTextPosition,
+  onUpdateTextRotation,
+  onUpdateTextScale,
   spinDuration,
   onSpinDurationChange,
   remainingTime,
@@ -46,6 +52,7 @@ export function WheelControls({
   const [editColor, setEditColor] = useState('')
   const [originalColor, setOriginalColor] = useState<string>('')
   const [showTextureControls, setShowTextureControls] = useState<Map<string, boolean>>(new Map())
+  const [showTextControls, setShowTextControls] = useState<Record<string, boolean>>({})
 
   const handleImageUpload = (panelId: string, event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -69,6 +76,13 @@ export function WheelControls({
       newMap.set(panelId, !newMap.get(panelId))
       return newMap
     })
+  }
+
+  const toggleTextControls = (panelId: string) => {
+    setShowTextControls(prev => ({
+      ...prev,
+      [panelId]: !prev[panelId]
+    }))
   }
 
   const handleEditStart = (panel: WheelPanel) => {
@@ -233,7 +247,7 @@ export function WheelControls({
                       type='color'
                       value={editColor}
                       onChange={(e) => handleColorChange(e.target.value)}
-                      className='w-8 h-8 rounded border border-white/30 cursor-pointer'
+                      className='size-8 rounded border border-white/30 cursor-pointer'
                     />
                     <button
                       onClick={handleColorEditSave}
@@ -252,7 +266,7 @@ export function WheelControls({
                   </div>
                 ) : (
                   <div
-                    className='w-6 h-6 rounded-full border-2 border-white/30 cursor-pointer hover:scale-110 transition-transform'
+                    className='size-6 rounded-full border-2 border-white/30 cursor-pointer hover:scale-110 transition-transform'
                     style={{ backgroundColor: panel.color }}
                     onClick={() => handleColorEditStart(panel)}
                     title='Haz clic para cambiar el color'
@@ -296,6 +310,16 @@ export function WheelControls({
                       ✏️
                     </button>
                     <button
+                      onClick={() => toggleTextControls(panel.id)}
+                      className={`px-2 py-1 rounded text-sm transition-colors ${showTextControls[panel.id]
+                        ? 'bg-orange-600 hover:bg-orange-700'
+                        : 'bg-orange-500 hover:bg-orange-600'
+                        } text-white`}
+                      title={showTextControls[panel.id] ? 'Ocultar controles de texto' : 'Mostrar controles de texto'}
+                    >
+                      📝
+                    </button>
+                    <button
                       onClick={() => onRemovePanel(panel.id)}
                       disabled={panels.length <= 1}
                       className={`px-2 py-1 rounded text-sm transition-colors ${panels.length <= 1
@@ -330,11 +354,11 @@ export function WheelControls({
                       </label>
                       {panel.texture && (
                         <>
-                          <div className='w-8 h-8 rounded border border-white/30 overflow-hidden'>
+                          <div className='size-8 rounded border border-white/30 overflow-hidden'>
                             <img
                               src={panel.texture}
                               alt={`Texture for ${panel.text}`}
-                              className='w-full h-full object-cover'
+                              className='size-full object-cover'
                             />
                           </div>
                           <button
@@ -566,6 +590,210 @@ export function WheelControls({
                     </div>
                   </div>
                 )}
+
+                {/* Text controls section */}
+                {!!showTextControls[panel.id] && (
+                  <div className='ml-3 space-y-3 bg-orange-500/10 rounded-lg p-3 border border-orange-400/20'>
+                    <div className='flex items-center justify-between'>
+                      <h4 className='text-sm font-semibold text-orange-300'>Controles de Texto</h4>
+                      <button
+                        onClick={() => toggleTextControls(panel.id)}
+                        className='px-2 py-1 bg-orange-600 hover:bg-orange-700 text-white rounded text-xs'
+                        title='Ocultar controles de texto'
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    {/* Position controls */}
+                    <div className='space-y-2'>
+                      <h5 className='text-xs font-medium text-orange-200'>Posición</h5>
+                      <div className='space-y-1'>
+                        <div className='space-y-1'>
+                          <label className='block text-xs text-gray-400'>
+                            X: {(panel.textPositionX || 0).toFixed(2)}
+                          </label>
+                          <input
+                            type='range'
+                            min='-2'
+                            max='2'
+                            step='0.1'
+                            value={panel.textPositionX || 0}
+                            onChange={(e) => onUpdateTextPosition(panel.id, parseFloat(e.target.value), panel.textPositionY || 0, panel.textPositionZ || 0)}
+                            className='w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                            style={{
+                              background: `linear-gradient(to right, #EF4444 0%, #EF4444 ${((panel.textPositionX || 0) + 2) / 4 * 100}%, #374151 ${((panel.textPositionX || 0) + 2) / 4 * 100}%, #374151 100%)`
+                            }}
+                          />
+                        </div>
+                        <div className='space-y-1'>
+                          <label className='block text-xs text-gray-400'>
+                            Y: {(panel.textPositionY || 0).toFixed(2)}
+                          </label>
+                          <input
+                            type='range'
+                            min='-2'
+                            max='2'
+                            step='0.1'
+                            value={panel.textPositionY || 0}
+                            onChange={(e) => onUpdateTextPosition(panel.id, panel.textPositionX || 0, parseFloat(e.target.value), panel.textPositionZ || 0)}
+                            className='w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                            style={{
+                              background: `linear-gradient(to right, #10B981 0%, #10B981 ${((panel.textPositionY || 0) + 2) / 4 * 100}%, #374151 ${((panel.textPositionY || 0) + 2) / 4 * 100}%, #374151 100%)`
+                            }}
+                          />
+                        </div>
+                        <div className='space-y-1'>
+                          <label className='block text-xs text-gray-400'>
+                            Z: {(panel.textPositionZ || 0).toFixed(2)}
+                          </label>
+                          <input
+                            type='range'
+                            min='-2'
+                            max='2'
+                            step='0.1'
+                            value={panel.textPositionZ || 0}
+                            onChange={(e) => onUpdateTextPosition(panel.id, panel.textPositionX || 0, panel.textPositionY || 0, parseFloat(e.target.value))}
+                            className='w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                            style={{
+                              background: `linear-gradient(to right, #3B82F6 0%, #3B82F6 ${((panel.textPositionZ || 0) + 2) / 4 * 100}%, #374151 ${((panel.textPositionZ || 0) + 2) / 4 * 100}%, #374151 100%)`
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Rotation controls */}
+                    <div className='space-y-2'>
+                      <h5 className='text-xs font-medium text-orange-200'>Rotación</h5>
+                      <div className='space-y-1'>
+                        <div className='space-y-1'>
+                          <label className='block text-xs text-gray-400'>
+                            X: {panel.textRotationX || 0}°
+                          </label>
+                          <input
+                            type='range'
+                            min='0'
+                            max='360'
+                            step='15'
+                            value={panel.textRotationX || 0}
+                            onChange={(e) => onUpdateTextRotation(panel.id, parseFloat(e.target.value), panel.textRotationY || 0, panel.textRotationZ || 0)}
+                            className='w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                            style={{
+                              background: `linear-gradient(to right, #EF4444 0%, #EF4444 ${((panel.textRotationX || 0) / 360) * 100}%, #374151 ${((panel.textRotationX || 0) / 360) * 100}%, #374151 100%)`
+                            }}
+                          />
+                        </div>
+                        <div className='space-y-1'>
+                          <label className='block text-xs text-gray-400'>
+                            Y: {panel.textRotationY || 0}°
+                          </label>
+                          <input
+                            type='range'
+                            min='0'
+                            max='360'
+                            step='15'
+                            value={panel.textRotationY || 0}
+                            onChange={(e) => onUpdateTextRotation(panel.id, panel.textRotationX || 0, parseFloat(e.target.value), panel.textRotationZ || 0)}
+                            className='w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                            style={{
+                              background: `linear-gradient(to right, #10B981 0%, #10B981 ${((panel.textRotationY || 0) / 360) * 100}%, #374151 ${((panel.textRotationY || 0) / 360) * 100}%, #374151 100%)`
+                            }}
+                          />
+                        </div>
+                        <div className='space-y-1'>
+                          <label className='block text-xs text-gray-400'>
+                            Z: {panel.textRotationZ || 0}°
+                          </label>
+                          <input
+                            type='range'
+                            min='0'
+                            max='360'
+                            step='15'
+                            value={panel.textRotationZ || 0}
+                            onChange={(e) => onUpdateTextRotation(panel.id, panel.textRotationX || 0, panel.textRotationY || 0, parseFloat(e.target.value))}
+                            className='w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                            style={{
+                              background: `linear-gradient(to right, #3B82F6 0%, #3B82F6 ${((panel.textRotationZ || 0) / 360) * 100}%, #374151 ${((panel.textRotationZ || 0) / 360) * 100}%, #374151 100%)`
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Scale controls */}
+                    <div className='space-y-2'>
+                      <h5 className='text-xs font-medium text-orange-200'>Escala</h5>
+                      <div className='space-y-1'>
+                        <div className='space-y-1'>
+                          <label className='block text-xs text-gray-400'>
+                            X: {(panel.textScaleX || 1).toFixed(2)}
+                          </label>
+                          <input
+                            type='range'
+                            min='0.1'
+                            max='3'
+                            step='0.1'
+                            value={panel.textScaleX || 1}
+                            onChange={(e) => onUpdateTextScale(panel.id, parseFloat(e.target.value), panel.textScaleY || 1, panel.textScaleZ || 1)}
+                            className='w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                            style={{
+                              background: `linear-gradient(to right, #EF4444 0%, #EF4444 ${((panel.textScaleX || 1) - 0.1) / (3 - 0.1) * 100}%, #374151 ${((panel.textScaleX || 1) - 0.1) / (3 - 0.1) * 100}%, #374151 100%)`
+                            }}
+                          />
+                        </div>
+                        <div className='space-y-1'>
+                          <label className='block text-xs text-gray-400'>
+                            Y: {(panel.textScaleY || 1).toFixed(2)}
+                          </label>
+                          <input
+                            type='range'
+                            min='0.1'
+                            max='3'
+                            step='0.1'
+                            value={panel.textScaleY || 1}
+                            onChange={(e) => onUpdateTextScale(panel.id, panel.textScaleX || 1, parseFloat(e.target.value), panel.textScaleZ || 1)}
+                            className='w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                            style={{
+                              background: `linear-gradient(to right, #10B981 0%, #10B981 ${((panel.textScaleY || 1) - 0.1) / (3 - 0.1) * 100}%, #374151 ${((panel.textScaleY || 1) - 0.1) / (3 - 0.1) * 100}%, #374151 100%)`
+                            }}
+                          />
+                        </div>
+                        <div className='space-y-1'>
+                          <label className='block text-xs text-gray-400'>
+                            Z: {(panel.textScaleZ || 1).toFixed(2)}
+                          </label>
+                          <input
+                            type='range'
+                            min='0.1'
+                            max='3'
+                            step='0.1'
+                            value={panel.textScaleZ || 1}
+                            onChange={(e) => onUpdateTextScale(panel.id, panel.textScaleX || 1, panel.textScaleY || 1, parseFloat(e.target.value))}
+                            className='w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                            style={{
+                              background: `linear-gradient(to right, #3B82F6 0%, #3B82F6 ${((panel.textScaleZ || 1) - 0.1) / (3 - 0.1) * 100}%, #374151 ${((panel.textScaleZ || 1) - 0.1) / (3 - 0.1) * 100}%, #374151 100%)`
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Reset button */}
+                    <div className='pt-2 border-t border-orange-400/20'>
+                      <button
+                        onClick={() => {
+                          onUpdateTextPosition(panel.id, 0, 0, 0)
+                          onUpdateTextRotation(panel.id, 0, 0, 0)
+                          onUpdateTextScale(panel.id, 1, 1, 1)
+                        }}
+                        className='w-full px-3 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded text-sm font-medium transition-colors'
+                      >
+                        🔄 Restablecer Texto
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -595,6 +823,10 @@ export function WheelControls({
           <li>• Rota la textura: 0°, 90°, 180°, 270° o cualquier ángulo</li>
           <li>• Mueve la textura: izquierda/derecha y arriba/abajo</li>
           <li>• Usa los sliders o botones rápidos para ajustar</li>
+          <li>• Haz clic en 📝 para mostrar controles de texto</li>
+          <li>• Ajusta posición, rotación y escala del texto en tiempo real</li>
+          <li>• Los controles de texto permiten personalización completa 3D</li>
+          <li>• Usa el botón &quot;Restablecer Texto&quot; para volver a valores por defecto</li>
           <li>• Necesitas al menos un panel para poder girar</li>
         </ul>
       </div>

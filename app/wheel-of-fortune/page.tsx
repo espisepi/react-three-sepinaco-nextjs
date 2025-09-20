@@ -253,6 +253,54 @@ export default function WheelOfFortunePage() {
     }
   }
 
+  const updateTextPosition = (id: string, x: number, y: number, z: number) => {
+    setPanels(panels.map(panel =>
+      panel.id === id ? { ...panel, textPositionX: x, textPositionY: y, textPositionZ: z } : panel
+    ))
+
+    // Si el panel modificado es el resultado actual, actualizar también el resultado
+    if (result && result.id === id) {
+      setResult({ ...result, textPositionX: x, textPositionY: y, textPositionZ: z })
+    }
+
+    // Si el panel modificado es el panel actual, actualizar también el panel actual
+    if (currentPanel && currentPanel.id === id) {
+      setCurrentPanel({ ...currentPanel, textPositionX: x, textPositionY: y, textPositionZ: z })
+    }
+  }
+
+  const updateTextRotation = (id: string, x: number, y: number, z: number) => {
+    setPanels(panels.map(panel =>
+      panel.id === id ? { ...panel, textRotationX: x, textRotationY: y, textRotationZ: z } : panel
+    ))
+
+    // Si el panel modificado es el resultado actual, actualizar también el resultado
+    if (result && result.id === id) {
+      setResult({ ...result, textRotationX: x, textRotationY: y, textRotationZ: z })
+    }
+
+    // Si el panel modificado es el panel actual, actualizar también el panel actual
+    if (currentPanel && currentPanel.id === id) {
+      setCurrentPanel({ ...currentPanel, textRotationX: x, textRotationY: y, textRotationZ: z })
+    }
+  }
+
+  const updateTextScale = (id: string, x: number, y: number, z: number) => {
+    setPanels(panels.map(panel =>
+      panel.id === id ? { ...panel, textScaleX: x, textScaleY: y, textScaleZ: z } : panel
+    ))
+
+    // Si el panel modificado es el resultado actual, actualizar también el resultado
+    if (result && result.id === id) {
+      setResult({ ...result, textScaleX: x, textScaleY: y, textScaleZ: z })
+    }
+
+    // Si el panel modificado es el panel actual, actualizar también el panel actual
+    if (currentPanel && currentPanel.id === id) {
+      setCurrentPanel({ ...currentPanel, textScaleX: x, textScaleY: y, textScaleZ: z })
+    }
+  }
+
   return (
     <div className='min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900'>
       <div className='container mx-auto px-4 py-8'>
@@ -487,6 +535,9 @@ export default function WheelOfFortunePage() {
               onUpdatePanelTextureScale={updatePanelTextureScale}
               onUpdatePanelTextureRotation={updatePanelTextureRotation}
               onUpdatePanelTextureOffset={updatePanelTextureOffset}
+              onUpdateTextPosition={updateTextPosition}
+              onUpdateTextRotation={updateTextRotation}
+              onUpdateTextScale={updateTextScale}
               spinDuration={spinDuration}
               onSpinDurationChange={setSpinDuration}
               remainingTime={remainingTime}
