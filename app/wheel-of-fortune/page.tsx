@@ -573,23 +573,6 @@ export default function WheelOfFortunePage() {
               </div>
             )} */}
 
-            {/* Gestión de configuraciones */}
-            <CollapsibleBlock
-              title="Gestión de Configuraciones"
-              icon="⚙️"
-              isVisible={config.blockVisibility.configManager}
-              onToggle={() => updateBlockVisibility('configManager', !config.blockVisibility.configManager)}
-            >
-              <WheelConfigManager
-                config={config}
-                onDownloadConfig={downloadConfig}
-                onLoadConfigFromFile={loadConfigFromFile}
-                onResetToDefault={resetToDefault}
-                onClearStorage={clearStorage}
-                getConfigInfo={getConfigInfo}
-              />
-            </CollapsibleBlock>
-
             {/* Controles de la ruleta */}
             <WheelControls
               panels={config.panels}
@@ -618,6 +601,23 @@ export default function WheelOfFortunePage() {
                 updateBlockVisibility(blockKey, isVisible)
               }}
             />
+
+            {/* Gestión de configuraciones */}
+            <CollapsibleBlock
+              title="Gestión de Configuraciones"
+              icon="⚙️"
+              isVisible={config.blockVisibility.configManager}
+              onToggle={() => updateBlockVisibility('configManager', !config.blockVisibility.configManager)}
+            >
+              <WheelConfigManager
+                config={config}
+                onDownloadConfig={downloadConfig}
+                onLoadConfigFromFile={loadConfigFromFile}
+                onResetToDefault={resetToDefault}
+                onClearStorage={clearStorage}
+                getConfigInfo={getConfigInfo}
+              />
+            </CollapsibleBlock>
 
             {/* Controles de tamaño del canvas */}
             <CollapsibleBlock
