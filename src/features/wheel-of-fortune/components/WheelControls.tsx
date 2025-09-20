@@ -66,6 +66,9 @@ export const WheelControls = memo(({
         onUpdatePanelTexture(panelId, result)
       }
       reader.readAsDataURL(file)
+
+      // Reset the input value to allow uploading the same file again
+      event.target.value = ''
     }
   }, [onUpdatePanelTexture])
 
