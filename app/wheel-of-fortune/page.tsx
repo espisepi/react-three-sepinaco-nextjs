@@ -3,12 +3,14 @@
 import dynamic from 'next/dynamic'
 import { Suspense, useState, useEffect, useCallback, useMemo } from 'react'
 import Image from 'next/image'
-import { WheelControls, WheelResult, WheelConfigManager } from '@/features/wheel-of-fortune/components'
+import { WheelControls, WheelResult, WheelConfigManager, SceneSelector, SceneInfo } from '@/features/wheel-of-fortune/components'
 import { WheelPanel } from '@/types/wheel'
 import { useWheelPersistence } from '@/hooks/useWheelPersistence'
 import { usePanelUpdates } from '@/hooks/usePanelUpdates'
+import { useSceneManager } from '@/hooks/useSceneManager'
 import { CollapsibleBlock } from '@/components/ui/CollapsibleBlock'
 import { PerformanceMonitor } from '@/components/PerformanceMonitor'
+import { getRegisteredScenes } from '@/features/wheel-of-fortune/scenes'
 
 const WheelScene = dynamic(() => import('@/features/wheel-of-fortune/components/canvas/WheelScene').then((mod) => mod.WheelScene), { ssr: false })
 const View = dynamic(() => import('@/components/canvas/View').then((mod) => ({ default: mod.View })), {
@@ -28,6 +30,33 @@ const View = dynamic(() => import('@/components/canvas/View').then((mod) => ({ d
 })
 const Common = dynamic(() => import('@/components/canvas/View').then((mod) => mod.Common), { ssr: false })
 
+// Componente para renderizar la escena activa dinámicamente
+const ActiveSceneRenderer = ({
+  activeScene,
+  sceneProps
+}: {
+  activeScene: any
+  sceneProps: any
+}) => {
+  // Si no hay escena activa o no tiene componente, usar la escena por defecto
+  if (!activeScene || !activeScene.component) {
+    return <WheelScene {...sceneProps} />
+  }
+
+  // Verificar que el componente es una función válida
+  if (typeof activeScene.component !== 'function' && !activeScene.component.type) {
+    return <WheelScene {...sceneProps} />
+  }
+
+  // Renderizar la escena activa
+  try {
+    const SceneComponent = activeScene.component
+    return <SceneComponent {...sceneProps} sceneConfig={activeScene.config} />
+  } catch (error) {
+    return <WheelScene {...sceneProps} />
+  }
+}
+
 export default function WheelOfFortunePage() {
   // Hook de persistencia que maneja toda la configuración
   const {
@@ -45,6 +74,24 @@ export default function WheelOfFortunePage() {
     getConfigInfo,
   } = useWheelPersistence()
 
+  // Hook de gestión de escenas
+  const {
+    activeScene,
+    setActiveScene,
+    getSceneConfig,
+    updateSceneConfig,
+    availableScenes,
+    isSceneActive
+  } = useSceneManager(getRegisteredScenes(), 'classic')
+
+  // Función para limpiar localStorage y reiniciar (temporal para debug)
+  const clearSceneStorage = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('wheel-scene-manager-config')
+      window.location.reload()
+    }
+  }, [])
+
   // Estados locales para la funcionalidad de la ruleta
   const [isSpinning, setIsSpinning] = useState(false)
   const [result, setResult] = useState<WheelPanel | null>(null)
@@ -53,6 +100,7 @@ export default function WheelOfFortunePage() {
   const [remainingTime, setRemainingTime] = useState<number | undefined>(undefined)
   const [isClient, setIsClient] = useState(false)
   const [showPerformanceMonitor, setShowPerformanceMonitor] = useState(false)
+  const [showSceneSelector, setShowSceneSelector] = useState(true)
 
   // Efecto para detectar cuando estamos en el cliente y ajustar la altura inicial
   useEffect(() => {
@@ -246,14 +294,17 @@ export default function WheelOfFortunePage() {
                 }}
               >
                 <Suspense fallback={null}>
-                  <WheelScene
-                    panels={config.panels}
-                    isSpinning={isSpinning}
-                    onSpinComplete={handleSpinComplete}
-                    spinDuration={config.spinDuration}
-                    onCurrentPanelChange={handleCurrentPanelChange}
-                    onRaycastHit={handleRaycastHit}
-                    enableOrbitControls={config.enableOrbitControls}
+                  <ActiveSceneRenderer
+                    activeScene={activeScene}
+                    sceneProps={{
+                      panels: config.panels,
+                      isSpinning: isSpinning,
+                      onSpinComplete: handleSpinComplete,
+                      spinDuration: config.spinDuration,
+                      onCurrentPanelChange: handleCurrentPanelChange,
+                      onRaycastHit: handleRaycastHit,
+                      enableOrbitControls: config.enableOrbitControls
+                    }}
                   />
                   <Common color={'#1a1a2e'} />
                 </Suspense>
@@ -632,6 +683,33 @@ export default function WheelOfFortunePage() {
                 </button>
               </div>
             </CollapsibleBlock>
+
+            {/* Selector de Escenas */}
+            <SceneSelector
+              scenes={availableScenes}
+              activeSceneId={activeScene?.id || 'classic'}
+              onSceneSelect={setActiveScene}
+              isVisible={showSceneSelector}
+              onToggleVisibility={setShowSceneSelector}
+            />
+
+            {/* Información de la Escena */}
+            {activeScene && (
+              <SceneInfo
+                scenes={availableScenes}
+                activeSceneId={activeScene.id}
+              />
+            )}
+
+            {/* Botón temporal para limpiar localStorage */}
+            <div className="rounded-lg border border-red-400/30 bg-red-500/20 p-4">
+              <button
+                onClick={clearSceneStorage}
+                className="rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+              >
+                Limpiar localStorage y reiniciar
+              </button>
+            </div>
           </div>
         </div>
       </div>
