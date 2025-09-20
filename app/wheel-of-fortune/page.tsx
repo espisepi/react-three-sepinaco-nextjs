@@ -102,6 +102,14 @@ export default function WheelOfFortunePage() {
   const [showPerformanceMonitor, setShowPerformanceMonitor] = useState(false)
   const [showSceneSelector, setShowSceneSelector] = useState(true)
 
+  // Efecto para limpiar automáticamente el storage de escenas al cargar la página
+  // useEffect(() => {
+  //   if (typeof window !== 'undefined') {
+  //     // Limpiar el storage de escenas para que siempre use la configuración por defecto
+  //     localStorage.removeItem('wheel-scene-manager-config')
+  //   }
+  // }, [])
+
   // Efecto para detectar cuando estamos en el cliente y ajustar la altura inicial
   useEffect(() => {
     setIsClient(true)
@@ -111,6 +119,17 @@ export default function WheelOfFortunePage() {
       updateCanvasSize(config.canvasWidth, initialHeight)
     }
   }, [isLoaded, config.canvasWidth, config.canvasHeight, updateCanvasSize])
+
+  // Efecto para asegurar que la escena activa esté correctamente inicializada
+  useEffect(() => {
+    if (isClient && isLoaded && availableScenes.length > 0 && !activeScene) {
+      // Si no hay escena activa pero hay escenas disponibles, establecer la primera
+      const firstScene = availableScenes[0]
+      if (firstScene) {
+        setActiveScene(firstScene.id)
+      }
+    }
+  }, [isClient, isLoaded, availableScenes, activeScene, setActiveScene])
 
   // Actualizar altura por defecto cuando cambie el tamaño de ventana
   useEffect(() => {
@@ -700,6 +719,18 @@ export default function WheelOfFortunePage() {
                 activeSceneId={activeScene.id}
               />
             )}
+
+            {/* Información de Debug */}
+            <div className="rounded-lg border border-blue-400/30 bg-blue-500/20 p-4">
+              <h4 className="mb-2 text-sm font-semibold text-white">🔍 Debug Info</h4>
+              <div className="space-y-1 text-xs text-gray-300">
+                <div>Escena activa: <span className="font-semibold text-white">{activeScene?.name || 'Ninguna'}</span></div>
+                <div>ID escena: <span className="font-semibold text-white">{activeScene?.id || 'N/A'}</span></div>
+                <div>Escenas disponibles: <span className="font-semibold text-white">{availableScenes.length}</span></div>
+                <div>Cliente cargado: <span className="font-semibold text-white">{isClient ? 'Sí' : 'No'}</span></div>
+                <div>Config cargada: <span className="font-semibold text-white">{isLoaded ? 'Sí' : 'No'}</span></div>
+              </div>
+            </div>
 
             {/* Botón temporal para limpiar localStorage */}
             <div className="rounded-lg border border-red-400/30 bg-red-500/20 p-4">
