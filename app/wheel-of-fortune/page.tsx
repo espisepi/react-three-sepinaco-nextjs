@@ -14,7 +14,10 @@ import { PerformanceMonitor } from '@/components/PerformanceMonitor'
 import { getRegisteredScenes } from '@/features/wheel-of-fortune/scenes'
 import { allMaterials } from '@/features/wheel-of-fortune/materials'
 
-const WheelScene = dynamic(() => import('@/features/wheel-of-fortune/components/canvas/WheelScene').then((mod) => mod.WheelScene), { ssr: false })
+const WheelScene = dynamic(() => import('@/features/wheel-of-fortune/components/canvas/WheelScene').then((mod) => ({ default: mod.WheelScene })), {
+  ssr: false,
+  loading: () => <div className="flex h-96 items-center justify-center">Cargando escena 3D...</div>
+})
 const View = dynamic(() => import('@/components/canvas/View').then((mod) => ({ default: mod.View })), {
   ssr: false,
   loading: () => (
@@ -30,7 +33,7 @@ const View = dynamic(() => import('@/components/canvas/View').then((mod) => ({ d
     </div>
   ),
 })
-const Common = dynamic(() => import('@/components/canvas/View').then((mod) => mod.Common), { ssr: false })
+const Common = dynamic(() => import('@/components/canvas/View').then((mod) => ({ default: mod.Common })), { ssr: false })
 
 // Componente para renderizar la escena activa dinámicamente
 const ActiveSceneRenderer = ({

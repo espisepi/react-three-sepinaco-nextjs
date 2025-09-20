@@ -1,5 +1,17 @@
 import { WheelPanel } from './wheel'
-import { WheelMaterial } from './material-manager'
+import * as THREE from 'three'
+
+/**
+ * Basic material interface to avoid circular dependencies
+ */
+export interface WheelMaterial {
+  id: string
+  name: string
+  description: string
+  icon: string
+  createMaterial: (panelColor?: string, texture?: THREE.Texture) => THREE.Material
+  config?: Record<string, any>
+}
 
 /**
  * Interfaz base para todas las escenas 3D de la ruleta
