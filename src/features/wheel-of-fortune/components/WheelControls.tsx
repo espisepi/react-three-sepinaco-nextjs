@@ -254,7 +254,7 @@ export function WheelControls({
           </button>
         </div>
 
-        <div className='max-h-64 space-y-3 overflow-y-auto'>
+        <div className='max-h-96 space-y-3 overflow-y-auto'>
           {panels.map((panel) => (
             <div key={panel.id} className='space-y-2'>
               <div className='flex items-center space-x-3 rounded-lg bg-white/5 p-3'>
