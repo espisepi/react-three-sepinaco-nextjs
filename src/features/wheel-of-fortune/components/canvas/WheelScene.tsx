@@ -270,8 +270,8 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPane
         >
           {/* Texto en cada segmento */}
           <Text
-            position={[Math.cos(midAngle) * 1.2, 0.11, Math.sin(midAngle) * 1.2]}
-            rotation={[0, 0, midAngle + Math.PI / 2]}
+            position={[Math.sin(midAngle), 0.11, Math.cos(midAngle)]}
+            rotation={[0, Math.PI, 0]}
             fontSize={0.15}
             color="white"
             anchorX="center"
