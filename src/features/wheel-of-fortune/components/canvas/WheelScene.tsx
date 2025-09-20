@@ -468,7 +468,7 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPane
         {/* @ts-ignore - Three.js JSX elements */}
         <cylinderGeometry args={[0.2, 0.2, 0.2]} />
         {/* @ts-ignore - Three.js JSX elements */}
-        <meshPhysicalMaterial color="#gold" metalness={0.9} roughness={0.1} />
+        <meshPhysicalMaterial color="#FFD700" metalness={0.9} roughness={0.1} />
         {/* @ts-ignore - Three.js JSX elements */}
       </mesh>
       {/* @ts-ignore - Three.js JSX elements */}
@@ -513,7 +513,7 @@ export function WheelScene({ panels, isSpinning, onSpinComplete, spinDuration, o
         {/* @ts-ignore - Three.js JSX elements */}
         <coneGeometry args={[0.1, 0.3]} />
         {/* @ts-ignore - Three.js JSX elements */}
-        <meshPhysicalMaterial color="#red" metalness={0.8} roughness={0.2} />
+        <meshPhysicalMaterial color="#FF0000" metalness={0.8} roughness={0.2} />
         {/* @ts-ignore - Three.js JSX elements */}
       </mesh>
 
