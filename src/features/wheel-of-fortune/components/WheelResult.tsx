@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import { memo } from 'react'
 import { WheelPanel } from '@/types/wheel'
 
 interface WheelResultProps {
@@ -8,7 +9,7 @@ interface WheelResultProps {
   raycastResult?: WheelPanel | null
 }
 
-export function WheelResult({ result, raycastResult }: WheelResultProps) {
+export const WheelResult = memo(({ result, raycastResult }: WheelResultProps) => {
   // Usar el resultado del raycasting si está disponible, sino usar el resultado matemático
   const displayResult = raycastResult || result
 
@@ -50,4 +51,6 @@ export function WheelResult({ result, raycastResult }: WheelResultProps) {
       </div>
     </div>
   )
-}
+})
+
+WheelResult.displayName = 'WheelResult'

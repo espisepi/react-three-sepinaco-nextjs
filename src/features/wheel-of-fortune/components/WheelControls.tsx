@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { useState } from 'react'
+import { useState, useCallback, memo } from 'react'
 import { WheelPanel } from '@/types/wheel'
 import { CollapsibleBlock } from '@/components/ui/CollapsibleBlock'
 
@@ -33,7 +33,7 @@ interface WheelControlsProps {
   onUpdateBlockVisibility: (blockKey: 'spinDuration' | 'panelsManagement' | 'instructions', isVisible: boolean) => void
 }
 
-export function WheelControls({
+export const WheelControls = memo(({
   panels,
   isSpinning,
   onSpin,
@@ -55,7 +55,7 @@ export function WheelControls({
   raycastResult,
   blockVisibility,
   onUpdateBlockVisibility
-}: WheelControlsProps) {
+}: WheelControlsProps) => {
   const [editingPanel, setEditingPanel] = useState<string | null>(null)
   const [editText, setEditText] = useState('')
   const [editingColor, setEditingColor] = useState<string | null>(null)
@@ -64,7 +64,7 @@ export function WheelControls({
   const [showTextureControls, setShowTextureControls] = useState<Map<string, boolean>>(new Map())
   const [showTextControls, setShowTextControls] = useState<Record<string, boolean>>({})
 
-  const handleImageUpload = (panelId: string, event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = useCallback((panelId: string, event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
       const reader = new FileReader()
@@ -74,67 +74,67 @@ export function WheelControls({
       }
       reader.readAsDataURL(file)
     }
-  }
+  }, [onUpdatePanelTexture])
 
-  const handleRemoveTexture = (panelId: string) => {
+  const handleRemoveTexture = useCallback((panelId: string) => {
     onUpdatePanelTexture(panelId, null)
-  }
+  }, [onUpdatePanelTexture])
 
-  const toggleTextureControls = (panelId: string) => {
+  const toggleTextureControls = useCallback((panelId: string) => {
     setShowTextureControls(prev => {
       const newMap = new Map(prev)
       newMap.set(panelId, !newMap.get(panelId))
       return newMap
     })
-  }
+  }, [])
 
-  const toggleTextControls = (panelId: string) => {
+  const toggleTextControls = useCallback((panelId: string) => {
     setShowTextControls(prev => ({
       ...prev,
       [panelId]: !prev[panelId]
     }))
-  }
+  }, [])
 
-  const handleEditStart = (panel: WheelPanel) => {
+  const handleEditStart = useCallback((panel: WheelPanel) => {
     setEditingPanel(panel.id)
     setEditText(panel.text)
-  }
+  }, [])
 
-  const handleEditSave = () => {
+  const handleEditSave = useCallback(() => {
     if (editingPanel && editText.trim()) {
       onUpdatePanel(editingPanel, editText.trim())
       setEditingPanel(null)
       setEditText('')
     }
-  }
+  }, [editingPanel, editText, onUpdatePanel])
 
-  const handleEditCancel = () => {
+  const handleEditCancel = useCallback(() => {
     setEditingPanel(null)
     setEditText('')
-  }
+  }, [])
 
-  const handleColorEditStart = (panel: WheelPanel) => {
+  const handleColorEditStart = useCallback((panel: WheelPanel) => {
     setEditingColor(panel.id)
     setEditColor(panel.color)
     setOriginalColor(panel.color)
-  }
+  }, [])
 
-  const handleColorChange = (newColor: string) => {
+  const handleColorChange = useCallback((newColor: string) => {
     setEditColor(newColor)
     // Actualizar en tiempo real
     if (editingColor) {
       onUpdatePanelColor(editingColor, newColor)
     }
-  }
+  }, [editingColor, onUpdatePanelColor])
 
-  const handleColorEditSave = () => {
+  const handleColorEditSave = useCallback(() => {
     // El color ya se está actualizando en tiempo real, solo cerramos la edición
     setEditingColor(null)
     setEditColor('')
     setOriginalColor('')
-  }
+  }, [])
 
-  const handleColorEditCancel = () => {
+  const handleColorEditCancel = useCallback(() => {
     // Restaurar el color original
     if (editingColor && originalColor) {
       onUpdatePanelColor(editingColor, originalColor)
@@ -142,7 +142,7 @@ export function WheelControls({
     setEditingColor(null)
     setEditColor('')
     setOriginalColor('')
-  }
+  }, [editingColor, originalColor, onUpdatePanelColor])
 
   return (
     <div className='space-y-6'>
@@ -883,4 +883,6 @@ export function WheelControls({
       </CollapsibleBlock>
     </div>
   )
-}
+})
+
+WheelControls.displayName = 'WheelControls'

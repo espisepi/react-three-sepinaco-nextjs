@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useCallback, memo } from 'react'
 import { WheelConfiguration } from '@/hooks/useWheelPersistence'
 
 interface WheelConfigManagerProps {
@@ -15,35 +15,35 @@ interface WheelConfigManagerProps {
   }
 }
 
-export function WheelConfigManager({
+export const WheelConfigManager = memo(({
   config,
   onDownloadConfig,
   onLoadConfigFromFile,
   onResetToDefault,
   onClearStorage,
   getConfigInfo,
-}: WheelConfigManagerProps) {
+}: WheelConfigManagerProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null)
 
   const configInfo = getConfigInfo()
 
-  const showMessage = (type: 'success' | 'error' | 'info', text: string) => {
+  const showMessage = useCallback((type: 'success' | 'error' | 'info', text: string) => {
     setMessage({ type, text })
     setTimeout(() => setMessage(null), 3000)
-  }
+  }, [])
 
-  const handleDownload = () => {
+  const handleDownload = useCallback(() => {
     const success = onDownloadConfig()
     if (success) {
       showMessage('success', '✅ Configuración descargada exitosamente')
     } else {
       showMessage('error', '❌ Error al descargar la configuración')
     }
-  }
+  }, [onDownloadConfig, showMessage])
 
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
 
@@ -69,16 +69,16 @@ export function WheelConfigManager({
         fileInputRef.current.value = ''
       }
     }
-  }
+  }, [onLoadConfigFromFile, showMessage])
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     if (window.confirm('¿Estás seguro de que quieres restablecer la configuración a los valores por defecto? Esta acción no se puede deshacer.')) {
       onResetToDefault()
       showMessage('info', '🔄 Configuración restablecida a valores por defecto')
     }
-  }
+  }, [onResetToDefault, showMessage])
 
-  const handleClearStorage = () => {
+  const handleClearStorage = useCallback(() => {
     if (window.confirm('¿Estás seguro de que quieres limpiar todos los datos guardados? Esta acción no se puede deshacer.')) {
       const success = onClearStorage()
       if (success) {
@@ -87,9 +87,9 @@ export function WheelConfigManager({
         showMessage('error', '❌ Error al limpiar los datos locales')
       }
     }
-  }
+  }, [onClearStorage, showMessage])
 
-  const formatDate = (dateString: string) => {
+  const formatDate = useCallback((dateString: string) => {
     try {
       return new Date(dateString).toLocaleString('es-ES', {
         year: 'numeric',
@@ -101,7 +101,7 @@ export function WheelConfigManager({
     } catch {
       return 'Fecha inválida'
     }
-  }
+  }, [])
 
   return (
     <div className='rounded-2xl bg-white/10 p-6 backdrop-blur-sm'>
@@ -217,4 +217,6 @@ export function WheelConfigManager({
       </div>
     </div>
   )
-}
+})
+
+WheelConfigManager.displayName = 'WheelConfigManager'

@@ -1,12 +1,14 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import { Suspense, useState, useEffect } from 'react'
+import { Suspense, useState, useEffect, useCallback, useMemo } from 'react'
 import Image from 'next/image'
 import { WheelControls, WheelResult, WheelConfigManager } from '@/features/wheel-of-fortune/components'
 import { WheelPanel } from '@/types/wheel'
 import { useWheelPersistence } from '@/hooks/useWheelPersistence'
+import { usePanelUpdates } from '@/hooks/usePanelUpdates'
 import { CollapsibleBlock } from '@/components/ui/CollapsibleBlock'
+import { PerformanceMonitor } from '@/components/PerformanceMonitor'
 
 const WheelScene = dynamic(() => import('@/features/wheel-of-fortune/components/canvas/WheelScene').then((mod) => mod.WheelScene), { ssr: false })
 const View = dynamic(() => import('@/components/canvas/View').then((mod) => mod.View), {
@@ -50,6 +52,7 @@ export default function WheelOfFortunePage() {
   const [raycastHitPanel, setRaycastHitPanel] = useState<WheelPanel | null>(null)
   const [remainingTime, setRemainingTime] = useState<number | undefined>(undefined)
   const [isClient, setIsClient] = useState(false)
+  const [showPerformanceMonitor, setShowPerformanceMonitor] = useState(false)
 
   // Efecto para detectar cuando estamos en el cliente y ajustar la altura inicial
   useEffect(() => {
@@ -109,218 +112,88 @@ export default function WheelOfFortunePage() {
     }
   }, [isSpinning, config.spinDuration])
 
-  const handleSpin = () => {
+  const handleSpin = useCallback(() => {
     if (isSpinning || config.panels.length === 0) return
     setIsSpinning(true)
     setResult(null)
-  }
+  }, [isSpinning, config.panels.length])
 
-  const handleSpinComplete = (selectedPanel: WheelPanel) => {
+  const handleSpinComplete = useCallback((selectedPanel: WheelPanel) => {
     setIsSpinning(false)
     setResult(selectedPanel)
-  }
+  }, [])
 
-  const handleCurrentPanelChange = (panel: WheelPanel | null) => {
+  const handleCurrentPanelChange = useCallback((panel: WheelPanel | null) => {
     setCurrentPanel(panel)
-  }
+  }, [])
 
-  const handleRaycastHit = (panel: WheelPanel | null) => {
+  const handleRaycastHit = useCallback((panel: WheelPanel | null) => {
     setRaycastHitPanel(panel)
-  }
+  }, [])
 
-  const toggleOrbitControls = () => {
+  const toggleOrbitControls = useCallback(() => {
     updateOrbitControls(!config.enableOrbitControls)
-  }
+  }, [config.enableOrbitControls, updateOrbitControls])
 
-  const addPanel = () => {
+  // Memoizar colores para evitar recreación
+  const colors = useMemo(() => [
+    '#FF4444', // Rojo vibrante
+    '#00AA44', // Verde esmeralda
+    '#0066FF', // Azul brillante
+    '#FF8800', // Naranja intenso
+    '#8800FF', // Púrpura vibrante
+    '#00CCCC', // Cian brillante
+    '#FF0088', // Rosa vibrante
+    '#44AA00', // Verde lima
+    '#0088FF', // Azul cielo
+    '#FF6600', // Naranja rojizo
+    '#AA00AA', // Magenta
+    '#00AAAA', // Turquesa
+    '#FFAA00', // Amarillo dorado
+    '#6600FF', // Índigo
+    '#AA4400', // Marrón rojizo
+    '#00FF88', // Verde lima brillante
+    '#FF0044', // Rojo carmesí
+    '#0088AA', // Azul verdoso
+    '#AA6600', // Marrón dorado
+    '#8800AA'  // Púrpura oscuro
+  ], [])
+
+  const addPanel = useCallback(() => {
     const newId = (config.panels.length + 1).toString()
-    const colors = [
-      '#FF4444', // Rojo vibrante
-      '#00AA44', // Verde esmeralda
-      '#0066FF', // Azul brillante
-      '#FF8800', // Naranja intenso
-      '#8800FF', // Púrpura vibrante
-      '#00CCCC', // Cian brillante
-      '#FF0088', // Rosa vibrante
-      '#44AA00', // Verde lima
-      '#0088FF', // Azul cielo
-      '#FF6600', // Naranja rojizo
-      '#AA00AA', // Magenta
-      '#00AAAA', // Turquesa
-      '#FFAA00', // Amarillo dorado
-      '#6600FF', // Índigo
-      '#AA4400', // Marrón rojizo
-      '#00FF88', // Verde lima brillante
-      '#FF0044', // Rojo carmesí
-      '#0088AA', // Azul verdoso
-      '#AA6600', // Marrón dorado
-      '#8800AA'  // Púrpura oscuro
-    ]
     const newPanel: WheelPanel = {
       id: newId,
       text: `Premio ${newId}`,
       color: colors[config.panels.length % colors.length]
     }
     updatePanels([...config.panels, newPanel])
-  }
+  }, [config.panels, colors, updatePanels])
 
-  const removePanel = (id: string) => {
+  const removePanel = useCallback((id: string) => {
     if (config.panels.length <= 1) return
     updatePanels(config.panels.filter(panel => panel.id !== id))
-  }
+  }, [config.panels, updatePanels])
 
-  const updatePanel = (id: string, text: string) => {
-    const updatedPanels = config.panels.map(panel =>
-      panel.id === id ? { ...panel, text } : panel
-    )
-    updatePanels(updatedPanels)
+  // Usar el hook optimizado para las actualizaciones de paneles
+  const {
+    updatePanel,
+    updatePanelColor,
+    updatePanelTexture,
+    updatePanelTextureScale,
+    updatePanelTextureRotation,
+    updatePanelTextureOffset,
+    updateTextPosition,
+    updateTextRotation,
+    updateTextScale
+  } = usePanelUpdates({
+    panels: config.panels,
+    updatePanels,
+    result,
+    setResult,
+    currentPanel,
+    setCurrentPanel
+  })
 
-    // Si el panel modificado es el resultado actual, actualizar también el resultado
-    if (result && result.id === id) {
-      setResult({ ...result, text })
-    }
-
-    // Si el panel modificado es el panel actual, actualizar también el panel actual
-    if (currentPanel && currentPanel.id === id) {
-      setCurrentPanel({ ...currentPanel, text })
-    }
-  }
-
-  const updatePanelColor = (id: string, color: string) => {
-    const updatedPanels = config.panels.map(panel =>
-      panel.id === id ? { ...panel, color } : panel
-    )
-    updatePanels(updatedPanels)
-
-    // Si el panel modificado es el resultado actual, actualizar también el resultado
-    if (result && result.id === id) {
-      setResult({ ...result, color })
-    }
-
-    // Si el panel modificado es el panel actual, actualizar también el panel actual
-    if (currentPanel && currentPanel.id === id) {
-      setCurrentPanel({ ...currentPanel, color })
-    }
-  }
-
-  const updatePanelTexture = (id: string, texture: string | null) => {
-    const updatedPanels = config.panels.map(panel =>
-      panel.id === id ? { ...panel, texture: texture || undefined } : panel
-    )
-    updatePanels(updatedPanels)
-
-    // Si el panel modificado es el resultado actual, actualizar también el resultado
-    if (result && result.id === id) {
-      setResult({ ...result, texture: texture || undefined })
-    }
-
-    // Si el panel modificado es el panel actual, actualizar también el panel actual
-    if (currentPanel && currentPanel.id === id) {
-      setCurrentPanel({ ...currentPanel, texture: texture || undefined })
-    }
-  }
-
-  const updatePanelTextureScale = (id: string, scale: number) => {
-    const updatedPanels = config.panels.map(panel =>
-      panel.id === id ? { ...panel, textureScale: scale } : panel
-    )
-    updatePanels(updatedPanels)
-
-    // Si el panel modificado es el resultado actual, actualizar también el resultado
-    if (result && result.id === id) {
-      setResult({ ...result, textureScale: scale })
-    }
-
-    // Si el panel modificado es el panel actual, actualizar también el panel actual
-    if (currentPanel && currentPanel.id === id) {
-      setCurrentPanel({ ...currentPanel, textureScale: scale })
-    }
-  }
-
-  const updatePanelTextureRotation = (id: string, rotation: number) => {
-    const updatedPanels = config.panels.map(panel =>
-      panel.id === id ? { ...panel, textureRotation: rotation } : panel
-    )
-    updatePanels(updatedPanels)
-
-    // Si el panel modificado es el resultado actual, actualizar también el resultado
-    if (result && result.id === id) {
-      setResult({ ...result, textureRotation: rotation })
-    }
-
-    // Si el panel modificado es el panel actual, actualizar también el panel actual
-    if (currentPanel && currentPanel.id === id) {
-      setCurrentPanel({ ...currentPanel, textureRotation: rotation })
-    }
-  }
-
-  const updatePanelTextureOffset = (id: string, offsetX: number, offsetY: number) => {
-    const updatedPanels = config.panels.map(panel =>
-      panel.id === id ? { ...panel, textureOffsetX: offsetX, textureOffsetY: offsetY } : panel
-    )
-    updatePanels(updatedPanels)
-
-    // Si el panel modificado es el resultado actual, actualizar también el resultado
-    if (result && result.id === id) {
-      setResult({ ...result, textureOffsetX: offsetX, textureOffsetY: offsetY })
-    }
-
-    // Si el panel modificado es el panel actual, actualizar también el panel actual
-    if (currentPanel && currentPanel.id === id) {
-      setCurrentPanel({ ...currentPanel, textureOffsetX: offsetX, textureOffsetY: offsetY })
-    }
-  }
-
-  const updateTextPosition = (id: string, x: number, y: number, z: number) => {
-    const updatedPanels = config.panels.map(panel =>
-      panel.id === id ? { ...panel, textPositionX: x, textPositionY: y, textPositionZ: z } : panel
-    )
-    updatePanels(updatedPanels)
-
-    // Si el panel modificado es el resultado actual, actualizar también el resultado
-    if (result && result.id === id) {
-      setResult({ ...result, textPositionX: x, textPositionY: y, textPositionZ: z })
-    }
-
-    // Si el panel modificado es el panel actual, actualizar también el panel actual
-    if (currentPanel && currentPanel.id === id) {
-      setCurrentPanel({ ...currentPanel, textPositionX: x, textPositionY: y, textPositionZ: z })
-    }
-  }
-
-  const updateTextRotation = (id: string, x: number, y: number, z: number) => {
-    const updatedPanels = config.panels.map(panel =>
-      panel.id === id ? { ...panel, textRotationX: x, textRotationY: y, textRotationZ: z } : panel
-    )
-    updatePanels(updatedPanels)
-
-    // Si el panel modificado es el resultado actual, actualizar también el resultado
-    if (result && result.id === id) {
-      setResult({ ...result, textRotationX: x, textRotationY: y, textRotationZ: z })
-    }
-
-    // Si el panel modificado es el panel actual, actualizar también el panel actual
-    if (currentPanel && currentPanel.id === id) {
-      setCurrentPanel({ ...currentPanel, textRotationX: x, textRotationY: y, textRotationZ: z })
-    }
-  }
-
-  const updateTextScale = (id: string, x: number, y: number, z: number) => {
-    const updatedPanels = config.panels.map(panel =>
-      panel.id === id ? { ...panel, textScaleX: x, textScaleY: y, textScaleZ: z } : panel
-    )
-    updatePanels(updatedPanels)
-
-    // Si el panel modificado es el resultado actual, actualizar también el resultado
-    if (result && result.id === id) {
-      setResult({ ...result, textScaleX: x, textScaleY: y, textScaleZ: z })
-    }
-
-    // Si el panel modificado es el panel actual, actualizar también el panel actual
-    if (currentPanel && currentPanel.id === id) {
-      setCurrentPanel({ ...currentPanel, textScaleX: x, textScaleY: y, textScaleZ: z })
-    }
-  }
 
   // Mostrar loading mientras se carga la configuración
   if (!isLoaded) {
@@ -336,11 +209,29 @@ export default function WheelOfFortunePage() {
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900'>
+      {/* Monitor de Performance */}
+      <PerformanceMonitor
+        enabled={showPerformanceMonitor}
+        showDetails={true}
+        position="top-right"
+      />
+
       <div className='container mx-auto px-4 py-8'>
         {/* Header */}
         <div className='mb-8 text-center'>
           <h1 className='mb-4 text-5xl font-bold text-white'>🎰 Ruleta de la Suerte</h1>
           <p className='text-xl text-gray-300'>Gira la ruleta y descubre tu premio</p>
+
+          {/* Botón para activar/desactivar monitor de performance */}
+          <button
+            onClick={() => setShowPerformanceMonitor(!showPerformanceMonitor)}
+            className={`mt-4 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-300 ${showPerformanceMonitor
+              ? 'bg-green-600 text-white hover:bg-green-700'
+              : 'bg-gray-600 text-gray-300 hover:bg-gray-700'
+              }`}
+          >
+            {showPerformanceMonitor ? '📊 Monitor ON' : '📊 Monitor OFF'}
+          </button>
         </div>
 
         <div className='grid grid-cols-1 gap-8 lg:grid-cols-3'>

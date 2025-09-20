@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { WheelPanel } from '@/types/wheel'
 
 export interface WheelConfiguration {
@@ -57,6 +57,11 @@ export function useWheelPersistence() {
 
   // Cargar configuración desde localStorage al inicializar
   useEffect(() => {
+    if (typeof window === 'undefined') {
+      setIsLoaded(true)
+      return
+    }
+
     try {
       const savedConfig = localStorage.getItem(STORAGE_KEY)
       if (savedConfig) {
@@ -103,6 +108,8 @@ export function useWheelPersistence() {
 
   // Guardar en localStorage
   const saveToLocalStorage = useCallback((configToSave: WheelConfiguration) => {
+    if (typeof window === 'undefined') return
+
     try {
       const configWithTimestamp = {
         ...configToSave,
@@ -227,6 +234,8 @@ export function useWheelPersistence() {
 
   // Limpiar localStorage
   const clearStorage = useCallback(() => {
+    if (typeof window === 'undefined') return false
+
     try {
       localStorage.removeItem(STORAGE_KEY)
       setConfig(DEFAULT_CONFIG)
@@ -237,15 +246,16 @@ export function useWheelPersistence() {
     }
   }, [])
 
+  // Memoizar información de la configuración para evitar recálculos
+  const configInfo = useMemo(() => ({
+    hasLocalStorage: typeof window !== 'undefined' ? !!localStorage.getItem(STORAGE_KEY) : false,
+    panelCount: config.panels.length,
+    lastUpdated: config.updatedAt,
+    version: config.version,
+  }), [config.panels.length, config.updatedAt, config.version])
+
   // Obtener información de la configuración
-  const getConfigInfo = useCallback(() => {
-    return {
-      hasLocalStorage: !!localStorage.getItem(STORAGE_KEY),
-      panelCount: config.panels.length,
-      lastUpdated: config.updatedAt,
-      version: config.version,
-    }
-  }, [config])
+  const getConfigInfo = useCallback(() => configInfo, [configInfo])
 
   return {
     config,
