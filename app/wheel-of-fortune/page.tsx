@@ -2,8 +2,9 @@
 
 import dynamic from 'next/dynamic'
 import { Suspense, useState, useEffect } from 'react'
-import { WheelControls, WheelResult } from '@/features/wheel-of-fortune/components'
+import { WheelControls, WheelResult, WheelConfigManager } from '@/features/wheel-of-fortune/components'
 import { WheelPanel } from '@/types/wheel'
+import { useWheelPersistence } from '@/hooks/useWheelPersistence'
 
 const WheelScene = dynamic(() => import('@/features/wheel-of-fortune/components/canvas/WheelScene').then((mod) => mod.WheelScene), { ssr: false })
 const View = dynamic(() => import('@/components/canvas/View').then((mod) => mod.View), {
@@ -24,57 +25,54 @@ const View = dynamic(() => import('@/components/canvas/View').then((mod) => mod.
 const Common = dynamic(() => import('@/components/canvas/View').then((mod) => mod.Common), { ssr: false })
 
 export default function WheelOfFortunePage() {
-  // Función para obtener la altura por defecto basada en el tamaño de pantalla
-  const getDefaultCanvasHeight = () => {
-    if (typeof window !== 'undefined') {
-      return window.innerWidth >= 1024 ? 72 : 50 // 72vh para desktop (lg+), 50vh para mobile
-    }
-    return 50 // Valor por defecto para SSR
-  }
+  // Hook de persistencia que maneja toda la configuración
+  const {
+    config,
+    isLoaded,
+    updatePanels,
+    updateSpinDuration,
+    updateOrbitControls,
+    updateCanvasSize,
+    downloadConfig,
+    loadConfigFromFile,
+    resetToDefault,
+    clearStorage,
+    getConfigInfo,
+  } = useWheelPersistence()
 
-  const [panels, setPanels] = useState<WheelPanel[]>([
-    { id: '1', text: 'Premio 1', color: '#FF4444' }, // Rojo vibrante
-    { id: '2', text: 'Premio 2', color: '#00AA44' }, // Verde esmeralda
-    { id: '3', text: 'Premio 3', color: '#0066FF' }, // Azul brillante
-    { id: '4', text: 'Premio 4', color: '#FF8800' }, // Naranja intenso
-    { id: '5', text: 'Premio 5', color: '#8800FF' }, // Púrpura vibrante
-    { id: '6', text: 'Premio 6', color: '#00CCCC' }, // Cian brillante
-  ])
+  // Estados locales para la funcionalidad de la ruleta
   const [isSpinning, setIsSpinning] = useState(false)
   const [result, setResult] = useState<WheelPanel | null>(null)
-  const [spinDuration, setSpinDuration] = useState(3) // Duración en segundos
-  const [currentPanel, setCurrentPanel] = useState<WheelPanel | null>(null) // Panel actual que apunta el puntero
-  const [raycastHitPanel, setRaycastHitPanel] = useState<WheelPanel | null>(null) // Panel detectado por raycasting
-  const [enableOrbitControls, setEnableOrbitControls] = useState(false) // Control de OrbitControls - desactivado por defecto
-  const [canvasWidth, setCanvasWidth] = useState(100) // Ancho del canvas en porcentaje
-  const [canvasHeight, setCanvasHeight] = useState(50) // Altura inicial consistente para evitar hydration error
-  const [remainingTime, setRemainingTime] = useState<number | undefined>(undefined) // Tiempo restante del giro
-  const [isClient, setIsClient] = useState(false) // Flag para detectar si estamos en el cliente
+  const [currentPanel, setCurrentPanel] = useState<WheelPanel | null>(null)
+  const [raycastHitPanel, setRaycastHitPanel] = useState<WheelPanel | null>(null)
+  const [remainingTime, setRemainingTime] = useState<number | undefined>(undefined)
+  const [isClient, setIsClient] = useState(false)
 
   // Efecto para detectar cuando estamos en el cliente y ajustar la altura inicial
   useEffect(() => {
     setIsClient(true)
     // Establecer la altura correcta basada en el tamaño de pantalla después de la hidratación
-    const initialHeight = window.innerWidth >= 1024 ? 72 : 50
-    setCanvasHeight(initialHeight)
-  }, [])
+    if (isLoaded && config.canvasHeight === 50) {
+      const initialHeight = window.innerWidth >= 1024 ? 72 : 50
+      updateCanvasSize(config.canvasWidth, initialHeight)
+    }
+  }, [isLoaded, config.canvasWidth, config.canvasHeight, updateCanvasSize])
 
   // Actualizar altura por defecto cuando cambie el tamaño de ventana
   useEffect(() => {
-    if (!isClient) return // Solo ejecutar en el cliente
+    if (!isClient || !isLoaded) return // Solo ejecutar en el cliente y cuando esté cargado
 
     const handleResize = () => {
       const newDefaultHeight = window.innerWidth >= 1024 ? 72 : 50
       // Solo actualizar si el usuario no ha modificado manualmente el slider
-      // (esto es una aproximación simple, en un caso real podrías trackear si el usuario ha interactuado)
-      if (canvasHeight === 50 || canvasHeight === 72) {
-        setCanvasHeight(newDefaultHeight)
+      if (config.canvasHeight === 50 || config.canvasHeight === 72) {
+        updateCanvasSize(config.canvasWidth, newDefaultHeight)
       }
     }
 
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
-  }, [canvasHeight, isClient])
+  }, [config.canvasHeight, config.canvasWidth, isClient, isLoaded, updateCanvasSize])
 
   // Calcular tiempo restante durante el giro
   useEffect(() => {
@@ -82,11 +80,11 @@ export default function WheelOfFortunePage() {
 
     if (isSpinning) {
       const startTime = Date.now()
-      setRemainingTime(spinDuration)
+      setRemainingTime(config.spinDuration)
 
       interval = setInterval(() => {
         const elapsed = (Date.now() - startTime) / 1000
-        const remaining = Math.max(0, spinDuration - elapsed)
+        const remaining = Math.max(0, config.spinDuration - elapsed)
 
         if (remaining <= 0) {
           setRemainingTime(0)
@@ -106,10 +104,10 @@ export default function WheelOfFortunePage() {
         clearInterval(interval)
       }
     }
-  }, [isSpinning, spinDuration])
+  }, [isSpinning, config.spinDuration])
 
   const handleSpin = () => {
-    if (isSpinning || panels.length === 0) return
+    if (isSpinning || config.panels.length === 0) return
     setIsSpinning(true)
     setResult(null)
   }
@@ -128,11 +126,11 @@ export default function WheelOfFortunePage() {
   }
 
   const toggleOrbitControls = () => {
-    setEnableOrbitControls(!enableOrbitControls)
+    updateOrbitControls(!config.enableOrbitControls)
   }
 
   const addPanel = () => {
-    const newId = (panels.length + 1).toString()
+    const newId = (config.panels.length + 1).toString()
     const colors = [
       '#FF4444', // Rojo vibrante
       '#00AA44', // Verde esmeralda
@@ -158,20 +156,21 @@ export default function WheelOfFortunePage() {
     const newPanel: WheelPanel = {
       id: newId,
       text: `Premio ${newId}`,
-      color: colors[panels.length % colors.length]
+      color: colors[config.panels.length % colors.length]
     }
-    setPanels([...panels, newPanel])
+    updatePanels([...config.panels, newPanel])
   }
 
   const removePanel = (id: string) => {
-    if (panels.length <= 1) return
-    setPanels(panels.filter(panel => panel.id !== id))
+    if (config.panels.length <= 1) return
+    updatePanels(config.panels.filter(panel => panel.id !== id))
   }
 
   const updatePanel = (id: string, text: string) => {
-    setPanels(panels.map(panel =>
+    const updatedPanels = config.panels.map(panel =>
       panel.id === id ? { ...panel, text } : panel
-    ))
+    )
+    updatePanels(updatedPanels)
 
     // Si el panel modificado es el resultado actual, actualizar también el resultado
     if (result && result.id === id) {
@@ -185,9 +184,10 @@ export default function WheelOfFortunePage() {
   }
 
   const updatePanelColor = (id: string, color: string) => {
-    setPanels(panels.map(panel =>
+    const updatedPanels = config.panels.map(panel =>
       panel.id === id ? { ...panel, color } : panel
-    ))
+    )
+    updatePanels(updatedPanels)
 
     // Si el panel modificado es el resultado actual, actualizar también el resultado
     if (result && result.id === id) {
@@ -201,9 +201,10 @@ export default function WheelOfFortunePage() {
   }
 
   const updatePanelTexture = (id: string, texture: string | null) => {
-    setPanels(panels.map(panel =>
+    const updatedPanels = config.panels.map(panel =>
       panel.id === id ? { ...panel, texture: texture || undefined } : panel
-    ))
+    )
+    updatePanels(updatedPanels)
 
     // Si el panel modificado es el resultado actual, actualizar también el resultado
     if (result && result.id === id) {
@@ -217,9 +218,10 @@ export default function WheelOfFortunePage() {
   }
 
   const updatePanelTextureScale = (id: string, scale: number) => {
-    setPanels(panels.map(panel =>
+    const updatedPanels = config.panels.map(panel =>
       panel.id === id ? { ...panel, textureScale: scale } : panel
-    ))
+    )
+    updatePanels(updatedPanels)
 
     // Si el panel modificado es el resultado actual, actualizar también el resultado
     if (result && result.id === id) {
@@ -233,9 +235,10 @@ export default function WheelOfFortunePage() {
   }
 
   const updatePanelTextureRotation = (id: string, rotation: number) => {
-    setPanels(panels.map(panel =>
+    const updatedPanels = config.panels.map(panel =>
       panel.id === id ? { ...panel, textureRotation: rotation } : panel
-    ))
+    )
+    updatePanels(updatedPanels)
 
     // Si el panel modificado es el resultado actual, actualizar también el resultado
     if (result && result.id === id) {
@@ -249,9 +252,10 @@ export default function WheelOfFortunePage() {
   }
 
   const updatePanelTextureOffset = (id: string, offsetX: number, offsetY: number) => {
-    setPanels(panels.map(panel =>
+    const updatedPanels = config.panels.map(panel =>
       panel.id === id ? { ...panel, textureOffsetX: offsetX, textureOffsetY: offsetY } : panel
-    ))
+    )
+    updatePanels(updatedPanels)
 
     // Si el panel modificado es el resultado actual, actualizar también el resultado
     if (result && result.id === id) {
@@ -265,9 +269,10 @@ export default function WheelOfFortunePage() {
   }
 
   const updateTextPosition = (id: string, x: number, y: number, z: number) => {
-    setPanels(panels.map(panel =>
+    const updatedPanels = config.panels.map(panel =>
       panel.id === id ? { ...panel, textPositionX: x, textPositionY: y, textPositionZ: z } : panel
-    ))
+    )
+    updatePanels(updatedPanels)
 
     // Si el panel modificado es el resultado actual, actualizar también el resultado
     if (result && result.id === id) {
@@ -281,9 +286,10 @@ export default function WheelOfFortunePage() {
   }
 
   const updateTextRotation = (id: string, x: number, y: number, z: number) => {
-    setPanels(panels.map(panel =>
+    const updatedPanels = config.panels.map(panel =>
       panel.id === id ? { ...panel, textRotationX: x, textRotationY: y, textRotationZ: z } : panel
-    ))
+    )
+    updatePanels(updatedPanels)
 
     // Si el panel modificado es el resultado actual, actualizar también el resultado
     if (result && result.id === id) {
@@ -297,9 +303,10 @@ export default function WheelOfFortunePage() {
   }
 
   const updateTextScale = (id: string, x: number, y: number, z: number) => {
-    setPanels(panels.map(panel =>
+    const updatedPanels = config.panels.map(panel =>
       panel.id === id ? { ...panel, textScaleX: x, textScaleY: y, textScaleZ: z } : panel
-    ))
+    )
+    updatePanels(updatedPanels)
 
     // Si el panel modificado es el resultado actual, actualizar también el resultado
     if (result && result.id === id) {
@@ -310,6 +317,18 @@ export default function WheelOfFortunePage() {
     if (currentPanel && currentPanel.id === id) {
       setCurrentPanel({ ...currentPanel, textScaleX: x, textScaleY: y, textScaleZ: z })
     }
+  }
+
+  // Mostrar loading mientras se carga la configuración
+  if (!isLoaded) {
+    return (
+      <div className='min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center'>
+        <div className='text-center'>
+          <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4'></div>
+          <p className='text-white text-lg'>Cargando configuración...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -328,19 +347,19 @@ export default function WheelOfFortunePage() {
               <View
                 className='flex flex-col items-center justify-center'
                 style={{
-                  width: `${canvasWidth}%`,
-                  height: `${canvasHeight}vh` // Usar viewport height directamente
+                  width: `${config.canvasWidth}%`,
+                  height: `${config.canvasHeight}vh` // Usar viewport height directamente
                 }}
               >
                 <Suspense fallback={null}>
                   <WheelScene
-                    panels={panels}
+                    panels={config.panels}
                     isSpinning={isSpinning}
                     onSpinComplete={handleSpinComplete}
-                    spinDuration={spinDuration}
+                    spinDuration={config.spinDuration}
                     onCurrentPanelChange={handleCurrentPanelChange}
                     onRaycastHit={handleRaycastHit}
-                    enableOrbitControls={enableOrbitControls}
+                    enableOrbitControls={config.enableOrbitControls}
                   />
                   <Common color={'#1a1a2e'} />
                 </Suspense>
@@ -361,8 +380,8 @@ export default function WheelOfFortunePage() {
               <div className='space-y-3'>
                 <button
                   onClick={handleSpin}
-                  disabled={isSpinning || panels.length === 0}
-                  className={`w-full rounded-lg px-6 py-4 text-lg font-bold text-white transition-all duration-300 ${isSpinning || panels.length === 0
+                  disabled={isSpinning || config.panels.length === 0}
+                  className={`w-full rounded-lg px-6 py-4 text-lg font-bold text-white transition-all duration-300 ${isSpinning || config.panels.length === 0
                     ? 'cursor-not-allowed bg-gray-500'
                     : 'bg-gradient-to-r from-pink-500 to-purple-600 shadow-lg hover:scale-105 hover:from-pink-600 hover:to-purple-700'
                     }`}
@@ -372,15 +391,15 @@ export default function WheelOfFortunePage() {
 
                 <button
                   onClick={toggleOrbitControls}
-                  className={`w-full rounded-lg px-6 py-3 text-base font-bold text-white transition-all duration-300 ${enableOrbitControls
+                  className={`w-full rounded-lg px-6 py-3 text-base font-bold text-white transition-all duration-300 ${config.enableOrbitControls
                     ? 'bg-gradient-to-r from-amber-500 to-orange-600 shadow-lg hover:scale-105 hover:from-amber-600 hover:to-orange-700'
                     : 'bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg hover:scale-105 hover:from-blue-600 hover:to-purple-700'
                     }`}
                 >
-                  {enableOrbitControls ? '🎮 Controles Activados' : '🚫 Controles Desactivados'}
+                  {config.enableOrbitControls ? '🎮 Controles Activados' : '🚫 Controles Desactivados'}
                 </button>
               </div>
-              {panels.length === 0 && (
+              {config.panels.length === 0 && (
                 <p className='mt-2 text-sm text-red-300'>Agrega al menos un panel para poder girar</p>
               )}
             </div>
@@ -533,9 +552,19 @@ export default function WheelOfFortunePage() {
               </div>
             )} */}
 
+            {/* Gestión de configuraciones */}
+            <WheelConfigManager
+              config={config}
+              onDownloadConfig={downloadConfig}
+              onLoadConfigFromFile={loadConfigFromFile}
+              onResetToDefault={resetToDefault}
+              onClearStorage={clearStorage}
+              getConfigInfo={getConfigInfo}
+            />
+
             {/* Controles de la ruleta */}
             <WheelControls
-              panels={panels}
+              panels={config.panels}
               isSpinning={isSpinning}
               onSpin={handleSpin}
               onAddPanel={addPanel}
@@ -549,8 +578,8 @@ export default function WheelOfFortunePage() {
               onUpdateTextPosition={updateTextPosition}
               onUpdateTextRotation={updateTextRotation}
               onUpdateTextScale={updateTextScale}
-              spinDuration={spinDuration}
-              onSpinDurationChange={setSpinDuration}
+              spinDuration={config.spinDuration}
+              onSpinDurationChange={updateSpinDuration}
               remainingTime={remainingTime}
             />
 
@@ -561,17 +590,17 @@ export default function WheelOfFortunePage() {
                 {/* Slider para el ancho */}
                 <div>
                   <label className='block text-sm font-medium text-gray-300 mb-2'>
-                    Ancho: {canvasWidth}%
+                    Ancho: {config.canvasWidth}%
                   </label>
                   <input
                     type='range'
                     min='50'
                     max='100'
-                    value={canvasWidth}
-                    onChange={(e) => setCanvasWidth(Number(e.target.value))}
+                    value={config.canvasWidth}
+                    onChange={(e) => updateCanvasSize(Number(e.target.value), config.canvasHeight)}
                     className='w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
                     style={{
-                      background: `linear-gradient(to right, #8B5CF6 0%, #8B5CF6 ${((canvasWidth - 50) / (100 - 50)) * 100}%, #374151 ${((canvasWidth - 50) / (100 - 50)) * 100}%, #374151 100%)`
+                      background: `linear-gradient(to right, #8B5CF6 0%, #8B5CF6 ${((config.canvasWidth - 50) / (100 - 50)) * 100}%, #374151 ${((config.canvasWidth - 50) / (100 - 50)) * 100}%, #374151 100%)`
                     }}
                   />
                   <div className='flex justify-between text-xs text-gray-400 mt-1'>
@@ -583,17 +612,17 @@ export default function WheelOfFortunePage() {
                 {/* Slider para la altura */}
                 <div>
                   <label className='block text-sm font-medium text-gray-300 mb-2'>
-                    Altura: {canvasHeight}vh
+                    Altura: {config.canvasHeight}vh
                   </label>
                   <input
                     type='range'
                     min='20'
                     max='100'
-                    value={canvasHeight}
-                    onChange={(e) => setCanvasHeight(Number(e.target.value))}
+                    value={config.canvasHeight}
+                    onChange={(e) => updateCanvasSize(config.canvasWidth, Number(e.target.value))}
                     className='w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
                     style={{
-                      background: `linear-gradient(to right, #10B981 0%, #10B981 ${((canvasHeight - 20) / (100 - 20)) * 100}%, #374151 ${((canvasHeight - 20) / (100 - 20)) * 100}%, #374151 100%)`
+                      background: `linear-gradient(to right, #10B981 0%, #10B981 ${((config.canvasHeight - 20) / (100 - 20)) * 100}%, #374151 ${((config.canvasHeight - 20) / (100 - 20)) * 100}%, #374151 100%)`
                     }}
                   />
                   <div className='flex justify-between text-xs text-gray-400 mt-1'>
@@ -605,12 +634,11 @@ export default function WheelOfFortunePage() {
                 {/* Botón de reset */}
                 <button
                   onClick={() => {
-                    setCanvasWidth(100)
                     if (isClient) {
                       const resetHeight = window.innerWidth >= 1024 ? 72 : 50
-                      setCanvasHeight(resetHeight)
+                      updateCanvasSize(100, resetHeight)
                     } else {
-                      setCanvasHeight(50)
+                      updateCanvasSize(100, 50)
                     }
                   }}
                   className='w-full rounded-lg px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 transition-all duration-300'

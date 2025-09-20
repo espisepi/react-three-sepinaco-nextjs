@@ -1,0 +1,220 @@
+import React, { useRef, useState } from 'react'
+import { WheelConfiguration } from '@/hooks/useWheelPersistence'
+
+interface WheelConfigManagerProps {
+    config: WheelConfiguration
+    onDownloadConfig: () => boolean
+    onLoadConfigFromFile: (file: File) => Promise<boolean>
+    onResetToDefault: () => void
+    onClearStorage: () => boolean
+    getConfigInfo: () => {
+        hasLocalStorage: boolean
+        panelCount: number
+        lastUpdated: string
+        version: string
+    }
+}
+
+export function WheelConfigManager({
+    config,
+    onDownloadConfig,
+    onLoadConfigFromFile,
+    onResetToDefault,
+    onClearStorage,
+    getConfigInfo,
+}: WheelConfigManagerProps) {
+    const fileInputRef = useRef<HTMLInputElement>(null)
+    const [isLoading, setIsLoading] = useState(false)
+    const [message, setMessage] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null)
+
+    const configInfo = getConfigInfo()
+
+    const showMessage = (type: 'success' | 'error' | 'info', text: string) => {
+        setMessage({ type, text })
+        setTimeout(() => setMessage(null), 3000)
+    }
+
+    const handleDownload = () => {
+        const success = onDownloadConfig()
+        if (success) {
+            showMessage('success', '✅ Configuración descargada exitosamente')
+        } else {
+            showMessage('error', '❌ Error al descargar la configuración')
+        }
+    }
+
+    const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0]
+        if (!file) return
+
+        if (!file.name.endsWith('.json')) {
+            showMessage('error', '❌ Por favor selecciona un archivo JSON válido')
+            return
+        }
+
+        setIsLoading(true)
+        try {
+            const success = await onLoadConfigFromFile(file)
+            if (success) {
+                showMessage('success', '✅ Configuración cargada exitosamente')
+            } else {
+                showMessage('error', '❌ Error al cargar la configuración. Verifica que el archivo sea válido.')
+            }
+        } catch (error) {
+            showMessage('error', '❌ Error inesperado al cargar el archivo')
+        } finally {
+            setIsLoading(false)
+            // Limpiar el input para permitir cargar el mismo archivo nuevamente
+            if (fileInputRef.current) {
+                fileInputRef.current.value = ''
+            }
+        }
+    }
+
+    const handleReset = () => {
+        if (window.confirm('¿Estás seguro de que quieres restablecer la configuración a los valores por defecto? Esta acción no se puede deshacer.')) {
+            onResetToDefault()
+            showMessage('info', '🔄 Configuración restablecida a valores por defecto')
+        }
+    }
+
+    const handleClearStorage = () => {
+        if (window.confirm('¿Estás seguro de que quieres limpiar todos los datos guardados? Esta acción no se puede deshacer.')) {
+            const success = onClearStorage()
+            if (success) {
+                showMessage('info', '🗑️ Datos locales limpiados exitosamente')
+            } else {
+                showMessage('error', '❌ Error al limpiar los datos locales')
+            }
+        }
+    }
+
+    const formatDate = (dateString: string) => {
+        try {
+            return new Date(dateString).toLocaleString('es-ES', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+            })
+        } catch {
+            return 'Fecha inválida'
+        }
+    }
+
+    return (
+        <div className='bg-white/10 backdrop-blur-sm rounded-2xl p-6'>
+            <h3 className='text-xl font-bold text-white mb-4'>💾 Gestión de Configuraciones</h3>
+
+            {/* Mensaje de estado */}
+            {message && (
+                <div className={`mb-4 p-3 rounded-lg text-sm font-medium ${message.type === 'success' ? 'bg-green-500/20 text-green-300 border border-green-400/30' :
+                        message.type === 'error' ? 'bg-red-500/20 text-red-300 border border-red-400/30' :
+                            'bg-blue-500/20 text-blue-300 border border-blue-400/30'
+                    }`}>
+                    {message.text}
+                </div>
+            )}
+
+            {/* Información de la configuración actual */}
+            <div className='mb-6 p-4 bg-white/5 rounded-lg'>
+                <h4 className='text-lg font-semibold text-white mb-3'>📊 Información Actual</h4>
+                <div className='grid grid-cols-2 gap-3 text-sm'>
+                    <div className='flex justify-between'>
+                        <span className='text-gray-300'>Paneles:</span>
+                        <span className='text-white font-semibold'>{configInfo.panelCount}</span>
+                    </div>
+                    <div className='flex justify-between'>
+                        <span className='text-gray-300'>Versión:</span>
+                        <span className='text-white font-semibold'>{configInfo.version}</span>
+                    </div>
+                    <div className='flex justify-between'>
+                        <span className='text-gray-300'>Duración:</span>
+                        <span className='text-white font-semibold'>{config.spinDuration}s</span>
+                    </div>
+                    <div className='flex justify-between'>
+                        <span className='text-gray-300'>Controles:</span>
+                        <span className={`font-semibold ${config.enableOrbitControls ? 'text-green-400' : 'text-gray-400'}`}>
+                            {config.enableOrbitControls ? 'Activados' : 'Desactivados'}
+                        </span>
+                    </div>
+                    <div className='col-span-2'>
+                        <div className='flex justify-between'>
+                            <span className='text-gray-300'>Última actualización:</span>
+                            <span className='text-white font-semibold'>{formatDate(configInfo.lastUpdated)}</span>
+                        </div>
+                    </div>
+                    <div className='col-span-2'>
+                        <div className='flex justify-between'>
+                            <span className='text-gray-300'>Guardado local:</span>
+                            <span className={`font-semibold ${configInfo.hasLocalStorage ? 'text-green-400' : 'text-gray-400'}`}>
+                                {configInfo.hasLocalStorage ? '✅ Sí' : '❌ No'}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Botones de acción */}
+            <div className='space-y-3'>
+                {/* Descargar configuración */}
+                <button
+                    onClick={handleDownload}
+                    className='w-full rounded-lg px-4 py-3 text-base font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all duration-300 hover:scale-105 shadow-lg'
+                >
+                    📥 Descargar Configuración JSON
+                </button>
+
+                {/* Cargar configuración */}
+                <div>
+                    <input
+                        ref={fileInputRef}
+                        type='file'
+                        accept='.json'
+                        onChange={handleFileSelect}
+                        className='hidden'
+                    />
+                    <button
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isLoading}
+                        className={`w-full rounded-lg px-4 py-3 text-base font-medium text-white transition-all duration-300 shadow-lg ${isLoading
+                                ? 'cursor-not-allowed bg-gray-500'
+                                : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 hover:scale-105'
+                            }`}
+                    >
+                        {isLoading ? '⏳ Cargando...' : '📤 Cargar Configuración JSON'}
+                    </button>
+                </div>
+
+                {/* Resetear configuración */}
+                <button
+                    onClick={handleReset}
+                    className='w-full rounded-lg px-4 py-3 text-base font-medium text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 transition-all duration-300 hover:scale-105 shadow-lg'
+                >
+                    🔄 Restablecer a Valores por Defecto
+                </button>
+
+                {/* Limpiar almacenamiento local */}
+                <button
+                    onClick={handleClearStorage}
+                    className='w-full rounded-lg px-4 py-3 text-base font-medium text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 transition-all duration-300 hover:scale-105 shadow-lg'
+                >
+                    🗑️ Limpiar Datos Locales
+                </button>
+            </div>
+
+            {/* Información adicional */}
+            <div className='mt-6 p-4 bg-white/5 rounded-lg'>
+                <h4 className='text-sm font-semibold text-white mb-2'>ℹ️ Información</h4>
+                <ul className='space-y-1 text-xs text-gray-300'>
+                    <li>• La configuración se guarda automáticamente en localStorage</li>
+                    <li>• Los archivos JSON incluyen todos los atributos modificables</li>
+                    <li>• Puedes compartir configuraciones exportando/importando archivos</li>
+                    <li>• El reset elimina todas las personalizaciones</li>
+                    <li>• Limpiar datos locales elimina la configuración guardada</li>
+                </ul>
+            </div>
+        </div>
+    )
+}
