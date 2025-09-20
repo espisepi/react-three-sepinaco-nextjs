@@ -398,13 +398,13 @@ export function WheelControls({
                         <input
                           type='range'
                           min='0.1'
-                          max='3'
+                          max='30'
                           step='0.1'
                           value={panel.textureScale || 1}
                           onChange={(e) => onUpdatePanelTextureScale(panel.id, parseFloat(e.target.value))}
                           className='slider h-2 flex-1 cursor-pointer appearance-none rounded-lg bg-gray-700'
                           style={{
-                            background: `linear-gradient(to right, #8B5CF6 0%, #8B5CF6 ${((panel.textureScale || 1) - 0.1) / (3 - 0.1) * 100}%, #374151 ${((panel.textureScale || 1) - 0.1) / (3 - 0.1) * 100}%, #374151 100%)`
+                            background: `linear-gradient(to right, #8B5CF6 0%, #8B5CF6 ${((panel.textureScale || 1) - 0.1) / (30 - 0.1) * 100}%, #374151 ${((panel.textureScale || 1) - 0.1) / (30 - 0.1) * 100}%, #374151 100%)`
                           }}
                         />
                         <div className='flex space-x-1'>
@@ -428,6 +428,34 @@ export function WheelControls({
                             title='Grande (2x)'
                           >
                             🔍+
+                          </button>
+                          <button
+                            onClick={() => onUpdatePanelTextureScale(panel.id, 5)}
+                            className={`rounded px-2 py-1 text-xs text-white ${(panel.textureScale || 1) === 5 ? 'bg-purple-600' : 'bg-gray-600'}`}
+                            title='Muy Grande (5x)'
+                          >
+                            5x
+                          </button>
+                          <button
+                            onClick={() => onUpdatePanelTextureScale(panel.id, 10)}
+                            className={`rounded px-2 py-1 text-xs text-white ${(panel.textureScale || 1) === 10 ? 'bg-purple-600' : 'bg-gray-600'}`}
+                            title='Extra Grande (10x)'
+                          >
+                            10x
+                          </button>
+                          <button
+                            onClick={() => onUpdatePanelTextureScale(panel.id, 20)}
+                            className={`rounded px-2 py-1 text-xs text-white ${(panel.textureScale || 1) === 20 ? 'bg-purple-600' : 'bg-gray-600'}`}
+                            title='Máximo (20x)'
+                          >
+                            20x
+                          </button>
+                          <button
+                            onClick={() => onUpdatePanelTextureScale(panel.id, 30)}
+                            className={`rounded px-2 py-1 text-xs text-white ${(panel.textureScale || 1) === 30 ? 'bg-purple-600' : 'bg-gray-600'}`}
+                            title='Ultra Máximo (30x)'
+                          >
+                            30x
                           </button>
                         </div>
                       </div>
