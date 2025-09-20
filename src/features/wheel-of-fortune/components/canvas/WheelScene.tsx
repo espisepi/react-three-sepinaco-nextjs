@@ -446,16 +446,6 @@ const Wheel = memo(({ panels, isSpinning, onSpinComplete, spinDuration, onCurren
   return (
     // @ts-ignore - Three.js JSX elements
     <group ref={wheelRef} rotation={[Math.PI / 2, 0, 0]}> {/* Rotación de 90° en X para orientar la ruleta frontalmente */}
-      {/* Base de la ruleta */}
-      {/* @ts-ignore - Three.js JSX elements */}
-      <mesh position={[0, 0, -0.1]}>
-        {/* @ts-ignore - Three.js JSX elements */}
-        <cylinderGeometry args={[2.05, 2.05, 0.05]} /> {/* Tamaño ajustado para coincidir con paneles - era 2.1 */}
-        {/* @ts-ignore - Three.js JSX elements */}
-        <meshPhysicalMaterial color="#333" metalness={0.8} roughness={0.2} />
-        {/* @ts-ignore - Three.js JSX elements */}
-      </mesh>
-
       {/* Segmentos de la ruleta */}
       {wheelSegments}
 
