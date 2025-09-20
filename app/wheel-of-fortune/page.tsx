@@ -3,14 +3,16 @@
 import dynamic from 'next/dynamic'
 import { Suspense, useState, useEffect, useCallback, useMemo } from 'react'
 import Image from 'next/image'
-import { WheelControls, WheelResult, WheelConfigManager, SceneSelector, SceneInfo } from '@/features/wheel-of-fortune/components'
+import { WheelControls, WheelResult, WheelConfigManager, SceneSelector, SceneInfo, SceneAndMaterialSelector } from '@/features/wheel-of-fortune/components'
 import { WheelPanel } from '@/types/wheel'
 import { useWheelPersistence } from '@/hooks/useWheelPersistence'
 import { usePanelUpdates } from '@/hooks/usePanelUpdates'
 import { useSceneManager } from '@/hooks/useSceneManager'
+import { useMaterialManager } from '@/hooks/useMaterialManager'
 import { CollapsibleBlock } from '@/components/ui/CollapsibleBlock'
 import { PerformanceMonitor } from '@/components/PerformanceMonitor'
 import { getRegisteredScenes } from '@/features/wheel-of-fortune/scenes'
+import { allMaterials } from '@/features/wheel-of-fortune/materials'
 
 const WheelScene = dynamic(() => import('@/features/wheel-of-fortune/components/canvas/WheelScene').then((mod) => mod.WheelScene), { ssr: false })
 const View = dynamic(() => import('@/components/canvas/View').then((mod) => ({ default: mod.View })), {
@@ -84,10 +86,30 @@ export default function WheelOfFortunePage() {
     isSceneActive
   } = useSceneManager(getRegisteredScenes(), 'classic')
 
+  // Hook de gestión de materiales
+  const {
+    activeMaterial,
+    setActiveMaterial,
+    getMaterialConfig,
+    updateMaterialConfig,
+    availableMaterials,
+    isMaterialActive
+  } = useMaterialManager('classic')
+
   // Función para limpiar localStorage y reiniciar (temporal para debug)
   const clearSceneStorage = useCallback(() => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('wheel-scene-manager-config')
+      window.location.reload()
+    }
+  }, [])
+
+  // Función para limpiar configuración de materiales
+  const clearMaterialStorage = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('wheel-material-manager-config')
+      localStorage.removeItem('wheel-material-history')
+      localStorage.removeItem('wheel-favorite-materials')
       window.location.reload()
     }
   }, [])
@@ -326,7 +348,8 @@ export default function WheelOfFortunePage() {
                       onRaycastHit: handleRaycastHit,
                       enableOrbitControls: config.enableOrbitControls,
                       autorotate: autorotate,
-                      autorotateSpeed: autorotateSpeed
+                      autorotateSpeed: autorotateSpeed,
+                      activeMaterial: activeMaterial
                     }}
                   />
                   <Common color={'#1a1a2e'} />
@@ -742,22 +765,15 @@ export default function WheelOfFortunePage() {
               </div>
             </CollapsibleBlock>
 
-            {/* Selector de Escenas */}
-            <SceneSelector
+            {/* Selector de Escenas y Materiales */}
+            <SceneAndMaterialSelector
               scenes={availableScenes}
               activeSceneId={activeScene?.id || 'classic'}
               onSceneSelect={setActiveScene}
-              isVisible={showSceneSelector}
-              onToggleVisibility={setShowSceneSelector}
+              materials={availableMaterials}
+              activeMaterialId={activeMaterial?.id || 'classic'}
+              onMaterialSelect={setActiveMaterial}
             />
-
-            {/* Información de la Escena */}
-            {activeScene && (
-              <SceneInfo
-                scenes={availableScenes}
-                activeSceneId={activeScene.id}
-              />
-            )}
 
             {/* Información de Debug */}
             <div className="rounded-lg border border-blue-400/30 bg-blue-500/20 p-4">
@@ -765,20 +781,36 @@ export default function WheelOfFortunePage() {
               <div className="space-y-1 text-xs text-gray-300">
                 <div>Escena activa: <span className="font-semibold text-white">{activeScene?.name || 'Ninguna'}</span></div>
                 <div>ID escena: <span className="font-semibold text-white">{activeScene?.id || 'N/A'}</span></div>
+                <div>Material activo: <span className="font-semibold text-white">{activeMaterial?.name || 'Ninguno'}</span></div>
+                <div>ID material: <span className="font-semibold text-white">{activeMaterial?.id || 'N/A'}</span></div>
                 <div>Escenas disponibles: <span className="font-semibold text-white">{availableScenes.length}</span></div>
+                <div>Materiales disponibles: <span className="font-semibold text-white">{availableMaterials.length}</span></div>
                 <div>Cliente cargado: <span className="font-semibold text-white">{isClient ? 'Sí' : 'No'}</span></div>
                 <div>Config cargada: <span className="font-semibold text-white">{isLoaded ? 'Sí' : 'No'}</span></div>
+                <div className="mt-2 pt-2 border-t border-white/10">
+                  <div className="text-xs text-blue-300">Persistencia:</div>
+                  <div>Material guardado: <span className="font-semibold text-white">{typeof window !== 'undefined' ? localStorage.getItem('wheel-material-manager-config') ? 'Sí' : 'No' : 'N/A'}</span></div>
+                  <div>Escena guardada: <span className="font-semibold text-white">{typeof window !== 'undefined' ? localStorage.getItem('wheel-scene-manager-config') ? 'Sí' : 'No' : 'N/A'}</span></div>
+                </div>
               </div>
             </div>
 
             {/* Botón temporal para limpiar localStorage */}
             <div className="rounded-lg border border-red-400/30 bg-red-500/20 p-4">
-              <button
-                onClick={clearSceneStorage}
-                className="rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700"
-              >
-                Limpiar localStorage y reiniciar
-              </button>
+              <div className="space-y-2">
+                <button
+                  onClick={clearSceneStorage}
+                  className="w-full rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+                >
+                  Limpiar localStorage de escenas y reiniciar
+                </button>
+                <button
+                  onClick={clearMaterialStorage}
+                  className="w-full rounded bg-orange-600 px-4 py-2 text-white hover:bg-orange-700"
+                >
+                  Limpiar localStorage de materiales y reiniciar
+                </button>
+              </div>
             </div>
           </div>
         </div>

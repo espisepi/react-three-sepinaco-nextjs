@@ -3,6 +3,8 @@ import React, { useRef, useMemo, useEffect, useState, useCallback, memo } from '
 import { useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls, Text } from '@react-three/drei'
 import { WheelPanel } from '@/types/wheel'
+import { WheelMaterial } from '@/types/material-manager'
+import { OptimizedLighting } from '@/components/canvas/RendererOptimizer'
 
 interface WheelSceneProps {
   panels: WheelPanel[]
@@ -14,6 +16,8 @@ interface WheelSceneProps {
   enableOrbitControls?: boolean
   autorotate?: boolean
   autorotateSpeed?: number
+  /** Material activo para los paneles */
+  activeMaterial?: WheelMaterial
 }
 
 interface WheelProps extends WheelSceneProps {
@@ -77,7 +81,7 @@ const AxesHelper = memo(() => {
 
 AxesHelper.displayName = 'AxesHelper'
 
-const Wheel = memo(({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPanelChange, onRaycastHit, pointerRef }: WheelProps) => {
+const Wheel = memo(({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPanelChange, onRaycastHit, pointerRef, activeMaterial }: WheelProps) => {
   const wheelRef = useRef<THREE.Group>(null)
   const [rotationSpeed, setRotationSpeed] = useState(0)
   const [isDecelerating, setIsDecelerating] = useState(false)
@@ -196,11 +200,17 @@ const Wheel = memo(({ panels, isSpinning, onSpinComplete, spinDuration, onCurren
     })
   }, [panels])
 
-  // Crear materiales para cada segmento - optimizado
+  // Crear materiales para cada segmento usando el sistema de materiales
   const materials = useMemo(() => {
     return panels.map(panel => {
       const texture = textures.get(panel.id)
 
+      // Si hay un material activo, usarlo
+      if (activeMaterial) {
+        return activeMaterial.createMaterial(panel.color, texture)
+      }
+
+      // Fallback al sistema original si no hay material activo
       if (texture) {
         // Actualizar propiedades de textura de forma eficiente
         const scale = panel.textureScale || 1
@@ -242,7 +252,7 @@ const Wheel = memo(({ panels, isSpinning, onSpinComplete, spinDuration, onCurren
         })
       }
     })
-  }, [panels, textures])
+  }, [panels, textures, activeMaterial])
 
   // Memoizar geometrías base para evitar recreaciones
   const baseCylinderGeometry = useMemo(() => new THREE.CylinderGeometry(2.05, 2.05, 0.1, 32, 1), [])
@@ -467,7 +477,7 @@ const Wheel = memo(({ panels, isSpinning, onSpinComplete, spinDuration, onCurren
 
 Wheel.displayName = 'Wheel'
 
-export const WheelScene = memo(({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPanelChange, onRaycastHit, enableOrbitControls = false, autorotate = false, autorotateSpeed = 0.5 }: WheelSceneProps) => {
+export const WheelScene = memo(({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPanelChange, onRaycastHit, enableOrbitControls = false, autorotate = false, autorotateSpeed = 0.5, activeMaterial }: WheelSceneProps) => {
   const pointerRef = useRef<THREE.Mesh | null>(null)
   const { camera } = useThree()
 
@@ -502,13 +512,8 @@ export const WheelScene = memo(({ panels, isSpinning, onSpinComplete, spinDurati
 
   return (
     <>
-      {/* Iluminación optimizada */}
-      {/* @ts-ignore - Three.js JSX elements */}
-      <ambientLight intensity={0.4} />
-      {/* @ts-ignore - Three.js JSX elements */}
-      <directionalLight position={[10, 10, 5]} intensity={1} />
-      {/* @ts-ignore - Three.js JSX elements */}
-      <pointLight position={[-10, -10, -10]} color="#4ECDC4" intensity={0.5} />
+      {/* Iluminación optimizada para materiales físicos */}
+      <OptimizedLighting />
 
       {/* Ruleta */}
       <Wheel
@@ -519,11 +524,12 @@ export const WheelScene = memo(({ panels, isSpinning, onSpinComplete, spinDurati
         onCurrentPanelChange={handleCurrentPanelChange}
         onRaycastHit={handleRaycastHit}
         pointerRef={pointerRef}
+        activeMaterial={activeMaterial}
       />
 
       {/* Puntero fijo - Fuera del grupo de la ruleta para que no gire */}
       {/* @ts-ignore - Three.js JSX elements */}
-      <mesh ref={pointerRef} position={[0, 2.2, 0]} rotation={[Math.PI, 0, 0]} geometry={coneGeometry} material={pointerMaterial} />
+      <mesh ref={pointerRef} position={[0, 2.2, 0]} rotation={[Math.PI, 0, 0]} geometry={coneGeometry} material={pointerMaterial} castShadow />
 
       {/* Línea de raycasting para debug */}
       {/* @ts-ignore - Three.js JSX elements */}
