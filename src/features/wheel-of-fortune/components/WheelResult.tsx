@@ -19,7 +19,7 @@ export function WheelResult({ result, raycastResult }: WheelResultProps) {
       <div className='text-center'>
         <div className='mb-4'>
           {displayResult.texture ? (
-            <div className='mx-auto mb-3 size-16 overflow-hidden rounded-full border-4 border-white/30'>
+            <div style={{ position: "relative" }} className='mx-auto mb-3 size-16 overflow-hidden rounded-full border-4 border-white/30'>
               <Image
                 src={displayResult.texture}
                 alt={displayResult.text}

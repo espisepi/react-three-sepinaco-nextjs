@@ -163,7 +163,7 @@ export function WheelControls({
 
           {/* Contador de tiempo restante */}
           {isSpinning && remainingTime !== undefined && (
-            <div className='rounded-lg bg-gradient-to-r from-orange-500/20 to-red-500/20 p-4 backdrop-blur-sm border border-orange-400/30'>
+            <div className='rounded-lg border border-orange-400/30 bg-gradient-to-r from-orange-500/20 to-red-500/20 p-4 backdrop-blur-sm'>
               <div className='text-center'>
                 <div className='mb-2 text-2xl font-bold text-orange-400'>
                   ⏰ {remainingTime.toFixed(1)}s
@@ -191,7 +191,7 @@ export function WheelControls({
 
       {/* Resultado del giro */}
       {result && (
-        <div className='rounded-xl bg-gradient-to-r from-green-500/20 to-emerald-500/20 p-6 backdrop-blur-sm border border-green-400/30'>
+        <div className='rounded-xl border border-green-400/30 bg-gradient-to-r from-green-500/20 to-emerald-500/20 p-6 backdrop-blur-sm'>
           <h3 className='mb-4 text-xl font-bold text-white'>🏆 Resultado del Giro</h3>
           <div className='text-center'>
             <div className='mb-4'>
@@ -205,18 +205,18 @@ export function WheelControls({
             <div className='space-y-2 text-sm text-gray-300'>
               <div className='flex justify-between'>
                 <span>Panel Ganador:</span>
-                <span className='text-white font-semibold'>{result.text}</span>
+                <span className='font-semibold text-white'>{result.text}</span>
               </div>
               <div className='flex justify-between'>
                 <span>ID:</span>
-                <span className='text-white font-mono'>{result.id}</span>
+                <span className='font-mono text-white'>{result.id}</span>
               </div>
               <div className='flex justify-between'>
                 <span>Color:</span>
-                <span className='text-white font-mono'>{result.color}</span>
+                <span className='font-mono text-white'>{result.color}</span>
               </div>
             </div>
-            <div className='mt-4 rounded-lg bg-green-500/10 p-3 border border-green-400/20'>
+            <div className='mt-4 rounded-lg border border-green-400/20 bg-green-500/10 p-3'>
               <p className='text-sm font-medium text-green-300'>
                 ✅ ¡Felicidades! Has ganado este premio
               </p>
@@ -303,7 +303,7 @@ export function WheelControls({
                   </div>
                 ) : (
                   <>
-                    <span className='flex-1 text-white font-medium'>{panel.text}</span>
+                    <span className='flex-1 font-medium text-white'>{panel.text}</span>
                     <button
                       onClick={() => handleEditStart(panel)}
                       className='rounded bg-blue-500 px-2 py-1 text-sm text-white hover:bg-blue-600'
@@ -355,7 +355,7 @@ export function WheelControls({
                       </label>
                       {panel.texture && (
                         <>
-                          <div className='size-8 overflow-hidden rounded border border-white/30'>
+                          <div style={{ position: "relative" }} className='size-8 overflow-hidden rounded border border-white/30'>
                             <Image
                               src={panel.texture}
                               alt={`Texture for ${panel.text}`}
@@ -402,7 +402,7 @@ export function WheelControls({
                           step='0.1'
                           value={panel.textureScale || 1}
                           onChange={(e) => onUpdatePanelTextureScale(panel.id, parseFloat(e.target.value))}
-                          className='slider flex-1 h-2 cursor-pointer appearance-none rounded-lg bg-gray-700'
+                          className='slider h-2 flex-1 cursor-pointer appearance-none rounded-lg bg-gray-700'
                           style={{
                             background: `linear-gradient(to right, #8B5CF6 0%, #8B5CF6 ${((panel.textureScale || 1) - 0.1) / (3 - 0.1) * 100}%, #374151 ${((panel.textureScale || 1) - 0.1) / (3 - 0.1) * 100}%, #374151 100%)`
                           }}
@@ -446,7 +446,7 @@ export function WheelControls({
                           step='15'
                           value={panel.textureRotation || 0}
                           onChange={(e) => onUpdatePanelTextureRotation(panel.id, parseFloat(e.target.value))}
-                          className='slider flex-1 h-2 cursor-pointer appearance-none rounded-lg bg-gray-700'
+                          className='slider h-2 flex-1 cursor-pointer appearance-none rounded-lg bg-gray-700'
                           style={{
                             background: `linear-gradient(to right, #10B981 0%, #10B981 ${((panel.textureRotation || 0) / 360) * 100}%, #374151 ${((panel.textureRotation || 0) / 360) * 100}%, #374151 100%)`
                           }}
@@ -505,7 +505,7 @@ export function WheelControls({
                             step='0.1'
                             value={panel.textureOffsetX || 0}
                             onChange={(e) => onUpdatePanelTextureOffset(panel.id, parseFloat(e.target.value), panel.textureOffsetY || 0)}
-                            className='slider flex-1 h-2 cursor-pointer appearance-none rounded-lg bg-gray-700'
+                            className='slider h-2 flex-1 cursor-pointer appearance-none rounded-lg bg-gray-700'
                             style={{
                               background: `linear-gradient(to right, #EF4444 0%, #EF4444 ${((panel.textureOffsetX || 0) + 1) / 2 * 100}%, #374151 ${((panel.textureOffsetX || 0) + 1) / 2 * 100}%, #374151 100%)`
                             }}
@@ -548,7 +548,7 @@ export function WheelControls({
                             step='0.1'
                             value={panel.textureOffsetY || 0}
                             onChange={(e) => onUpdatePanelTextureOffset(panel.id, panel.textureOffsetX || 0, parseFloat(e.target.value))}
-                            className='slider flex-1 h-2 cursor-pointer appearance-none rounded-lg bg-gray-700'
+                            className='slider h-2 flex-1 cursor-pointer appearance-none rounded-lg bg-gray-700'
                             style={{
                               background: `linear-gradient(to right, #3B82F6 0%, #3B82F6 ${((panel.textureOffsetY || 0) + 1) / 2 * 100}%, #374151 ${((panel.textureOffsetY || 0) + 1) / 2 * 100}%, #374151 100%)`
                             }}
@@ -595,7 +595,7 @@ export function WheelControls({
 
                 {/* Text controls section */}
                 {!!showTextControls[panel.id] && (
-                  <div className='ml-3 rounded-lg bg-orange-500/10 p-3 space-y-3 border border-orange-400/20'>
+                  <div className='ml-3 space-y-3 rounded-lg border border-orange-400/20 bg-orange-500/10 p-3'>
                     <div className='flex items-center justify-between'>
                       <h4 className='text-sm font-semibold text-orange-300'>Controles de Texto</h4>
                       <button
@@ -802,7 +802,7 @@ export function WheelControls({
         </div>
 
         {panels.length === 0 && (
-          <div className='text-center py-8 text-gray-400'>
+          <div className='py-8 text-center text-gray-400'>
             <p>No hay paneles en la ruleta</p>
             <p className='text-sm'>Haz clic en &quot;Agregar&quot; para crear el primero</p>
           </div>

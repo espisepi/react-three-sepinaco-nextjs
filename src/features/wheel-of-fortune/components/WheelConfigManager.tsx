@@ -109,9 +109,9 @@ export function WheelConfigManager({
 
       {/* Mensaje de estado */}
       {message && (
-        <div className={`mb-4 rounded-lg p-3 text-sm font-medium ${message.type === 'success' ? 'bg-green-500/20 text-green-300 border border-green-400/30' :
-          message.type === 'error' ? 'bg-red-500/20 text-red-300 border border-red-400/30' :
-            'bg-blue-500/20 text-blue-300 border border-blue-400/30'
+        <div className={`mb-4 rounded-lg border p-3 text-sm font-medium ${message.type === 'success' ? 'border-green-400/30 bg-green-500/20 text-green-300' :
+          message.type === 'error' ? 'border-red-400/30 bg-red-500/20 text-red-300' :
+            'border-blue-400/30 bg-blue-500/20 text-blue-300'
           }`}>
           {message.text}
         </div>
@@ -123,15 +123,15 @@ export function WheelConfigManager({
         <div className='grid grid-cols-2 gap-3 text-sm'>
           <div className='flex justify-between'>
             <span className='text-gray-300'>Paneles:</span>
-            <span className='text-white font-semibold'>{configInfo.panelCount}</span>
+            <span className='font-semibold text-white'>{configInfo.panelCount}</span>
           </div>
           <div className='flex justify-between'>
             <span className='text-gray-300'>Versión:</span>
-            <span className='text-white font-semibold'>{configInfo.version}</span>
+            <span className='font-semibold text-white'>{configInfo.version}</span>
           </div>
           <div className='flex justify-between'>
             <span className='text-gray-300'>Duración:</span>
-            <span className='text-white font-semibold'>{config.spinDuration}s</span>
+            <span className='font-semibold text-white'>{config.spinDuration}s</span>
           </div>
           <div className='flex justify-between'>
             <span className='text-gray-300'>Controles:</span>
@@ -142,7 +142,7 @@ export function WheelConfigManager({
           <div className='col-span-2'>
             <div className='flex justify-between'>
               <span className='text-gray-300'>Última actualización:</span>
-              <span className='text-white font-semibold'>{formatDate(configInfo.lastUpdated)}</span>
+              <span className='font-semibold text-white'>{formatDate(configInfo.lastUpdated)}</span>
             </div>
           </div>
           <div className='col-span-2'>
