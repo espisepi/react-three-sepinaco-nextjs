@@ -47,11 +47,22 @@ export default function WheelOfFortunePage() {
   const [raycastHitPanel, setRaycastHitPanel] = useState<WheelPanel | null>(null) // Panel detectado por raycasting
   const [enableOrbitControls, setEnableOrbitControls] = useState(false) // Control de OrbitControls - desactivado por defecto
   const [canvasWidth, setCanvasWidth] = useState(100) // Ancho del canvas en porcentaje
-  const [canvasHeight, setCanvasHeight] = useState(getDefaultCanvasHeight()) // Altura del canvas responsiva
+  const [canvasHeight, setCanvasHeight] = useState(50) // Altura inicial consistente para evitar hydration error
   const [remainingTime, setRemainingTime] = useState<number | undefined>(undefined) // Tiempo restante del giro
+  const [isClient, setIsClient] = useState(false) // Flag para detectar si estamos en el cliente
+
+  // Efecto para detectar cuando estamos en el cliente y ajustar la altura inicial
+  useEffect(() => {
+    setIsClient(true)
+    // Establecer la altura correcta basada en el tamaño de pantalla después de la hidratación
+    const initialHeight = window.innerWidth >= 1024 ? 72 : 50
+    setCanvasHeight(initialHeight)
+  }, [])
 
   // Actualizar altura por defecto cuando cambie el tamaño de ventana
   useEffect(() => {
+    if (!isClient) return // Solo ejecutar en el cliente
+
     const handleResize = () => {
       const newDefaultHeight = window.innerWidth >= 1024 ? 72 : 50
       // Solo actualizar si el usuario no ha modificado manualmente el slider
@@ -63,7 +74,7 @@ export default function WheelOfFortunePage() {
 
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
-  }, [canvasHeight])
+  }, [canvasHeight, isClient])
 
   // Calcular tiempo restante durante el giro
   useEffect(() => {
@@ -595,7 +606,12 @@ export default function WheelOfFortunePage() {
                 <button
                   onClick={() => {
                     setCanvasWidth(100)
-                    setCanvasHeight(getDefaultCanvasHeight())
+                    if (isClient) {
+                      const resetHeight = window.innerWidth >= 1024 ? 72 : 50
+                      setCanvasHeight(resetHeight)
+                    } else {
+                      setCanvasHeight(50)
+                    }
                   }}
                   className='w-full rounded-lg px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 transition-all duration-300'
                 >
