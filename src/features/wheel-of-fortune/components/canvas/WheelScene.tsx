@@ -502,13 +502,11 @@ export const WheelScene = memo(({ panels, isSpinning, onSpinComplete, spinDurati
 
   // Memoizar geometrías y materiales para mejor performance
   const coneGeometry = useMemo(() => new THREE.ConeGeometry(0.1, 0.3), [])
-  const cylinderGeometry = useMemo(() => new THREE.CylinderGeometry(0.005, 0.005, 2.2), [])
   const pointerMaterial = useMemo(() => new THREE.MeshPhysicalMaterial({
     color: "#FF0000",
     metalness: 0.8,
     roughness: 0.2
   }), [])
-  const debugMaterial = useMemo(() => new THREE.MeshBasicMaterial({ color: "#ffff00" }), [])
 
   return (
     <>
@@ -531,9 +529,6 @@ export const WheelScene = memo(({ panels, isSpinning, onSpinComplete, spinDurati
       {/* @ts-ignore - Three.js JSX elements */}
       <mesh ref={pointerRef} position={[0, 2.2, 0]} rotation={[Math.PI, 0, 0]} geometry={coneGeometry} material={pointerMaterial} castShadow />
 
-      {/* Línea de raycasting para debug */}
-      {/* @ts-ignore - Three.js JSX elements */}
-      <mesh position={[0, 1.1, 0]} rotation={[0, 0, 0]} geometry={cylinderGeometry} material={debugMaterial} />
 
       {/* Controles de cámara */}
       {enableOrbitControls && (
