@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic'
 import { Suspense, useState, useEffect } from 'react'
+import Image from 'next/image'
 import { WheelControls, WheelResult, WheelConfigManager } from '@/features/wheel-of-fortune/components'
 import { WheelPanel } from '@/types/wheel'
 import { useWheelPersistence } from '@/hooks/useWheelPersistence'
@@ -410,11 +411,20 @@ export default function WheelOfFortunePage() {
               <div className='rounded-2xl bg-white/10 p-6 backdrop-blur-sm'>
                 <h3 className='mb-4 text-xl font-bold text-white'>🎯 Panel Detectado</h3>
                 <div className='text-center'>
-                  <div
-                    className='mb-3 inline-block rounded-lg px-4 py-2 font-semibold text-white'
-                    style={{ backgroundColor: raycastHitPanel.color }}
-                  >
-                    {raycastHitPanel.text}
+                  <div className='mb-4'>
+                    {raycastHitPanel.texture ? (
+                      <div style={{ position: "relative" }} className='mx-auto mb-3 size-16 overflow-hidden rounded-full border-4 border-white/30'>
+                        <Image
+                          src={raycastHitPanel.texture}
+                          alt={raycastHitPanel.text}
+                          fill
+                          className='object-cover'
+                        />
+                      </div>
+                    ) : (
+                      <div className='mx-auto mb-3 size-16 rounded-full border-4 border-white/30' style={{ backgroundColor: raycastHitPanel.color }} />
+                    )}
+                    <h4 className='text-2xl font-bold text-white'>{raycastHitPanel.text}</h4>
                   </div>
                   {/* <div className='space-y-2 text-sm text-gray-300'>
                     <div className='flex justify-between'>
