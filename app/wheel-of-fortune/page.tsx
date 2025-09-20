@@ -787,7 +787,7 @@ export default function WheelOfFortunePage() {
                 <div>Materiales disponibles: <span className="font-semibold text-white">{availableMaterials.length}</span></div>
                 <div>Cliente cargado: <span className="font-semibold text-white">{isClient ? 'Sí' : 'No'}</span></div>
                 <div>Config cargada: <span className="font-semibold text-white">{isLoaded ? 'Sí' : 'No'}</span></div>
-                <div className="mt-2 pt-2 border-t border-white/10">
+                <div className="mt-2 border-t border-white/10 pt-2">
                   <div className="text-xs text-blue-300">Persistencia:</div>
                   <div>Material guardado: <span className="font-semibold text-white">{typeof window !== 'undefined' ? localStorage.getItem('wheel-material-manager-config') ? 'Sí' : 'No' : 'N/A'}</span></div>
                   <div>Escena guardada: <span className="font-semibold text-white">{typeof window !== 'undefined' ? localStorage.getItem('wheel-scene-manager-config') ? 'Sí' : 'No' : 'N/A'}</span></div>
