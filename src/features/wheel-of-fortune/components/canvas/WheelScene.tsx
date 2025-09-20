@@ -540,7 +540,7 @@ export function WheelScene({ panels, isSpinning, onSpinComplete, spinDuration, o
       {/* Controles de cámara */}
       {enableOrbitControls && (
         <OrbitControls
-          enablePan={false}
+          enablePan={true}
           enableZoom={true}
           enableRotate={true}
           minDistance={1}

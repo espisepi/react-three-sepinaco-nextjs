@@ -373,8 +373,8 @@ export default function WheelOfFortunePage() {
                 <button
                   onClick={toggleOrbitControls}
                   className={`w-full rounded-lg px-6 py-3 text-base font-bold text-white transition-all duration-300 ${enableOrbitControls
-                    ? 'bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg hover:scale-105 hover:from-blue-600 hover:to-purple-700'
-                    : 'bg-gradient-to-r from-amber-500 to-orange-600 shadow-lg hover:scale-105 hover:from-amber-600 hover:to-orange-700'
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-600 shadow-lg hover:scale-105 hover:from-amber-600 hover:to-orange-700'
+                    : 'bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg hover:scale-105 hover:from-blue-600 hover:to-purple-700'
                     }`}
                 >
                   {enableOrbitControls ? '🎮 Controles Activados' : '🚫 Controles Desactivados'}
