@@ -434,7 +434,7 @@ export function WheelScene({ panels, isSpinning, onSpinComplete, spinDuration, o
 
       {/* Puntero fijo - Fuera del grupo de la ruleta para que no gire */}
       {/* @ts-ignore - Three.js JSX elements */}
-      <mesh ref={pointerRef} position={[0, 2.2, 0]} rotation={[0, 0, 0]}>
+      <mesh ref={pointerRef} position={[0, 2.2, 0]} rotation={[Math.PI, 0, 0]}>
         {/* @ts-ignore - Three.js JSX elements */}
         <coneGeometry args={[0.1, 0.3]} />
         {/* @ts-ignore - Three.js JSX elements */}
