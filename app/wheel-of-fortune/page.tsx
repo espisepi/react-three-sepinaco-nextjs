@@ -343,7 +343,7 @@ export default function WheelOfFortunePage() {
         <div className='grid grid-cols-1 gap-8 lg:grid-cols-3'>
           {/* 3D Wheel */}
           <div className='lg:col-span-2'>
-            <div className='rounded-2xl bg-white/10 p-6 backdrop-blur-sm'>
+            <div className='rounded-2xl bg-white/10 p-6 backdrop-blur-sm lg:sticky lg:top-8'>
               <View
                 className='flex flex-col items-center justify-center'
                 style={{
