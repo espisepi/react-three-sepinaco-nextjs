@@ -7,6 +7,16 @@ export interface WheelConfiguration {
   enableOrbitControls: boolean
   canvasWidth: number
   canvasHeight: number
+  blockVisibility: {
+    wheelControl: boolean
+    panelDetected: boolean
+    wheelResult: boolean
+    panelsManagement: boolean
+    spinDuration: boolean
+    canvasSize: boolean
+    configManager: boolean
+    instructions: boolean
+  }
   version: string
   createdAt: string
   updatedAt: string
@@ -26,6 +36,16 @@ const DEFAULT_CONFIG: WheelConfiguration = {
   enableOrbitControls: false,
   canvasWidth: 100,
   canvasHeight: 50,
+  blockVisibility: {
+    wheelControl: true,
+    panelDetected: true,
+    wheelResult: true,
+    panelsManagement: true,
+    spinDuration: true,
+    canvasSize: true,
+    configManager: true,
+    instructions: true,
+  },
   version: '1.0.0',
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
@@ -65,6 +85,16 @@ export function useWheelPersistence() {
       typeof config.enableOrbitControls === 'boolean' &&
       typeof config.canvasWidth === 'number' &&
       typeof config.canvasHeight === 'number' &&
+      config.blockVisibility &&
+      typeof config.blockVisibility === 'object' &&
+      typeof config.blockVisibility.wheelControl === 'boolean' &&
+      typeof config.blockVisibility.panelDetected === 'boolean' &&
+      typeof config.blockVisibility.wheelResult === 'boolean' &&
+      typeof config.blockVisibility.panelsManagement === 'boolean' &&
+      typeof config.blockVisibility.spinDuration === 'boolean' &&
+      typeof config.blockVisibility.canvasSize === 'boolean' &&
+      typeof config.blockVisibility.configManager === 'boolean' &&
+      typeof config.blockVisibility.instructions === 'boolean' &&
       typeof config.version === 'string' &&
       typeof config.createdAt === 'string' &&
       typeof config.updatedAt === 'string'
@@ -119,6 +149,16 @@ export function useWheelPersistence() {
   const updateCanvasSize = useCallback((canvasWidth: number, canvasHeight: number) => {
     updateConfig({ canvasWidth, canvasHeight })
   }, [updateConfig])
+
+  // Actualizar visibilidad de bloques
+  const updateBlockVisibility = useCallback((blockKey: keyof WheelConfiguration['blockVisibility'], isVisible: boolean) => {
+    updateConfig({
+      blockVisibility: {
+        ...config.blockVisibility,
+        [blockKey]: isVisible,
+      },
+    })
+  }, [config.blockVisibility, updateConfig])
 
   // Descargar configuración como archivo JSON
   const downloadConfig = useCallback(() => {
@@ -215,6 +255,7 @@ export function useWheelPersistence() {
     updateSpinDuration,
     updateOrbitControls,
     updateCanvasSize,
+    updateBlockVisibility,
     downloadConfig,
     loadConfigFromFile,
     resetToDefault,

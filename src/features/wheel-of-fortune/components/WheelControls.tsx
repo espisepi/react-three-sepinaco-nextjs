@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { useState } from 'react'
 import { WheelPanel } from '@/types/wheel'
+import { CollapsibleBlock } from '@/components/ui/CollapsibleBlock'
 
 interface WheelControlsProps {
   panels: WheelPanel[]
@@ -24,6 +25,12 @@ interface WheelControlsProps {
   remainingTime?: number
   result?: WheelPanel | null
   raycastResult?: WheelPanel | null
+  blockVisibility: {
+    spinDuration: boolean
+    panelsManagement: boolean
+    instructions: boolean
+  }
+  onUpdateBlockVisibility: (blockKey: 'spinDuration' | 'panelsManagement' | 'instructions', isVisible: boolean) => void
 }
 
 export function WheelControls({
@@ -45,7 +52,9 @@ export function WheelControls({
   onSpinDurationChange,
   remainingTime,
   result,
-  raycastResult
+  raycastResult,
+  blockVisibility,
+  onUpdateBlockVisibility
 }: WheelControlsProps) {
   const [editingPanel, setEditingPanel] = useState<string | null>(null)
   const [editText, setEditText] = useState('')
@@ -138,8 +147,12 @@ export function WheelControls({
   return (
     <div className='space-y-6'>
       {/* Control de duración del giro */}
-      <div className='rounded-xl bg-white/10 p-6 backdrop-blur-sm'>
-        <h3 className='mb-4 text-xl font-bold text-white'>⏱️ Duración del Giro</h3>
+      <CollapsibleBlock
+        title="Duración del Giro"
+        icon="⏱️"
+        isVisible={blockVisibility.spinDuration}
+        onToggle={() => onUpdateBlockVisibility('spinDuration', !blockVisibility.spinDuration)}
+      >
         <div className='space-y-4'>
           <div>
             <label className='mb-2 block text-sm font-medium text-gray-300'>
@@ -187,7 +200,7 @@ export function WheelControls({
             Ajusta cuánto tiempo quieres que gire la ruleta. Más tiempo = más vueltas.
           </p>
         </div>
-      </div>
+      </CollapsibleBlock>
 
       {/* Resultado del giro */}
       {result && (
@@ -226,9 +239,13 @@ export function WheelControls({
       )}
 
       {/* Gestión de paneles */}
-      <div className='rounded-xl bg-white/10 p-6 backdrop-blur-sm'>
+      <CollapsibleBlock
+        title={`Paneles (${panels.length})`}
+        icon="📝"
+        isVisible={blockVisibility.panelsManagement}
+        onToggle={() => onUpdateBlockVisibility('panelsManagement', !blockVisibility.panelsManagement)}
+      >
         <div className='mb-4 flex items-center justify-between'>
-          <h3 className='text-xl font-bold text-white'>📝 Paneles ({panels.length})</h3>
           <button
             onClick={onAddPanel}
             className='rounded-lg bg-green-500 px-4 py-2 font-semibold text-white transition-colors hover:bg-green-600'
@@ -835,11 +852,15 @@ export function WheelControls({
             <p className='text-sm'>Haz clic en &quot;Agregar&quot; para crear el primero</p>
           </div>
         )}
-      </div>
+      </CollapsibleBlock>
 
       {/* Instrucciones */}
-      <div className='rounded-xl bg-white/10 p-6 backdrop-blur-sm'>
-        <h3 className='mb-4 text-xl font-bold text-white'>ℹ️ Instrucciones</h3>
+      <CollapsibleBlock
+        title="Instrucciones"
+        icon="ℹ️"
+        isVisible={blockVisibility.instructions}
+        onToggle={() => onUpdateBlockVisibility('instructions', !blockVisibility.instructions)}
+      >
         <ul className='space-y-2 text-sm text-gray-300'>
           <li>• La ruleta girará automáticamente y se detendrá</li>
           <li>• El panel seleccionado aparecerá en el resultado</li>
@@ -859,7 +880,7 @@ export function WheelControls({
           <li>• Usa el botón &quot;Restablecer Texto&quot; para volver a valores por defecto</li>
           <li>• Necesitas al menos un panel para poder girar</li>
         </ul>
-      </div>
+      </CollapsibleBlock>
     </div>
   )
 }

@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { WheelControls, WheelResult, WheelConfigManager } from '@/features/wheel-of-fortune/components'
 import { WheelPanel } from '@/types/wheel'
 import { useWheelPersistence } from '@/hooks/useWheelPersistence'
+import { CollapsibleBlock } from '@/components/ui/CollapsibleBlock'
 
 const WheelScene = dynamic(() => import('@/features/wheel-of-fortune/components/canvas/WheelScene').then((mod) => mod.WheelScene), { ssr: false })
 const View = dynamic(() => import('@/components/canvas/View').then((mod) => mod.View), {
@@ -34,6 +35,7 @@ export default function WheelOfFortunePage() {
     updateSpinDuration,
     updateOrbitControls,
     updateCanvasSize,
+    updateBlockVisibility,
     downloadConfig,
     loadConfigFromFile,
     resetToDefault,
@@ -372,12 +374,23 @@ export default function WheelOfFortunePage() {
           <div className='space-y-6'>
             {/* Resultado del giro */}
             {result && (
-              <WheelResult result={result} raycastResult={raycastHitPanel} />
+              <CollapsibleBlock
+                title="Resultado del Giro"
+                icon="🏆"
+                isVisible={config.blockVisibility.wheelResult}
+                onToggle={() => updateBlockVisibility('wheelResult', !config.blockVisibility.wheelResult)}
+              >
+                <WheelResult result={result} raycastResult={raycastHitPanel} />
+              </CollapsibleBlock>
             )}
 
             {/* Botón de girar */}
-            <div className='rounded-2xl bg-white/10 p-6 backdrop-blur-sm'>
-              <h3 className='mb-4 text-xl font-bold text-white'>🎯 Control de la Ruleta</h3>
+            <CollapsibleBlock
+              title="Control de la Ruleta"
+              icon="🎯"
+              isVisible={config.blockVisibility.wheelControl}
+              onToggle={() => updateBlockVisibility('wheelControl', !config.blockVisibility.wheelControl)}
+            >
               <div className='space-y-3'>
                 <button
                   onClick={handleSpin}
@@ -403,13 +416,17 @@ export default function WheelOfFortunePage() {
               {config.panels.length === 0 && (
                 <p className='mt-2 text-sm text-red-300'>Agrega al menos un panel para poder girar</p>
               )}
-            </div>
+            </CollapsibleBlock>
 
 
             {/* Panel detectado por raycasting */}
             {raycastHitPanel && (
-              <div className='rounded-2xl bg-white/10 p-6 backdrop-blur-sm'>
-                <h3 className='mb-4 text-xl font-bold text-white'>🎯 Panel Detectado</h3>
+              <CollapsibleBlock
+                title="Panel Detectado"
+                icon="🎯"
+                isVisible={config.blockVisibility.panelDetected}
+                onToggle={() => updateBlockVisibility('panelDetected', !config.blockVisibility.panelDetected)}
+              >
                 <div className='text-center'>
                   <div className='mb-4'>
                     {raycastHitPanel.texture ? (
@@ -426,14 +443,8 @@ export default function WheelOfFortunePage() {
                     )}
                     <h4 className='text-2xl font-bold text-white'>{raycastHitPanel.text}</h4>
                   </div>
-                  {/* <div className='space-y-2 text-sm text-gray-300'>
-                    <div className='flex justify-between'>
-                      <span>Color:</span>
-                      <span className='text-white font-mono'>{raycastHitPanel.color}</span>
-                    </div>
-                  </div> */}
                 </div>
-              </div>
+              </CollapsibleBlock>
             )}
 
             {/* Panel detectado por raycasting */}
@@ -563,14 +574,21 @@ export default function WheelOfFortunePage() {
             )} */}
 
             {/* Gestión de configuraciones */}
-            <WheelConfigManager
-              config={config}
-              onDownloadConfig={downloadConfig}
-              onLoadConfigFromFile={loadConfigFromFile}
-              onResetToDefault={resetToDefault}
-              onClearStorage={clearStorage}
-              getConfigInfo={getConfigInfo}
-            />
+            <CollapsibleBlock
+              title="Gestión de Configuraciones"
+              icon="⚙️"
+              isVisible={config.blockVisibility.configManager}
+              onToggle={() => updateBlockVisibility('configManager', !config.blockVisibility.configManager)}
+            >
+              <WheelConfigManager
+                config={config}
+                onDownloadConfig={downloadConfig}
+                onLoadConfigFromFile={loadConfigFromFile}
+                onResetToDefault={resetToDefault}
+                onClearStorage={clearStorage}
+                getConfigInfo={getConfigInfo}
+              />
+            </CollapsibleBlock>
 
             {/* Controles de la ruleta */}
             <WheelControls
@@ -591,11 +609,23 @@ export default function WheelOfFortunePage() {
               spinDuration={config.spinDuration}
               onSpinDurationChange={updateSpinDuration}
               remainingTime={remainingTime}
+              blockVisibility={{
+                spinDuration: config.blockVisibility.spinDuration,
+                panelsManagement: config.blockVisibility.panelsManagement,
+                instructions: config.blockVisibility.instructions,
+              }}
+              onUpdateBlockVisibility={(blockKey, isVisible) => {
+                updateBlockVisibility(blockKey, isVisible)
+              }}
             />
 
             {/* Controles de tamaño del canvas */}
-            <div className='rounded-2xl bg-white/10 p-6 backdrop-blur-sm'>
-              <h3 className='mb-4 text-xl font-bold text-white'>📐 Tamaño del Canvas</h3>
+            <CollapsibleBlock
+              title="Tamaño del Canvas"
+              icon="📐"
+              isVisible={config.blockVisibility.canvasSize}
+              onToggle={() => updateBlockVisibility('canvasSize', !config.blockVisibility.canvasSize)}
+            >
               <div className='space-y-4'>
                 {/* Slider para el ancho */}
                 <div>
@@ -656,7 +686,7 @@ export default function WheelOfFortunePage() {
                   🔄 Restablecer Tamaño
                 </button>
               </div>
-            </div>
+            </CollapsibleBlock>
           </div>
         </div>
       </div>
