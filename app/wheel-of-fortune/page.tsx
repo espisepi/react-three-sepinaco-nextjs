@@ -33,12 +33,12 @@ export default function WheelOfFortunePage() {
   }
 
   const [panels, setPanels] = useState<WheelPanel[]>([
-    { id: '1', text: 'Premio 1', color: '#FF6B6B' },
-    { id: '2', text: 'Premio 2', color: '#4ECDC4' },
-    { id: '3', text: 'Premio 3', color: '#45B7D1' },
-    { id: '4', text: 'Premio 4', color: '#96CEB4' },
-    { id: '5', text: 'Premio 5', color: '#FFEAA7' },
-    { id: '6', text: 'Premio 6', color: '#DDA0DD' },
+    { id: '1', text: 'Premio 1', color: '#FF4444' }, // Rojo vibrante
+    { id: '2', text: 'Premio 2', color: '#00AA44' }, // Verde esmeralda
+    { id: '3', text: 'Premio 3', color: '#0066FF' }, // Azul brillante
+    { id: '4', text: 'Premio 4', color: '#FF8800' }, // Naranja intenso
+    { id: '5', text: 'Premio 5', color: '#8800FF' }, // Púrpura vibrante
+    { id: '6', text: 'Premio 6', color: '#00CCCC' }, // Cian brillante
   ])
   const [isSpinning, setIsSpinning] = useState(false)
   const [result, setResult] = useState<WheelPanel | null>(null)
@@ -122,7 +122,28 @@ export default function WheelOfFortunePage() {
 
   const addPanel = () => {
     const newId = (panels.length + 1).toString()
-    const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#FF9FF3', '#54A0FF', '#5F27CD', '#00D2D3']
+    const colors = [
+      '#FF4444', // Rojo vibrante
+      '#00AA44', // Verde esmeralda
+      '#0066FF', // Azul brillante
+      '#FF8800', // Naranja intenso
+      '#8800FF', // Púrpura vibrante
+      '#00CCCC', // Cian brillante
+      '#FF0088', // Rosa vibrante
+      '#44AA00', // Verde lima
+      '#0088FF', // Azul cielo
+      '#FF6600', // Naranja rojizo
+      '#AA00AA', // Magenta
+      '#00AAAA', // Turquesa
+      '#FFAA00', // Amarillo dorado
+      '#6600FF', // Índigo
+      '#AA4400', // Marrón rojizo
+      '#00FF88', // Verde lima brillante
+      '#FF0044', // Rojo carmesí
+      '#0088AA', // Azul verdoso
+      '#AA6600', // Marrón dorado
+      '#8800AA'  // Púrpura oscuro
+    ]
     const newPanel: WheelPanel = {
       id: newId,
       text: `Premio ${newId}`,

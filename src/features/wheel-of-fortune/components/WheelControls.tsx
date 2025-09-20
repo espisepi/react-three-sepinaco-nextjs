@@ -340,8 +340,8 @@ export function WheelControls({
                           <button
                             onClick={() => toggleTextureControls(panel.id)}
                             className={`px-2 py-1 rounded text-xs transition-colors ${showTextureControls.get(panel.id)
-                                ? 'bg-blue-600 hover:bg-blue-700'
-                                : 'bg-gray-600 hover:bg-gray-700'
+                              ? 'bg-blue-600 hover:bg-blue-700'
+                              : 'bg-gray-600 hover:bg-gray-700'
                               } text-white`}
                             title={showTextureControls.get(panel.id) ? 'Ocultar controles' : 'Mostrar controles'}
                           >
