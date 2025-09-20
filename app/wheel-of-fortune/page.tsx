@@ -168,6 +168,70 @@ export default function WheelOfFortunePage() {
     }
   }
 
+  const updatePanelTexture = (id: string, texture: string | null) => {
+    setPanels(panels.map(panel =>
+      panel.id === id ? { ...panel, texture: texture || undefined } : panel
+    ))
+
+    // Si el panel modificado es el resultado actual, actualizar también el resultado
+    if (result && result.id === id) {
+      setResult({ ...result, texture: texture || undefined })
+    }
+
+    // Si el panel modificado es el panel actual, actualizar también el panel actual
+    if (currentPanel && currentPanel.id === id) {
+      setCurrentPanel({ ...currentPanel, texture: texture || undefined })
+    }
+  }
+
+  const updatePanelTextureScale = (id: string, scale: number) => {
+    setPanels(panels.map(panel =>
+      panel.id === id ? { ...panel, textureScale: scale } : panel
+    ))
+
+    // Si el panel modificado es el resultado actual, actualizar también el resultado
+    if (result && result.id === id) {
+      setResult({ ...result, textureScale: scale })
+    }
+
+    // Si el panel modificado es el panel actual, actualizar también el panel actual
+    if (currentPanel && currentPanel.id === id) {
+      setCurrentPanel({ ...currentPanel, textureScale: scale })
+    }
+  }
+
+  const updatePanelTextureRotation = (id: string, rotation: number) => {
+    setPanels(panels.map(panel =>
+      panel.id === id ? { ...panel, textureRotation: rotation } : panel
+    ))
+
+    // Si el panel modificado es el resultado actual, actualizar también el resultado
+    if (result && result.id === id) {
+      setResult({ ...result, textureRotation: rotation })
+    }
+
+    // Si el panel modificado es el panel actual, actualizar también el panel actual
+    if (currentPanel && currentPanel.id === id) {
+      setCurrentPanel({ ...currentPanel, textureRotation: rotation })
+    }
+  }
+
+  const updatePanelTextureOffset = (id: string, offsetX: number, offsetY: number) => {
+    setPanels(panels.map(panel =>
+      panel.id === id ? { ...panel, textureOffsetX: offsetX, textureOffsetY: offsetY } : panel
+    ))
+
+    // Si el panel modificado es el resultado actual, actualizar también el resultado
+    if (result && result.id === id) {
+      setResult({ ...result, textureOffsetX: offsetX, textureOffsetY: offsetY })
+    }
+
+    // Si el panel modificado es el panel actual, actualizar también el panel actual
+    if (currentPanel && currentPanel.id === id) {
+      setCurrentPanel({ ...currentPanel, textureOffsetX: offsetX, textureOffsetY: offsetY })
+    }
+  }
+
   return (
     <div className='min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900'>
       <div className='container mx-auto px-4 py-8'>
@@ -398,6 +462,10 @@ export default function WheelOfFortunePage() {
               onRemovePanel={removePanel}
               onUpdatePanel={updatePanel}
               onUpdatePanelColor={updatePanelColor}
+              onUpdatePanelTexture={updatePanelTexture}
+              onUpdatePanelTextureScale={updatePanelTextureScale}
+              onUpdatePanelTextureRotation={updatePanelTextureRotation}
+              onUpdatePanelTextureOffset={updatePanelTextureOffset}
               spinDuration={spinDuration}
               onSpinDurationChange={setSpinDuration}
               remainingTime={remainingTime}

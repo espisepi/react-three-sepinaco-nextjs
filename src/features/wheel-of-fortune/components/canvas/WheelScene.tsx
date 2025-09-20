@@ -106,6 +106,7 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPane
   const wheelRef = useRef<THREE.Group>(null)
   const [rotationSpeed, setRotationSpeed] = useState(0)
   const [isDecelerating, setIsDecelerating] = useState(false)
+  const [textures, setTextures] = useState<Map<string, THREE.Texture>>(new Map())
   const spinStartTime = useRef<number>(0)
   const spinTimer = useRef<NodeJS.Timeout | null>(null)
   const hasStartedSpinning = useRef<boolean>(false)
@@ -113,6 +114,40 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPane
 
   // Referencias para raycasting
   const { raycaster, camera, scene } = useThree()
+
+  // Cargar texturas cuando cambien los paneles
+  useEffect(() => {
+    const loadTextures = async () => {
+      const newTextures = new Map<string, THREE.Texture>()
+
+      for (const panel of panels) {
+        if (panel.texture) {
+          try {
+            const texture = new THREE.TextureLoader().load(panel.texture)
+            texture.wrapS = THREE.RepeatWrapping
+            texture.wrapT = THREE.RepeatWrapping
+            // Aplicar escala de textura
+            const scale = panel.textureScale || 1
+            texture.repeat.set(scale, scale)
+            // Aplicar rotación de textura
+            const rotation = panel.textureRotation || 0
+            texture.rotation = (rotation * Math.PI) / 180 // Convertir grados a radianes
+            // Aplicar translación de textura
+            const offsetX = panel.textureOffsetX || 0
+            const offsetY = panel.textureOffsetY || 0
+            texture.offset.set(offsetX, offsetY)
+            newTextures.set(panel.id, texture)
+          } catch (error) {
+            console.warn(`Error loading texture for panel ${panel.id}:`, error)
+          }
+        }
+      }
+
+      setTextures(newTextures)
+    }
+
+    loadTextures()
+  }, [panels])
 
   // Aplicar rotación inicial aleatoria SOLO cuando se monta el componente
   useEffect(() => {
@@ -153,16 +188,43 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPane
 
   // Crear materiales para cada segmento
   const materials = useMemo(() => {
-    return panels.map(panel =>
-      new THREE.MeshPhysicalMaterial({
-        color: panel.color,
-        metalness: 0.1,
-        roughness: 0.3,
-        clearcoat: 0.5,
-        clearcoatRoughness: 0.1
-      })
-    )
-  }, [panels])
+    return panels.map(panel => {
+      const texture = textures.get(panel.id)
+
+      if (texture) {
+        // Actualizar escala de textura si ha cambiado
+        const scale = panel.textureScale || 1
+        texture.repeat.set(scale, scale)
+
+        // Actualizar rotación de textura si ha cambiado
+        const rotation = panel.textureRotation || 0
+        texture.rotation = (rotation * Math.PI) / 180 // Convertir grados a radianes
+
+        // Actualizar translación de textura si ha cambiado
+        const offsetX = panel.textureOffsetX || 0
+        const offsetY = panel.textureOffsetY || 0
+        texture.offset.set(offsetX, offsetY)
+
+        // Usar textura si está disponible
+        return new THREE.MeshPhysicalMaterial({
+          map: texture,
+          metalness: 0.1,
+          roughness: 0.3,
+          clearcoat: 0.5,
+          clearcoatRoughness: 0.1
+        })
+      } else {
+        // Usar color si no hay textura
+        return new THREE.MeshPhysicalMaterial({
+          color: panel.color,
+          metalness: 0.1,
+          roughness: 0.3,
+          clearcoat: 0.5,
+          clearcoatRoughness: 0.1
+        })
+      }
+    })
+  }, [panels, textures])
 
   // Crear mesh para cada segmento usando cilindros individuales (mejor orientación)
   const wheelSegments = useMemo(() => {

@@ -11,6 +11,10 @@ interface WheelControlsProps {
   onRemovePanel: (id: string) => void
   onUpdatePanel: (id: string, text: string) => void
   onUpdatePanelColor: (id: string, color: string) => void
+  onUpdatePanelTexture: (id: string, texture: string | null) => void
+  onUpdatePanelTextureScale: (id: string, scale: number) => void
+  onUpdatePanelTextureRotation: (id: string, rotation: number) => void
+  onUpdatePanelTextureOffset: (id: string, offsetX: number, offsetY: number) => void
   spinDuration: number
   onSpinDurationChange: (duration: number) => void
   remainingTime?: number
@@ -26,6 +30,10 @@ export function WheelControls({
   onRemovePanel,
   onUpdatePanel,
   onUpdatePanelColor,
+  onUpdatePanelTexture,
+  onUpdatePanelTextureScale,
+  onUpdatePanelTextureRotation,
+  onUpdatePanelTextureOffset,
   spinDuration,
   onSpinDurationChange,
   remainingTime,
@@ -37,6 +45,31 @@ export function WheelControls({
   const [editingColor, setEditingColor] = useState<string | null>(null)
   const [editColor, setEditColor] = useState('')
   const [originalColor, setOriginalColor] = useState<string>('')
+  const [showTextureControls, setShowTextureControls] = useState<Map<string, boolean>>(new Map())
+
+  const handleImageUpload = (panelId: string, event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const result = e.target?.result as string
+        onUpdatePanelTexture(panelId, result)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleRemoveTexture = (panelId: string) => {
+    onUpdatePanelTexture(panelId, null)
+  }
+
+  const toggleTextureControls = (panelId: string) => {
+    setShowTextureControls(prev => {
+      const newMap = new Map(prev)
+      newMap.set(panelId, !newMap.get(panelId))
+      return newMap
+    })
+  }
 
   const handleEditStart = (panel: WheelPanel) => {
     setEditingPanel(panel.id)
@@ -191,91 +224,349 @@ export function WheelControls({
 
         <div className='space-y-3 max-h-64 overflow-y-auto'>
           {panels.map((panel) => (
-            <div
-              key={panel.id}
-              className='flex items-center space-x-3 p-3 bg-white/5 rounded-lg'
-            >
-              {/* Color indicator */}
-              {editingColor === panel.id ? (
-                <div className='flex items-center space-x-2'>
-                  <input
-                    type='color'
-                    value={editColor}
-                    onChange={(e) => handleColorChange(e.target.value)}
-                    className='w-8 h-8 rounded border border-white/30 cursor-pointer'
+            <div key={panel.id} className='space-y-2'>
+              <div className='flex items-center space-x-3 p-3 bg-white/5 rounded-lg'>
+                {/* Color indicator */}
+                {editingColor === panel.id ? (
+                  <div className='flex items-center space-x-2'>
+                    <input
+                      type='color'
+                      value={editColor}
+                      onChange={(e) => handleColorChange(e.target.value)}
+                      className='w-8 h-8 rounded border border-white/30 cursor-pointer'
+                    />
+                    <button
+                      onClick={handleColorEditSave}
+                      className='px-2 py-1 bg-green-500 hover:bg-green-600 text-white rounded text-sm'
+                      title='Confirmar color'
+                    >
+                      ✓
+                    </button>
+                    <button
+                      onClick={handleColorEditCancel}
+                      className='px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-sm'
+                      title='Restaurar color anterior'
+                    >
+                      ✗
+                    </button>
+                  </div>
+                ) : (
+                  <div
+                    className='w-6 h-6 rounded-full border-2 border-white/30 cursor-pointer hover:scale-110 transition-transform'
+                    style={{ backgroundColor: panel.color }}
+                    onClick={() => handleColorEditStart(panel)}
+                    title='Haz clic para cambiar el color'
                   />
-                  <button
-                    onClick={handleColorEditSave}
-                    className='px-2 py-1 bg-green-500 hover:bg-green-600 text-white rounded text-sm'
-                    title='Confirmar color'
-                  >
-                    ✓
-                  </button>
-                  <button
-                    onClick={handleColorEditCancel}
-                    className='px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-sm'
-                    title='Restaurar color anterior'
-                  >
-                    ✗
-                  </button>
-                </div>
-              ) : (
-                <div
-                  className='w-6 h-6 rounded-full border-2 border-white/30 cursor-pointer hover:scale-110 transition-transform'
-                  style={{ backgroundColor: panel.color }}
-                  onClick={() => handleColorEditStart(panel)}
-                  title='Haz clic para cambiar el color'
-                />
-              )}
+                )}
 
-              {/* Panel text */}
-              {editingPanel === panel.id ? (
-                <div className='flex-1 flex space-x-2'>
-                  <input
-                    type='text'
-                    value={editText}
-                    onChange={(e) => setEditText(e.target.value)}
-                    className='flex-1 px-3 py-1 bg-white/20 text-white rounded border border-white/30 focus:outline-none focus:border-white/50'
-                    autoFocus
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleEditSave()
-                      if (e.key === 'Escape') handleEditCancel()
-                    }}
-                  />
-                  <button
-                    onClick={handleEditSave}
-                    className='px-2 py-1 bg-green-500 hover:bg-green-600 text-white rounded text-sm'
-                  >
-                    ✓
-                  </button>
-                  <button
-                    onClick={handleEditCancel}
-                    className='px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-sm'
-                  >
-                    ✗
-                  </button>
+                {/* Panel text */}
+                {editingPanel === panel.id ? (
+                  <div className='flex-1 flex space-x-2'>
+                    <input
+                      type='text'
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      className='flex-1 px-3 py-1 bg-white/20 text-white rounded border border-white/30 focus:outline-none focus:border-white/50'
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleEditSave()
+                        if (e.key === 'Escape') handleEditCancel()
+                      }}
+                    />
+                    <button
+                      onClick={handleEditSave}
+                      className='px-2 py-1 bg-green-500 hover:bg-green-600 text-white rounded text-sm'
+                    >
+                      ✓
+                    </button>
+                    <button
+                      onClick={handleEditCancel}
+                      className='px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-sm'
+                    >
+                      ✗
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <span className='flex-1 text-white font-medium'>{panel.text}</span>
+                    <button
+                      onClick={() => handleEditStart(panel)}
+                      className='px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-sm'
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      onClick={() => onRemovePanel(panel.id)}
+                      disabled={panels.length <= 1}
+                      className={`px-2 py-1 rounded text-sm transition-colors ${panels.length <= 1
+                        ? 'bg-gray-500 cursor-not-allowed'
+                        : 'bg-red-500 hover:bg-red-600'
+                        } text-white`}
+                    >
+                      🗑️
+                    </button>
+                  </>
+                )}
+              </div>
+
+              {/* Image upload section */}
+              <div className='ml-3 space-y-2'>
+                <div className='flex items-center space-x-2'>
+                  <div className='flex-1'>
+                    <label className='block text-xs text-gray-400 mb-1'>Imagen de textura:</label>
+                    <div className='flex items-center space-x-2'>
+                      <input
+                        type='file'
+                        accept='image/*'
+                        onChange={(e) => handleImageUpload(panel.id, e)}
+                        className='hidden'
+                        id={`image-upload-${panel.id}`}
+                      />
+                      <label
+                        htmlFor={`image-upload-${panel.id}`}
+                        className='px-2 py-1 bg-purple-500 hover:bg-purple-600 text-white rounded text-xs cursor-pointer transition-colors'
+                      >
+                        📷 Subir
+                      </label>
+                      {panel.texture && (
+                        <>
+                          <div className='w-8 h-8 rounded border border-white/30 overflow-hidden'>
+                            <img
+                              src={panel.texture}
+                              alt={`Texture for ${panel.text}`}
+                              className='w-full h-full object-cover'
+                            />
+                          </div>
+                          <button
+                            onClick={() => toggleTextureControls(panel.id)}
+                            className={`px-2 py-1 rounded text-xs transition-colors ${showTextureControls.get(panel.id)
+                                ? 'bg-blue-600 hover:bg-blue-700'
+                                : 'bg-gray-600 hover:bg-gray-700'
+                              } text-white`}
+                            title={showTextureControls.get(panel.id) ? 'Ocultar controles' : 'Mostrar controles'}
+                          >
+                            {showTextureControls.get(panel.id) ? '👁️' : '👁️‍🗨️'}
+                          </button>
+                          <button
+                            onClick={() => handleRemoveTexture(panel.id)}
+                            className='px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-xs'
+                            title='Eliminar textura'
+                          >
+                            🗑️
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              ) : (
-                <>
-                  <span className='flex-1 text-white font-medium'>{panel.text}</span>
-                  <button
-                    onClick={() => handleEditStart(panel)}
-                    className='px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-sm'
-                  >
-                    ✏️
-                  </button>
-                  <button
-                    onClick={() => onRemovePanel(panel.id)}
-                    disabled={panels.length <= 1}
-                    className={`px-2 py-1 rounded text-sm transition-colors ${panels.length <= 1
-                      ? 'bg-gray-500 cursor-not-allowed'
-                      : 'bg-red-500 hover:bg-red-600'
-                      } text-white`}
-                  >
-                    🗑️
-                  </button>
-                </>
-              )}
+
+                {/* Texture scale and rotation controls */}
+                {panel.texture && showTextureControls.get(panel.id) && (
+                  <div className='space-y-2'>
+                    {/* Scale controls */}
+                    <div className='space-y-1'>
+                      <label className='block text-xs text-gray-400'>
+                        Escala: {panel.textureScale || 1}x
+                      </label>
+                      <div className='flex items-center space-x-2'>
+                        <input
+                          type='range'
+                          min='0.1'
+                          max='3'
+                          step='0.1'
+                          value={panel.textureScale || 1}
+                          onChange={(e) => onUpdatePanelTextureScale(panel.id, parseFloat(e.target.value))}
+                          className='flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                          style={{
+                            background: `linear-gradient(to right, #8B5CF6 0%, #8B5CF6 ${((panel.textureScale || 1) - 0.1) / (3 - 0.1) * 100}%, #374151 ${((panel.textureScale || 1) - 0.1) / (3 - 0.1) * 100}%, #374151 100%)`
+                          }}
+                        />
+                        <div className='flex space-x-1'>
+                          <button
+                            onClick={() => onUpdatePanelTextureScale(panel.id, 0.5)}
+                            className={`px-2 py-1 rounded text-xs ${(panel.textureScale || 1) === 0.5 ? 'bg-purple-600' : 'bg-gray-600'} text-white`}
+                            title='Pequeña (0.5x)'
+                          >
+                            🔍-
+                          </button>
+                          <button
+                            onClick={() => onUpdatePanelTextureScale(panel.id, 1)}
+                            className={`px-2 py-1 rounded text-xs ${(panel.textureScale || 1) === 1 ? 'bg-purple-600' : 'bg-gray-600'} text-white`}
+                            title='Normal (1x)'
+                          >
+                            📐
+                          </button>
+                          <button
+                            onClick={() => onUpdatePanelTextureScale(panel.id, 2)}
+                            className={`px-2 py-1 rounded text-xs ${(panel.textureScale || 1) === 2 ? 'bg-purple-600' : 'bg-gray-600'} text-white`}
+                            title='Grande (2x)'
+                          >
+                            🔍+
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Rotation controls */}
+                    <div className='space-y-1'>
+                      <label className='block text-xs text-gray-400'>
+                        Rotación: {panel.textureRotation || 0}°
+                      </label>
+                      <div className='flex items-center space-x-2'>
+                        <input
+                          type='range'
+                          min='0'
+                          max='360'
+                          step='15'
+                          value={panel.textureRotation || 0}
+                          onChange={(e) => onUpdatePanelTextureRotation(panel.id, parseFloat(e.target.value))}
+                          className='flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                          style={{
+                            background: `linear-gradient(to right, #10B981 0%, #10B981 ${((panel.textureRotation || 0) / 360) * 100}%, #374151 ${((panel.textureRotation || 0) / 360) * 100}%, #374151 100%)`
+                          }}
+                        />
+                        <div className='flex space-x-1'>
+                          <button
+                            onClick={() => onUpdatePanelTextureRotation(panel.id, 0)}
+                            className={`px-2 py-1 rounded text-xs ${(panel.textureRotation || 0) === 0 ? 'bg-green-600' : 'bg-gray-600'} text-white`}
+                            title='0° - Sin rotación'
+                          >
+                            ↕️
+                          </button>
+                          <button
+                            onClick={() => onUpdatePanelTextureRotation(panel.id, 90)}
+                            className={`px-2 py-1 rounded text-xs ${(panel.textureRotation || 0) === 90 ? 'bg-green-600' : 'bg-gray-600'} text-white`}
+                            title='90° - Rotación derecha'
+                          >
+                            ↻
+                          </button>
+                          <button
+                            onClick={() => onUpdatePanelTextureRotation(panel.id, 180)}
+                            className={`px-2 py-1 rounded text-xs ${(panel.textureRotation || 0) === 180 ? 'bg-green-600' : 'bg-gray-600'} text-white`}
+                            title='180° - Voltear'
+                          >
+                            ↕️
+                          </button>
+                          <button
+                            onClick={() => onUpdatePanelTextureRotation(panel.id, 270)}
+                            className={`px-2 py-1 rounded text-xs ${(panel.textureRotation || 0) === 270 ? 'bg-green-600' : 'bg-gray-600'} text-white`}
+                            title='270° - Rotación izquierda'
+                          >
+                            ↺
+                          </button>
+                        </div>
+                      </div>
+                      <div className='flex justify-between text-xs text-gray-500'>
+                        <span>0°</span>
+                        <span>90°</span>
+                        <span>180°</span>
+                        <span>270°</span>
+                        <span>360°</span>
+                      </div>
+                    </div>
+
+                    {/* Translation controls */}
+                    <div className='space-y-2'>
+                      <div className='space-y-1'>
+                        <label className='block text-xs text-gray-400'>
+                          Posición X: {(panel.textureOffsetX || 0).toFixed(2)}
+                        </label>
+                        <div className='flex items-center space-x-2'>
+                          <input
+                            type='range'
+                            min='-1'
+                            max='1'
+                            step='0.1'
+                            value={panel.textureOffsetX || 0}
+                            onChange={(e) => onUpdatePanelTextureOffset(panel.id, parseFloat(e.target.value), panel.textureOffsetY || 0)}
+                            className='flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                            style={{
+                              background: `linear-gradient(to right, #EF4444 0%, #EF4444 ${((panel.textureOffsetX || 0) + 1) / 2 * 100}%, #374151 ${((panel.textureOffsetX || 0) + 1) / 2 * 100}%, #374151 100%)`
+                            }}
+                          />
+                          <div className='flex space-x-1'>
+                            <button
+                              onClick={() => onUpdatePanelTextureOffset(panel.id, -1, panel.textureOffsetY || 0)}
+                              className={`px-2 py-1 rounded text-xs ${(panel.textureOffsetX || 0) === -1 ? 'bg-red-600' : 'bg-gray-600'} text-white`}
+                              title='Izquierda (-1)'
+                            >
+                              ←
+                            </button>
+                            <button
+                              onClick={() => onUpdatePanelTextureOffset(panel.id, 0, panel.textureOffsetY || 0)}
+                              className={`px-2 py-1 rounded text-xs ${(panel.textureOffsetX || 0) === 0 ? 'bg-red-600' : 'bg-gray-600'} text-white`}
+                              title='Centro (0)'
+                            >
+                              ↕️
+                            </button>
+                            <button
+                              onClick={() => onUpdatePanelTextureOffset(panel.id, 1, panel.textureOffsetY || 0)}
+                              className={`px-2 py-1 rounded text-xs ${(panel.textureOffsetX || 0) === 1 ? 'bg-red-600' : 'bg-gray-600'} text-white`}
+                              title='Derecha (1)'
+                            >
+                              →
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className='space-y-1'>
+                        <label className='block text-xs text-gray-400'>
+                          Posición Y: {(panel.textureOffsetY || 0).toFixed(2)}
+                        </label>
+                        <div className='flex items-center space-x-2'>
+                          <input
+                            type='range'
+                            min='-1'
+                            max='1'
+                            step='0.1'
+                            value={panel.textureOffsetY || 0}
+                            onChange={(e) => onUpdatePanelTextureOffset(panel.id, panel.textureOffsetX || 0, parseFloat(e.target.value))}
+                            className='flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                            style={{
+                              background: `linear-gradient(to right, #3B82F6 0%, #3B82F6 ${((panel.textureOffsetY || 0) + 1) / 2 * 100}%, #374151 ${((panel.textureOffsetY || 0) + 1) / 2 * 100}%, #374151 100%)`
+                            }}
+                          />
+                          <div className='flex space-x-1'>
+                            <button
+                              onClick={() => onUpdatePanelTextureOffset(panel.id, panel.textureOffsetX || 0, -1)}
+                              className={`px-2 py-1 rounded text-xs ${(panel.textureOffsetY || 0) === -1 ? 'bg-blue-600' : 'bg-gray-600'} text-white`}
+                              title='Arriba (-1)'
+                            >
+                              ↑
+                            </button>
+                            <button
+                              onClick={() => onUpdatePanelTextureOffset(panel.id, panel.textureOffsetX || 0, 0)}
+                              className={`px-2 py-1 rounded text-xs ${(panel.textureOffsetY || 0) === 0 ? 'bg-blue-600' : 'bg-gray-600'} text-white`}
+                              title='Centro (0)'
+                            >
+                              ↕️
+                            </button>
+                            <button
+                              onClick={() => onUpdatePanelTextureOffset(panel.id, panel.textureOffsetX || 0, 1)}
+                              className={`px-2 py-1 rounded text-xs ${(panel.textureOffsetY || 0) === 1 ? 'bg-blue-600' : 'bg-gray-600'} text-white`}
+                              title='Abajo (1)'
+                            >
+                              ↓
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className='flex justify-between text-xs text-gray-500'>
+                        <span>Izquierda</span>
+                        <span>Centro</span>
+                        <span>Derecha</span>
+                      </div>
+                      <div className='flex justify-between text-xs text-gray-500'>
+                        <span>Arriba</span>
+                        <span>Centro</span>
+                        <span>Abajo</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           ))}
         </div>
@@ -298,6 +589,12 @@ export function WheelControls({
           <li>• Haz clic en el círculo de color para cambiarlo</li>
           <li>• Los colores se actualizan en tiempo real</li>
           <li>• Usa ✗ para restaurar el color anterior</li>
+          <li>• Sube imágenes como texturas para personalizar paneles</li>
+          <li>• Las texturas tienen prioridad sobre los colores</li>
+          <li>• Ajusta la escala de la textura: pequeña, normal o grande</li>
+          <li>• Rota la textura: 0°, 90°, 180°, 270° o cualquier ángulo</li>
+          <li>• Mueve la textura: izquierda/derecha y arriba/abajo</li>
+          <li>• Usa los sliders o botones rápidos para ajustar</li>
           <li>• Necesitas al menos un panel para poder girar</li>
         </ul>
       </div>
