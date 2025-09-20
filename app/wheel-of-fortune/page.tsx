@@ -309,6 +309,62 @@ export default function WheelOfFortunePage() {
               )}
             </CollapsibleBlock>
 
+            {/* Control de duración del giro */}
+            <CollapsibleBlock
+              title="Duración del Giro"
+              icon="⏱️"
+              isVisible={config.blockVisibility.spinDuration}
+              onToggle={() => updateBlockVisibility('spinDuration', !config.blockVisibility.spinDuration)}
+            >
+              <div className='space-y-4'>
+                <div>
+                  <label className='mb-2 block text-sm font-medium text-gray-300'>
+                    Duración: {config.spinDuration} segundos
+                  </label>
+                  <input
+                    type='range'
+                    min='1'
+                    max='10'
+                    step='0.5'
+                    value={config.spinDuration}
+                    onChange={(e) => updateSpinDuration(parseFloat(e.target.value))}
+                    disabled={isSpinning}
+                    className='slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200'
+                  />
+                  <div className='mt-1 flex justify-between text-xs text-gray-400'>
+                    <span>1s</span>
+                    <span>10s</span>
+                  </div>
+                </div>
+
+                {/* Contador de tiempo restante */}
+                {isSpinning && remainingTime !== undefined && (
+                  <div className='rounded-lg border border-orange-400/30 bg-gradient-to-r from-orange-500/20 to-red-500/20 p-4 backdrop-blur-sm'>
+                    <div className='text-center'>
+                      <div className='mb-2 text-2xl font-bold text-orange-400'>
+                        ⏰ {remainingTime.toFixed(1)}s
+                      </div>
+                      <div className='text-sm text-gray-300'>
+                        Tiempo restante de giro
+                      </div>
+                      <div className='mt-2 h-2 w-full rounded-full bg-gray-700'>
+                        <div
+                          className='h-2 rounded-full bg-gradient-to-r from-orange-500 to-red-500 transition-all duration-100'
+                          style={{
+                            width: `${Math.max(0, (remainingTime / config.spinDuration) * 100)}%`
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <p className='text-sm text-gray-300'>
+                  Ajusta cuánto tiempo quieres que gire la ruleta. Más tiempo = más vueltas.
+                </p>
+              </div>
+            </CollapsibleBlock>
+
 
             {/* Panel detectado por raycasting */}
             {raycastHitPanel && (
@@ -480,11 +536,9 @@ export default function WheelOfFortunePage() {
               onUpdateTextPosition={updateTextPosition}
               onUpdateTextRotation={updateTextRotation}
               onUpdateTextScale={updateTextScale}
-              spinDuration={config.spinDuration}
-              onSpinDurationChange={updateSpinDuration}
-              remainingTime={remainingTime}
+              result={result}
+              raycastResult={raycastHitPanel}
               blockVisibility={{
-                spinDuration: config.blockVisibility.spinDuration,
                 panelsManagement: config.blockVisibility.panelsManagement,
                 instructions: config.blockVisibility.instructions,
               }}

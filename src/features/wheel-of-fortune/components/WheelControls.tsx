@@ -20,17 +20,13 @@ interface WheelControlsProps {
   onUpdateTextPosition: (id: string, x: number, y: number, z: number) => void
   onUpdateTextRotation: (id: string, x: number, y: number, z: number) => void
   onUpdateTextScale: (id: string, x: number, y: number, z: number) => void
-  spinDuration: number
-  onSpinDurationChange: (duration: number) => void
-  remainingTime?: number
   result?: WheelPanel | null
   raycastResult?: WheelPanel | null
   blockVisibility: {
-    spinDuration: boolean
     panelsManagement: boolean
     instructions: boolean
   }
-  onUpdateBlockVisibility: (blockKey: 'spinDuration' | 'panelsManagement' | 'instructions', isVisible: boolean) => void
+  onUpdateBlockVisibility: (blockKey: 'panelsManagement' | 'instructions', isVisible: boolean) => void
 }
 
 export const WheelControls = memo(({
@@ -48,9 +44,6 @@ export const WheelControls = memo(({
   onUpdateTextPosition,
   onUpdateTextRotation,
   onUpdateTextScale,
-  spinDuration,
-  onSpinDurationChange,
-  remainingTime,
   result,
   raycastResult,
   blockVisibility,
@@ -146,64 +139,8 @@ export const WheelControls = memo(({
 
   return (
     <div className='space-y-6'>
-      {/* Control de duración del giro */}
-      <CollapsibleBlock
-        title="Duración del Giro"
-        icon="⏱️"
-        isVisible={blockVisibility.spinDuration}
-        onToggle={() => onUpdateBlockVisibility('spinDuration', !blockVisibility.spinDuration)}
-      >
-        <div className='space-y-4'>
-          <div>
-            <label className='mb-2 block text-sm font-medium text-gray-300'>
-              Duración: {spinDuration} segundos
-            </label>
-            <input
-              type='range'
-              min='1'
-              max='10'
-              step='0.5'
-              value={spinDuration}
-              onChange={(e) => onSpinDurationChange(parseFloat(e.target.value))}
-              disabled={isSpinning}
-              className='slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200'
-            />
-            <div className='mt-1 flex justify-between text-xs text-gray-400'>
-              <span>1s</span>
-              <span>10s</span>
-            </div>
-          </div>
-
-          {/* Contador de tiempo restante */}
-          {isSpinning && remainingTime !== undefined && (
-            <div className='rounded-lg border border-orange-400/30 bg-gradient-to-r from-orange-500/20 to-red-500/20 p-4 backdrop-blur-sm'>
-              <div className='text-center'>
-                <div className='mb-2 text-2xl font-bold text-orange-400'>
-                  ⏰ {remainingTime.toFixed(1)}s
-                </div>
-                <div className='text-sm text-gray-300'>
-                  Tiempo restante de giro
-                </div>
-                <div className='mt-2 h-2 w-full rounded-full bg-gray-700'>
-                  <div
-                    className='h-2 rounded-full bg-gradient-to-r from-orange-500 to-red-500 transition-all duration-100'
-                    style={{
-                      width: `${Math.max(0, (remainingTime / spinDuration) * 100)}%`
-                    }}
-                  ></div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <p className='text-sm text-gray-300'>
-            Ajusta cuánto tiempo quieres que gire la ruleta. Más tiempo = más vueltas.
-          </p>
-        </div>
-      </CollapsibleBlock>
-
       {/* Resultado del giro */}
-      {result && (
+      {/* {result && (
         <div className='rounded-xl border border-green-400/30 bg-gradient-to-r from-green-500/20 to-emerald-500/20 p-6 backdrop-blur-sm'>
           <h3 className='mb-4 text-xl font-bold text-white'>🏆 Resultado del Giro</h3>
           <div className='text-center'>
@@ -236,7 +173,7 @@ export const WheelControls = memo(({
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Gestión de paneles */}
       <CollapsibleBlock
