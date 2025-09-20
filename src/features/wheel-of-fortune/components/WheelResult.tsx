@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { WheelPanel } from '@/types/wheel'
 
 interface WheelResultProps {
@@ -13,16 +14,17 @@ export function WheelResult({ result, raycastResult }: WheelResultProps) {
 
   return (
     <div className='animate-pulse rounded-xl bg-white/10 p-6 backdrop-blur-sm'>
-      <h3 className='text-xl font-bold text-white mb-4'>🎉 ¡Resultado!</h3>
+      <h3 className='mb-4 text-xl font-bold text-white'>🎉 ¡Resultado!</h3>
 
       <div className='text-center'>
         <div className='mb-4'>
           {displayResult.texture ? (
-            <div className='mx-auto mb-3 size-16 rounded-full border-4 border-white/30 overflow-hidden'>
-              <img
+            <div className='mx-auto mb-3 size-16 overflow-hidden rounded-full border-4 border-white/30'>
+              <Image
                 src={displayResult.texture}
                 alt={displayResult.text}
-                className='w-full h-full object-cover'
+                fill
+                className='object-cover'
               />
             </div>
           ) : (
@@ -31,7 +33,7 @@ export function WheelResult({ result, raycastResult }: WheelResultProps) {
           <h4 className='text-2xl font-bold text-white'>{displayResult.text}</h4>
         </div>
 
-        <div className='bg-white/5 rounded-lg p-4'>
+        <div className='rounded-lg bg-white/5 p-4'>
           <p className='text-sm text-gray-300'>
             ¡Felicidades! Has ganado: <span className='font-semibold text-white'>{displayResult.text}</span>
           </p>

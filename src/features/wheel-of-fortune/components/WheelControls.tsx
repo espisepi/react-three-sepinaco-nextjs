@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useState } from 'react'
 import { WheelPanel } from '@/types/wheel'
 
@@ -137,11 +138,11 @@ export function WheelControls({
   return (
     <div className='space-y-6'>
       {/* Control de duración del giro */}
-      <div className='bg-white/10 backdrop-blur-sm rounded-xl p-6'>
-        <h3 className='text-xl font-bold text-white mb-4'>⏱️ Duración del Giro</h3>
+      <div className='rounded-xl bg-white/10 p-6 backdrop-blur-sm'>
+        <h3 className='mb-4 text-xl font-bold text-white'>⏱️ Duración del Giro</h3>
         <div className='space-y-4'>
           <div>
-            <label className='block text-sm font-medium text-gray-300 mb-2'>
+            <label className='mb-2 block text-sm font-medium text-gray-300'>
               Duración: {spinDuration} segundos
             </label>
             <input
@@ -152,9 +153,9 @@ export function WheelControls({
               value={spinDuration}
               onChange={(e) => onSpinDurationChange(parseFloat(e.target.value))}
               disabled={isSpinning}
-              className='w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider'
+              className='slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200'
             />
-            <div className='flex justify-between text-xs text-gray-400 mt-1'>
+            <div className='mt-1 flex justify-between text-xs text-gray-400'>
               <span>1s</span>
               <span>10s</span>
             </div>
@@ -162,17 +163,17 @@ export function WheelControls({
 
           {/* Contador de tiempo restante */}
           {isSpinning && remainingTime !== undefined && (
-            <div className='bg-gradient-to-r from-orange-500/20 to-red-500/20 backdrop-blur-sm rounded-lg p-4 border border-orange-400/30'>
+            <div className='rounded-lg bg-gradient-to-r from-orange-500/20 to-red-500/20 p-4 backdrop-blur-sm border border-orange-400/30'>
               <div className='text-center'>
-                <div className='text-2xl font-bold text-orange-400 mb-2'>
+                <div className='mb-2 text-2xl font-bold text-orange-400'>
                   ⏰ {remainingTime.toFixed(1)}s
                 </div>
                 <div className='text-sm text-gray-300'>
                   Tiempo restante de giro
                 </div>
-                <div className='mt-2 w-full bg-gray-700 rounded-full h-2'>
+                <div className='mt-2 h-2 w-full rounded-full bg-gray-700'>
                   <div
-                    className='bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full transition-all duration-100'
+                    className='h-2 rounded-full bg-gradient-to-r from-orange-500 to-red-500 transition-all duration-100'
                     style={{
                       width: `${Math.max(0, (remainingTime / spinDuration) * 100)}%`
                     }}
@@ -190,12 +191,12 @@ export function WheelControls({
 
       {/* Resultado del giro */}
       {result && (
-        <div className='bg-gradient-to-r from-green-500/20 to-emerald-500/20 backdrop-blur-sm rounded-xl p-6 border border-green-400/30'>
-          <h3 className='text-xl font-bold text-white mb-4'>🏆 Resultado del Giro</h3>
+        <div className='rounded-xl bg-gradient-to-r from-green-500/20 to-emerald-500/20 p-6 backdrop-blur-sm border border-green-400/30'>
+          <h3 className='mb-4 text-xl font-bold text-white'>🏆 Resultado del Giro</h3>
           <div className='text-center'>
             <div className='mb-4'>
               <div
-                className='inline-block px-6 py-3 rounded-xl text-white font-bold text-lg shadow-lg'
+                className='inline-block rounded-xl px-6 py-3 text-lg font-bold text-white shadow-lg'
                 style={{ backgroundColor: result.color }}
               >
                 🎉 {result.text} 🎉
@@ -215,8 +216,8 @@ export function WheelControls({
                 <span className='text-white font-mono'>{result.color}</span>
               </div>
             </div>
-            <div className='mt-4 p-3 bg-green-500/10 rounded-lg border border-green-400/20'>
-              <p className='text-green-300 text-sm font-medium'>
+            <div className='mt-4 rounded-lg bg-green-500/10 p-3 border border-green-400/20'>
+              <p className='text-sm font-medium text-green-300'>
                 ✅ ¡Felicidades! Has ganado este premio
               </p>
             </div>
@@ -225,21 +226,21 @@ export function WheelControls({
       )}
 
       {/* Gestión de paneles */}
-      <div className='bg-white/10 backdrop-blur-sm rounded-xl p-6'>
-        <div className='flex justify-between items-center mb-4'>
+      <div className='rounded-xl bg-white/10 p-6 backdrop-blur-sm'>
+        <div className='mb-4 flex items-center justify-between'>
           <h3 className='text-xl font-bold text-white'>📝 Paneles ({panels.length})</h3>
           <button
             onClick={onAddPanel}
-            className='bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors'
+            className='rounded-lg bg-green-500 px-4 py-2 font-semibold text-white transition-colors hover:bg-green-600'
           >
             + Agregar
           </button>
         </div>
 
-        <div className='space-y-3 max-h-64 overflow-y-auto'>
+        <div className='max-h-64 space-y-3 overflow-y-auto'>
           {panels.map((panel) => (
             <div key={panel.id} className='space-y-2'>
-              <div className='flex items-center space-x-3 p-3 bg-white/5 rounded-lg'>
+              <div className='flex items-center space-x-3 rounded-lg bg-white/5 p-3'>
                 {/* Color indicator */}
                 {editingColor === panel.id ? (
                   <div className='flex items-center space-x-2'>
@@ -247,18 +248,18 @@ export function WheelControls({
                       type='color'
                       value={editColor}
                       onChange={(e) => handleColorChange(e.target.value)}
-                      className='size-8 rounded border border-white/30 cursor-pointer'
+                      className='size-8 cursor-pointer rounded border border-white/30'
                     />
                     <button
                       onClick={handleColorEditSave}
-                      className='px-2 py-1 bg-green-500 hover:bg-green-600 text-white rounded text-sm'
+                      className='rounded bg-green-500 px-2 py-1 text-sm text-white hover:bg-green-600'
                       title='Confirmar color'
                     >
                       ✓
                     </button>
                     <button
                       onClick={handleColorEditCancel}
-                      className='px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-sm'
+                      className='rounded bg-red-500 px-2 py-1 text-sm text-white hover:bg-red-600'
                       title='Restaurar color anterior'
                     >
                       ✗
@@ -266,7 +267,7 @@ export function WheelControls({
                   </div>
                 ) : (
                   <div
-                    className='size-6 rounded-full border-2 border-white/30 cursor-pointer hover:scale-110 transition-transform'
+                    className='size-6 cursor-pointer rounded-full border-2 border-white/30 transition-transform hover:scale-110'
                     style={{ backgroundColor: panel.color }}
                     onClick={() => handleColorEditStart(panel)}
                     title='Haz clic para cambiar el color'
@@ -275,12 +276,12 @@ export function WheelControls({
 
                 {/* Panel text */}
                 {editingPanel === panel.id ? (
-                  <div className='flex-1 flex space-x-2'>
+                  <div className='flex flex-1 space-x-2'>
                     <input
                       type='text'
                       value={editText}
                       onChange={(e) => setEditText(e.target.value)}
-                      className='flex-1 px-3 py-1 bg-white/20 text-white rounded border border-white/30 focus:outline-none focus:border-white/50'
+                      className='flex-1 rounded border border-white/30 bg-white/20 px-3 py-1 text-white focus:border-white/50 focus:outline-none'
                       autoFocus
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') handleEditSave()
@@ -289,13 +290,13 @@ export function WheelControls({
                     />
                     <button
                       onClick={handleEditSave}
-                      className='px-2 py-1 bg-green-500 hover:bg-green-600 text-white rounded text-sm'
+                      className='rounded bg-green-500 px-2 py-1 text-sm text-white hover:bg-green-600'
                     >
                       ✓
                     </button>
                     <button
                       onClick={handleEditCancel}
-                      className='px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-sm'
+                      className='rounded bg-red-500 px-2 py-1 text-sm text-white hover:bg-red-600'
                     >
                       ✗
                     </button>
@@ -305,16 +306,16 @@ export function WheelControls({
                     <span className='flex-1 text-white font-medium'>{panel.text}</span>
                     <button
                       onClick={() => handleEditStart(panel)}
-                      className='px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-sm'
+                      className='rounded bg-blue-500 px-2 py-1 text-sm text-white hover:bg-blue-600'
                     >
                       ✏️
                     </button>
                     <button
                       onClick={() => toggleTextControls(panel.id)}
-                      className={`px-2 py-1 rounded text-sm transition-colors ${showTextControls[panel.id]
+                      className={`rounded px-2 py-1 text-sm text-white transition-colors ${showTextControls[panel.id]
                         ? 'bg-orange-600 hover:bg-orange-700'
                         : 'bg-orange-500 hover:bg-orange-600'
-                        } text-white`}
+                        }`}
                       title={showTextControls[panel.id] ? 'Ocultar controles de texto' : 'Mostrar controles de texto'}
                     >
                       📝
@@ -322,10 +323,10 @@ export function WheelControls({
                     <button
                       onClick={() => onRemovePanel(panel.id)}
                       disabled={panels.length <= 1}
-                      className={`px-2 py-1 rounded text-sm transition-colors ${panels.length <= 1
-                        ? 'bg-gray-500 cursor-not-allowed'
+                      className={`rounded px-2 py-1 text-sm text-white transition-colors ${panels.length <= 1
+                        ? 'cursor-not-allowed bg-gray-500'
                         : 'bg-red-500 hover:bg-red-600'
-                        } text-white`}
+                        }`}
                     >
                       🗑️
                     </button>
@@ -337,7 +338,7 @@ export function WheelControls({
               <div className='ml-3 space-y-2'>
                 <div className='flex items-center space-x-2'>
                   <div className='flex-1'>
-                    <label className='block text-xs text-gray-400 mb-1'>Imagen de textura:</label>
+                    <label className='mb-1 block text-xs text-gray-400'>Imagen de textura:</label>
                     <div className='flex items-center space-x-2'>
                       <input
                         type='file'
@@ -348,32 +349,33 @@ export function WheelControls({
                       />
                       <label
                         htmlFor={`image-upload-${panel.id}`}
-                        className='px-2 py-1 bg-purple-500 hover:bg-purple-600 text-white rounded text-xs cursor-pointer transition-colors'
+                        className='cursor-pointer rounded bg-purple-500 px-2 py-1 text-xs text-white transition-colors hover:bg-purple-600'
                       >
                         📷 Subir
                       </label>
                       {panel.texture && (
                         <>
-                          <div className='size-8 rounded border border-white/30 overflow-hidden'>
-                            <img
+                          <div className='size-8 overflow-hidden rounded border border-white/30'>
+                            <Image
                               src={panel.texture}
                               alt={`Texture for ${panel.text}`}
-                              className='size-full object-cover'
+                              fill
+                              className='object-cover'
                             />
                           </div>
                           <button
                             onClick={() => toggleTextureControls(panel.id)}
-                            className={`px-2 py-1 rounded text-xs transition-colors ${showTextureControls.get(panel.id)
+                            className={`rounded px-2 py-1 text-xs text-white transition-colors ${showTextureControls.get(panel.id)
                               ? 'bg-blue-600 hover:bg-blue-700'
                               : 'bg-gray-600 hover:bg-gray-700'
-                              } text-white`}
+                              }`}
                             title={showTextureControls.get(panel.id) ? 'Ocultar controles' : 'Mostrar controles'}
                           >
                             {showTextureControls.get(panel.id) ? '👁️' : '👁️‍🗨️'}
                           </button>
                           <button
                             onClick={() => handleRemoveTexture(panel.id)}
-                            className='px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-xs'
+                            className='rounded bg-red-500 px-2 py-1 text-xs text-white hover:bg-red-600'
                             title='Eliminar textura'
                           >
                             🗑️
@@ -400,7 +402,7 @@ export function WheelControls({
                           step='0.1'
                           value={panel.textureScale || 1}
                           onChange={(e) => onUpdatePanelTextureScale(panel.id, parseFloat(e.target.value))}
-                          className='flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                          className='slider flex-1 h-2 cursor-pointer appearance-none rounded-lg bg-gray-700'
                           style={{
                             background: `linear-gradient(to right, #8B5CF6 0%, #8B5CF6 ${((panel.textureScale || 1) - 0.1) / (3 - 0.1) * 100}%, #374151 ${((panel.textureScale || 1) - 0.1) / (3 - 0.1) * 100}%, #374151 100%)`
                           }}
@@ -408,21 +410,21 @@ export function WheelControls({
                         <div className='flex space-x-1'>
                           <button
                             onClick={() => onUpdatePanelTextureScale(panel.id, 0.5)}
-                            className={`px-2 py-1 rounded text-xs ${(panel.textureScale || 1) === 0.5 ? 'bg-purple-600' : 'bg-gray-600'} text-white`}
+                            className={`rounded px-2 py-1 text-xs text-white ${(panel.textureScale || 1) === 0.5 ? 'bg-purple-600' : 'bg-gray-600'}`}
                             title='Pequeña (0.5x)'
                           >
                             🔍-
                           </button>
                           <button
                             onClick={() => onUpdatePanelTextureScale(panel.id, 1)}
-                            className={`px-2 py-1 rounded text-xs ${(panel.textureScale || 1) === 1 ? 'bg-purple-600' : 'bg-gray-600'} text-white`}
+                            className={`rounded px-2 py-1 text-xs text-white ${(panel.textureScale || 1) === 1 ? 'bg-purple-600' : 'bg-gray-600'}`}
                             title='Normal (1x)'
                           >
                             📐
                           </button>
                           <button
                             onClick={() => onUpdatePanelTextureScale(panel.id, 2)}
-                            className={`px-2 py-1 rounded text-xs ${(panel.textureScale || 1) === 2 ? 'bg-purple-600' : 'bg-gray-600'} text-white`}
+                            className={`rounded px-2 py-1 text-xs text-white ${(panel.textureScale || 1) === 2 ? 'bg-purple-600' : 'bg-gray-600'}`}
                             title='Grande (2x)'
                           >
                             🔍+
@@ -444,7 +446,7 @@ export function WheelControls({
                           step='15'
                           value={panel.textureRotation || 0}
                           onChange={(e) => onUpdatePanelTextureRotation(panel.id, parseFloat(e.target.value))}
-                          className='flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                          className='slider flex-1 h-2 cursor-pointer appearance-none rounded-lg bg-gray-700'
                           style={{
                             background: `linear-gradient(to right, #10B981 0%, #10B981 ${((panel.textureRotation || 0) / 360) * 100}%, #374151 ${((panel.textureRotation || 0) / 360) * 100}%, #374151 100%)`
                           }}
@@ -452,28 +454,28 @@ export function WheelControls({
                         <div className='flex space-x-1'>
                           <button
                             onClick={() => onUpdatePanelTextureRotation(panel.id, 0)}
-                            className={`px-2 py-1 rounded text-xs ${(panel.textureRotation || 0) === 0 ? 'bg-green-600' : 'bg-gray-600'} text-white`}
+                            className={`rounded px-2 py-1 text-xs text-white ${(panel.textureRotation || 0) === 0 ? 'bg-green-600' : 'bg-gray-600'}`}
                             title='0° - Sin rotación'
                           >
                             ↕️
                           </button>
                           <button
                             onClick={() => onUpdatePanelTextureRotation(panel.id, 90)}
-                            className={`px-2 py-1 rounded text-xs ${(panel.textureRotation || 0) === 90 ? 'bg-green-600' : 'bg-gray-600'} text-white`}
+                            className={`rounded px-2 py-1 text-xs text-white ${(panel.textureRotation || 0) === 90 ? 'bg-green-600' : 'bg-gray-600'}`}
                             title='90° - Rotación derecha'
                           >
                             ↻
                           </button>
                           <button
                             onClick={() => onUpdatePanelTextureRotation(panel.id, 180)}
-                            className={`px-2 py-1 rounded text-xs ${(panel.textureRotation || 0) === 180 ? 'bg-green-600' : 'bg-gray-600'} text-white`}
+                            className={`rounded px-2 py-1 text-xs text-white ${(panel.textureRotation || 0) === 180 ? 'bg-green-600' : 'bg-gray-600'}`}
                             title='180° - Voltear'
                           >
                             ↕️
                           </button>
                           <button
                             onClick={() => onUpdatePanelTextureRotation(panel.id, 270)}
-                            className={`px-2 py-1 rounded text-xs ${(panel.textureRotation || 0) === 270 ? 'bg-green-600' : 'bg-gray-600'} text-white`}
+                            className={`rounded px-2 py-1 text-xs text-white ${(panel.textureRotation || 0) === 270 ? 'bg-green-600' : 'bg-gray-600'}`}
                             title='270° - Rotación izquierda'
                           >
                             ↺
@@ -503,7 +505,7 @@ export function WheelControls({
                             step='0.1'
                             value={panel.textureOffsetX || 0}
                             onChange={(e) => onUpdatePanelTextureOffset(panel.id, parseFloat(e.target.value), panel.textureOffsetY || 0)}
-                            className='flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                            className='slider flex-1 h-2 cursor-pointer appearance-none rounded-lg bg-gray-700'
                             style={{
                               background: `linear-gradient(to right, #EF4444 0%, #EF4444 ${((panel.textureOffsetX || 0) + 1) / 2 * 100}%, #374151 ${((panel.textureOffsetX || 0) + 1) / 2 * 100}%, #374151 100%)`
                             }}
@@ -511,21 +513,21 @@ export function WheelControls({
                           <div className='flex space-x-1'>
                             <button
                               onClick={() => onUpdatePanelTextureOffset(panel.id, -1, panel.textureOffsetY || 0)}
-                              className={`px-2 py-1 rounded text-xs ${(panel.textureOffsetX || 0) === -1 ? 'bg-red-600' : 'bg-gray-600'} text-white`}
+                              className={`rounded px-2 py-1 text-xs text-white ${(panel.textureOffsetX || 0) === -1 ? 'bg-red-600' : 'bg-gray-600'}`}
                               title='Izquierda (-1)'
                             >
                               ←
                             </button>
                             <button
                               onClick={() => onUpdatePanelTextureOffset(panel.id, 0, panel.textureOffsetY || 0)}
-                              className={`px-2 py-1 rounded text-xs ${(panel.textureOffsetX || 0) === 0 ? 'bg-red-600' : 'bg-gray-600'} text-white`}
+                              className={`rounded px-2 py-1 text-xs text-white ${(panel.textureOffsetX || 0) === 0 ? 'bg-red-600' : 'bg-gray-600'}`}
                               title='Centro (0)'
                             >
                               ↕️
                             </button>
                             <button
                               onClick={() => onUpdatePanelTextureOffset(panel.id, 1, panel.textureOffsetY || 0)}
-                              className={`px-2 py-1 rounded text-xs ${(panel.textureOffsetX || 0) === 1 ? 'bg-red-600' : 'bg-gray-600'} text-white`}
+                              className={`rounded px-2 py-1 text-xs text-white ${(panel.textureOffsetX || 0) === 1 ? 'bg-red-600' : 'bg-gray-600'}`}
                               title='Derecha (1)'
                             >
                               →
@@ -546,7 +548,7 @@ export function WheelControls({
                             step='0.1'
                             value={panel.textureOffsetY || 0}
                             onChange={(e) => onUpdatePanelTextureOffset(panel.id, panel.textureOffsetX || 0, parseFloat(e.target.value))}
-                            className='flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                            className='slider flex-1 h-2 cursor-pointer appearance-none rounded-lg bg-gray-700'
                             style={{
                               background: `linear-gradient(to right, #3B82F6 0%, #3B82F6 ${((panel.textureOffsetY || 0) + 1) / 2 * 100}%, #374151 ${((panel.textureOffsetY || 0) + 1) / 2 * 100}%, #374151 100%)`
                             }}
@@ -554,21 +556,21 @@ export function WheelControls({
                           <div className='flex space-x-1'>
                             <button
                               onClick={() => onUpdatePanelTextureOffset(panel.id, panel.textureOffsetX || 0, -1)}
-                              className={`px-2 py-1 rounded text-xs ${(panel.textureOffsetY || 0) === -1 ? 'bg-blue-600' : 'bg-gray-600'} text-white`}
+                              className={`rounded px-2 py-1 text-xs text-white ${(panel.textureOffsetY || 0) === -1 ? 'bg-blue-600' : 'bg-gray-600'}`}
                               title='Arriba (-1)'
                             >
                               ↑
                             </button>
                             <button
                               onClick={() => onUpdatePanelTextureOffset(panel.id, panel.textureOffsetX || 0, 0)}
-                              className={`px-2 py-1 rounded text-xs ${(panel.textureOffsetY || 0) === 0 ? 'bg-blue-600' : 'bg-gray-600'} text-white`}
+                              className={`rounded px-2 py-1 text-xs text-white ${(panel.textureOffsetY || 0) === 0 ? 'bg-blue-600' : 'bg-gray-600'}`}
                               title='Centro (0)'
                             >
                               ↕️
                             </button>
                             <button
                               onClick={() => onUpdatePanelTextureOffset(panel.id, panel.textureOffsetX || 0, 1)}
-                              className={`px-2 py-1 rounded text-xs ${(panel.textureOffsetY || 0) === 1 ? 'bg-blue-600' : 'bg-gray-600'} text-white`}
+                              className={`rounded px-2 py-1 text-xs text-white ${(panel.textureOffsetY || 0) === 1 ? 'bg-blue-600' : 'bg-gray-600'}`}
                               title='Abajo (1)'
                             >
                               ↓
@@ -593,12 +595,12 @@ export function WheelControls({
 
                 {/* Text controls section */}
                 {!!showTextControls[panel.id] && (
-                  <div className='ml-3 space-y-3 bg-orange-500/10 rounded-lg p-3 border border-orange-400/20'>
+                  <div className='ml-3 rounded-lg bg-orange-500/10 p-3 space-y-3 border border-orange-400/20'>
                     <div className='flex items-center justify-between'>
                       <h4 className='text-sm font-semibold text-orange-300'>Controles de Texto</h4>
                       <button
                         onClick={() => toggleTextControls(panel.id)}
-                        className='px-2 py-1 bg-orange-600 hover:bg-orange-700 text-white rounded text-xs'
+                        className='rounded bg-orange-600 px-2 py-1 text-xs text-white hover:bg-orange-700'
                         title='Ocultar controles de texto'
                       >
                         ✕
@@ -620,7 +622,7 @@ export function WheelControls({
                             step='0.1'
                             value={panel.textPositionX || 0}
                             onChange={(e) => onUpdateTextPosition(panel.id, parseFloat(e.target.value), panel.textPositionY || 0, panel.textPositionZ || 0)}
-                            className='w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                            className='slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-700'
                             style={{
                               background: `linear-gradient(to right, #EF4444 0%, #EF4444 ${((panel.textPositionX || 0) + 2) / 4 * 100}%, #374151 ${((panel.textPositionX || 0) + 2) / 4 * 100}%, #374151 100%)`
                             }}
@@ -637,7 +639,7 @@ export function WheelControls({
                             step='0.1'
                             value={panel.textPositionY || 0}
                             onChange={(e) => onUpdateTextPosition(panel.id, panel.textPositionX || 0, parseFloat(e.target.value), panel.textPositionZ || 0)}
-                            className='w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                            className='slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-700'
                             style={{
                               background: `linear-gradient(to right, #10B981 0%, #10B981 ${((panel.textPositionY || 0) + 2) / 4 * 100}%, #374151 ${((panel.textPositionY || 0) + 2) / 4 * 100}%, #374151 100%)`
                             }}
@@ -654,7 +656,7 @@ export function WheelControls({
                             step='0.1'
                             value={panel.textPositionZ || 0}
                             onChange={(e) => onUpdateTextPosition(panel.id, panel.textPositionX || 0, panel.textPositionY || 0, parseFloat(e.target.value))}
-                            className='w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                            className='slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-700'
                             style={{
                               background: `linear-gradient(to right, #3B82F6 0%, #3B82F6 ${((panel.textPositionZ || 0) + 2) / 4 * 100}%, #374151 ${((panel.textPositionZ || 0) + 2) / 4 * 100}%, #374151 100%)`
                             }}
@@ -678,7 +680,7 @@ export function WheelControls({
                             step='15'
                             value={panel.textRotationX || 0}
                             onChange={(e) => onUpdateTextRotation(panel.id, parseFloat(e.target.value), panel.textRotationY || 0, panel.textRotationZ || 0)}
-                            className='w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                            className='slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-700'
                             style={{
                               background: `linear-gradient(to right, #EF4444 0%, #EF4444 ${((panel.textRotationX || 0) / 360) * 100}%, #374151 ${((panel.textRotationX || 0) / 360) * 100}%, #374151 100%)`
                             }}
@@ -695,7 +697,7 @@ export function WheelControls({
                             step='15'
                             value={panel.textRotationY || 0}
                             onChange={(e) => onUpdateTextRotation(panel.id, panel.textRotationX || 0, parseFloat(e.target.value), panel.textRotationZ || 0)}
-                            className='w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                            className='slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-700'
                             style={{
                               background: `linear-gradient(to right, #10B981 0%, #10B981 ${((panel.textRotationY || 0) / 360) * 100}%, #374151 ${((panel.textRotationY || 0) / 360) * 100}%, #374151 100%)`
                             }}
@@ -712,7 +714,7 @@ export function WheelControls({
                             step='15'
                             value={panel.textRotationZ || 0}
                             onChange={(e) => onUpdateTextRotation(panel.id, panel.textRotationX || 0, panel.textRotationY || 0, parseFloat(e.target.value))}
-                            className='w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                            className='slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-700'
                             style={{
                               background: `linear-gradient(to right, #3B82F6 0%, #3B82F6 ${((panel.textRotationZ || 0) / 360) * 100}%, #374151 ${((panel.textRotationZ || 0) / 360) * 100}%, #374151 100%)`
                             }}
@@ -736,7 +738,7 @@ export function WheelControls({
                             step='0.1'
                             value={panel.textScaleX || 1}
                             onChange={(e) => onUpdateTextScale(panel.id, parseFloat(e.target.value), panel.textScaleY || 1, panel.textScaleZ || 1)}
-                            className='w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                            className='slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-700'
                             style={{
                               background: `linear-gradient(to right, #EF4444 0%, #EF4444 ${((panel.textScaleX || 1) - 0.1) / (3 - 0.1) * 100}%, #374151 ${((panel.textScaleX || 1) - 0.1) / (3 - 0.1) * 100}%, #374151 100%)`
                             }}
@@ -753,7 +755,7 @@ export function WheelControls({
                             step='0.1'
                             value={panel.textScaleY || 1}
                             onChange={(e) => onUpdateTextScale(panel.id, panel.textScaleX || 1, parseFloat(e.target.value), panel.textScaleZ || 1)}
-                            className='w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                            className='slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-700'
                             style={{
                               background: `linear-gradient(to right, #10B981 0%, #10B981 ${((panel.textScaleY || 1) - 0.1) / (3 - 0.1) * 100}%, #374151 ${((panel.textScaleY || 1) - 0.1) / (3 - 0.1) * 100}%, #374151 100%)`
                             }}
@@ -770,7 +772,7 @@ export function WheelControls({
                             step='0.1'
                             value={panel.textScaleZ || 1}
                             onChange={(e) => onUpdateTextScale(panel.id, panel.textScaleX || 1, panel.textScaleY || 1, parseFloat(e.target.value))}
-                            className='w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                            className='slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-700'
                             style={{
                               background: `linear-gradient(to right, #3B82F6 0%, #3B82F6 ${((panel.textScaleZ || 1) - 0.1) / (3 - 0.1) * 100}%, #374151 ${((panel.textScaleZ || 1) - 0.1) / (3 - 0.1) * 100}%, #374151 100%)`
                             }}
@@ -780,14 +782,14 @@ export function WheelControls({
                     </div>
 
                     {/* Reset button */}
-                    <div className='pt-2 border-t border-orange-400/20'>
+                    <div className='border-t border-orange-400/20 pt-2'>
                       <button
                         onClick={() => {
                           onUpdateTextPosition(panel.id, 0, 0, 0)
                           onUpdateTextRotation(panel.id, 0, 0, 0)
                           onUpdateTextScale(panel.id, 1, 1, 1)
                         }}
-                        className='w-full px-3 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded text-sm font-medium transition-colors'
+                        className='w-full rounded bg-orange-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-700'
                       >
                         🔄 Restablecer Texto
                       </button>
@@ -808,8 +810,8 @@ export function WheelControls({
       </div>
 
       {/* Instrucciones */}
-      <div className='bg-white/10 backdrop-blur-sm rounded-xl p-6'>
-        <h3 className='text-xl font-bold text-white mb-4'>ℹ️ Instrucciones</h3>
+      <div className='rounded-xl bg-white/10 p-6 backdrop-blur-sm'>
+        <h3 className='mb-4 text-xl font-bold text-white'>ℹ️ Instrucciones</h3>
         <ul className='space-y-2 text-sm text-gray-300'>
           <li>• La ruleta girará automáticamente y se detendrá</li>
           <li>• El panel seleccionado aparecerá en el resultado</li>

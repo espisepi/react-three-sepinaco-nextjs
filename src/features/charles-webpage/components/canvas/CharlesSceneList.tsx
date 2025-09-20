@@ -149,13 +149,13 @@ function ModelScene({ sphereData }: { sphereData: SphereData }) {
   useEffect(() => {
     if (!texture || !texture_norm || !text_env) return;
 
-    console.log('Aplicando texturas al modelo:', sphereData.modelPath);
-    console.log('Texturas cargadas:', { texture, texture_norm, text_env });
+    // console.log('Aplicando texturas al modelo:', sphereData.modelPath);
+    // console.log('Texturas cargadas:', { texture, texture_norm, text_env });
 
     gltf.scene.traverse((o: THREE.Object3D) => {
-      console.log('Objeto encontrado:', o.name, o.type);
+      // console.log('Objeto encontrado:', o.name, o.type);
       if (o instanceof THREE.Mesh) {
-        console.log('Aplicando material a mesh:', o.name);
+        // console.log('Aplicando material a mesh:', o.name);
         // Aplicar material a cualquier mesh, no solo los llamados 'Sphere'
         o.material = new THREE.MeshPhysicalMaterial({
           clearcoat: 1.0,

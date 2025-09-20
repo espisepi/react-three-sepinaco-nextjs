@@ -138,7 +138,7 @@ function Wheel({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPane
             texture.offset.set(offsetX, offsetY)
             newTextures.set(panel.id, texture)
           } catch (error) {
-            console.warn(`Error loading texture for panel ${panel.id}:`, error)
+            // console.warn(`Error loading texture for panel ${panel.id}:`, error)
           }
         }
       }

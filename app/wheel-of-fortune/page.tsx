@@ -322,10 +322,10 @@ export default function WheelOfFortunePage() {
   // Mostrar loading mientras se carga la configuración
   if (!isLoaded) {
     return (
-      <div className='min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center'>
+      <div className='flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900'>
         <div className='text-center'>
-          <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4'></div>
-          <p className='text-white text-lg'>Cargando configuración...</p>
+          <div className='mx-auto mb-4 size-12 animate-spin rounded-full border-b-2 border-white'></div>
+          <p className='text-lg text-white'>Cargando configuración...</p>
         </div>
       </div>
     )
@@ -335,15 +335,15 @@ export default function WheelOfFortunePage() {
     <div className='min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900'>
       <div className='container mx-auto px-4 py-8'>
         {/* Header */}
-        <div className='text-center mb-8'>
-          <h1 className='text-5xl font-bold text-white mb-4'>🎰 Ruleta de la Suerte</h1>
+        <div className='mb-8 text-center'>
+          <h1 className='mb-4 text-5xl font-bold text-white'>🎰 Ruleta de la Suerte</h1>
           <p className='text-xl text-gray-300'>Gira la ruleta y descubre tu premio</p>
         </div>
 
-        <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
+        <div className='grid grid-cols-1 gap-8 lg:grid-cols-3'>
           {/* 3D Wheel */}
           <div className='lg:col-span-2'>
-            <div className='bg-white/10 backdrop-blur-sm rounded-2xl p-6'>
+            <div className='rounded-2xl bg-white/10 p-6 backdrop-blur-sm'>
               <View
                 className='flex flex-col items-center justify-center'
                 style={{
@@ -375,8 +375,8 @@ export default function WheelOfFortunePage() {
             )}
 
             {/* Botón de girar */}
-            <div className='bg-white/10 backdrop-blur-sm rounded-2xl p-6'>
-              <h3 className='text-xl font-bold text-white mb-4'>🎯 Control de la Ruleta</h3>
+            <div className='rounded-2xl bg-white/10 p-6 backdrop-blur-sm'>
+              <h3 className='mb-4 text-xl font-bold text-white'>🎯 Control de la Ruleta</h3>
               <div className='space-y-3'>
                 <button
                   onClick={handleSpin}
@@ -407,11 +407,11 @@ export default function WheelOfFortunePage() {
 
             {/* Panel detectado por raycasting */}
             {raycastHitPanel && (
-              <div className='bg-white/10 backdrop-blur-sm rounded-2xl p-6'>
-                <h3 className='text-xl font-bold text-white mb-4'>🎯 Panel Detectado</h3>
+              <div className='rounded-2xl bg-white/10 p-6 backdrop-blur-sm'>
+                <h3 className='mb-4 text-xl font-bold text-white'>🎯 Panel Detectado</h3>
                 <div className='text-center'>
                   <div
-                    className='inline-block px-4 py-2 rounded-lg text-white font-semibold mb-3'
+                    className='mb-3 inline-block rounded-lg px-4 py-2 font-semibold text-white'
                     style={{ backgroundColor: raycastHitPanel.color }}
                   >
                     {raycastHitPanel.text}
@@ -584,12 +584,12 @@ export default function WheelOfFortunePage() {
             />
 
             {/* Controles de tamaño del canvas */}
-            <div className='bg-white/10 backdrop-blur-sm rounded-2xl p-6'>
-              <h3 className='text-xl font-bold text-white mb-4'>📐 Tamaño del Canvas</h3>
+            <div className='rounded-2xl bg-white/10 p-6 backdrop-blur-sm'>
+              <h3 className='mb-4 text-xl font-bold text-white'>📐 Tamaño del Canvas</h3>
               <div className='space-y-4'>
                 {/* Slider para el ancho */}
                 <div>
-                  <label className='block text-sm font-medium text-gray-300 mb-2'>
+                  <label className='mb-2 block text-sm font-medium text-gray-300'>
                     Ancho: {config.canvasWidth}%
                   </label>
                   <input
@@ -598,12 +598,12 @@ export default function WheelOfFortunePage() {
                     max='100'
                     value={config.canvasWidth}
                     onChange={(e) => updateCanvasSize(Number(e.target.value), config.canvasHeight)}
-                    className='w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                    className='slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-700'
                     style={{
                       background: `linear-gradient(to right, #8B5CF6 0%, #8B5CF6 ${((config.canvasWidth - 50) / (100 - 50)) * 100}%, #374151 ${((config.canvasWidth - 50) / (100 - 50)) * 100}%, #374151 100%)`
                     }}
                   />
-                  <div className='flex justify-between text-xs text-gray-400 mt-1'>
+                  <div className='mt-1 flex justify-between text-xs text-gray-400'>
                     <span>50%</span>
                     <span>100%</span>
                   </div>
@@ -611,7 +611,7 @@ export default function WheelOfFortunePage() {
 
                 {/* Slider para la altura */}
                 <div>
-                  <label className='block text-sm font-medium text-gray-300 mb-2'>
+                  <label className='mb-2 block text-sm font-medium text-gray-300'>
                     Altura: {config.canvasHeight}vh
                   </label>
                   <input
@@ -620,12 +620,12 @@ export default function WheelOfFortunePage() {
                     max='100'
                     value={config.canvasHeight}
                     onChange={(e) => updateCanvasSize(config.canvasWidth, Number(e.target.value))}
-                    className='w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider'
+                    className='slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-700'
                     style={{
                       background: `linear-gradient(to right, #10B981 0%, #10B981 ${((config.canvasHeight - 20) / (100 - 20)) * 100}%, #374151 ${((config.canvasHeight - 20) / (100 - 20)) * 100}%, #374151 100%)`
                     }}
                   />
-                  <div className='flex justify-between text-xs text-gray-400 mt-1'>
+                  <div className='mt-1 flex justify-between text-xs text-gray-400'>
                     <span>20vh</span>
                     <span>100vh</span>
                   </div>
@@ -641,7 +641,7 @@ export default function WheelOfFortunePage() {
                       updateCanvasSize(100, 50)
                     }
                   }}
-                  className='w-full rounded-lg px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 transition-all duration-300'
+                  className='w-full rounded-lg bg-gradient-to-r from-gray-600 to-gray-700 px-4 py-2 text-sm font-medium text-white transition-all duration-300 hover:from-gray-700 hover:to-gray-800'
                 >
                   🔄 Restablecer Tamaño
                 </button>
