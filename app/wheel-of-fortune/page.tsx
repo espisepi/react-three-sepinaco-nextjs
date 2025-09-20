@@ -11,7 +11,7 @@ import { CollapsibleBlock } from '@/components/ui/CollapsibleBlock'
 import { PerformanceMonitor } from '@/components/PerformanceMonitor'
 
 const WheelScene = dynamic(() => import('@/features/wheel-of-fortune/components/canvas/WheelScene').then((mod) => mod.WheelScene), { ssr: false })
-const View = dynamic(() => import('@/components/canvas/View').then((mod) => mod.View), {
+const View = dynamic(() => import('@/components/canvas/View').then((mod) => ({ default: mod.View })), {
   ssr: false,
   loading: () => (
     <div className='flex h-96 w-full flex-col items-center justify-center'>
