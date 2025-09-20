@@ -17,7 +17,17 @@ export function WheelResult({ result, raycastResult }: WheelResultProps) {
 
       <div className='text-center'>
         <div className='mb-4'>
-          <div className='mx-auto mb-3 size-16 rounded-full border-4 border-white/30' style={{ backgroundColor: displayResult.color }} />
+          {displayResult.texture ? (
+            <div className='mx-auto mb-3 size-16 rounded-full border-4 border-white/30 overflow-hidden'>
+              <img
+                src={displayResult.texture}
+                alt={displayResult.text}
+                className='w-full h-full object-cover'
+              />
+            </div>
+          ) : (
+            <div className='mx-auto mb-3 size-16 rounded-full border-4 border-white/30' style={{ backgroundColor: displayResult.color }} />
+          )}
           <h4 className='text-2xl font-bold text-white'>{displayResult.text}</h4>
         </div>
 
