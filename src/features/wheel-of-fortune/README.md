@@ -1,102 +1,353 @@
-# 🎰 Ruleta de la Suerte - React Three Fiber
+# 🎰 Wheel of Fortune - Enhanced Architecture
 
-Una aplicación interactiva de ruleta de la suerte construida con React Three Fiber, Next.js y TypeScript.
+Una implementación mejorada de la ruleta de la fortuna aplicando principios de **Clean Code**, **SOLID**, **patrones de diseño** y **Flux** para crear un código mantenible, escalable y robusto.
 
-## 🚀 Características
+## 🏗️ Arquitectura
 
-- **Ruleta 3D Interactiva**: Ruleta completamente funcional en 3D usando React Three Fiber
-- **Gestión de Paneles**: Agregar, editar y eliminar paneles dinámicamente
-- **Animación Realista**: Rotación suave con desaceleración gradual
-- **Detección Precisa**: Algoritmo preciso para determinar el panel ganador
-- **UI Moderna**: Interfaz de usuario elegante con Tailwind CSS
-- **Arquitectura Separada**: Separación clara entre componentes R3F (3D) y HTML (UI)
+### Principios Aplicados
 
-## 📁 Estructura del Proyecto
+- **Single Responsibility Principle (SRP)**: Cada componente tiene una única responsabilidad
+- **Open/Closed Principle (OCP)**: Abierto para extensión, cerrado para modificación
+- **Liskov Substitution Principle (LSP)**: Las implementaciones son intercambiables
+- **Interface Segregation Principle (ISP)**: Interfaces específicas y cohesivas
+- **Dependency Inversion Principle (DIP)**: Dependencias hacia abstracciones
+- **Flux Pattern**: Gestión de estado unidireccional y predecible
+
+### Estructura del Proyecto
 
 ```
 src/features/wheel-of-fortune/
-├── components/
-│   ├── canvas/
-│   │   └── WheelScene.tsx          # Componente R3F principal
-│   ├── WheelControls.tsx           # Controles HTML
-│   └── WheelResult.tsx             # Resultado HTML
-└── app/wheel-of-fortune/
-    └── page.tsx                     # Página principal
+├── store/                    # Patrón Flux
+│   ├── types.ts             # Definiciones de tipos y acciones
+│   ├── reducer.ts           # Funciones puras de estado
+│   ├── store.ts             # Implementación del store
+│   ├── actions.ts           # Creadores de acciones
+│   ├── hooks.ts             # Hooks de React para el store
+│   └── index.ts             # Exportaciones del store
+├── services/                 # Servicios (DIP)
+│   ├── interfaces.ts         # Contratos de servicios
+│   ├── PanelService.ts      # Lógica de paneles
+│   ├── ColorService.ts      # Gestión de colores
+│   ├── WheelCalculationService.ts # Cálculos matemáticos
+│   ├── TextureService.ts    # Manejo de texturas
+│   ├── PersistenceService.ts # Persistencia de datos
+│   ├── ValidationService.ts # Validaciones
+│   └── index.ts             # Factory de servicios
+├── components/               # Componentes (SRP)
+│   ├── ui/                  # Componentes base reutilizables
+│   │   ├── UIComponents.tsx # Slider, Button, Input, etc.
+│   │   ├── PanelComponents.tsx # Componentes específicos de paneles
+│   │   ├── ControlComponents.tsx # Controles especializados
+│   │   ├── PanelItem.tsx    # Componente de panel individual
+│   │   ├── PanelList.tsx    # Lista de paneles
+│   │   ├── SpinControls.tsx # Controles de giro
+│   │   ├── ResultComponents.tsx # Componentes de resultados
+│   │   ├── ConfigurationComponents.tsx # Configuración
+│   │   └── index.ts         # Exportaciones UI
+│   └── WheelControlsRefactored.tsx # Componente principal
+├── hooks/                    # Hooks personalizados
+│   └── useWheelManager.ts   # Hook principal con servicios
+├── types/                    # Tipos mejorados
+│   └── enhanced.ts          # Tipos con validación estricta
+├── utils/                    # Utilidades
+│   ├── errorHandling.ts     # Sistema de manejo de errores
+│   ├── performance.ts       # Optimizaciones de rendimiento
+│   └── caching.ts           # Sistema de caché LRU
+└── index.ts                  # Exportaciones principales
 ```
 
-## 🎮 Funcionalidades
+## 🚀 Características Principales
 
-### Ruleta 3D
-- Geometría dinámica basada en el número de paneles
-- Materiales físicos con efectos de iluminación
-- Rotación suave con física realista
-- Puntero fijo para indicar el resultado
+### 1. **Gestión de Estado con Flux**
 
-### Gestión de Paneles
-- **Agregar**: Botón para añadir nuevos paneles
-- **Editar**: Click en el botón de editar para modificar texto
-- **Eliminar**: Botón para eliminar paneles (mínimo 1)
-- **Colores**: Colores automáticos para cada panel
-
-### Controles
-- Botón de giro con estado de carga
-- Validación (mínimo 1 panel requerido)
-- Feedback visual durante la rotación
-
-## 🛠️ Tecnologías Utilizadas
-
-- **React Three Fiber**: Renderizado 3D
-- **Three.js**: Biblioteca 3D subyacente
-- **Next.js**: Framework React
-- **TypeScript**: Tipado estático
-- **Tailwind CSS**: Estilos utilitarios
-- **@react-three/drei**: Utilidades para R3F
-
-## 🎯 Cómo Usar
-
-1. **Navegar**: Ve a `/wheel-of-fortune`
-2. **Personalizar**: Agrega, edita o elimina paneles según necesites
-3. **Girar**: Haz clic en "¡GIRAR RULETA!" para comenzar
-4. **Resultado**: El panel ganador se mostrará automáticamente
-
-## 🔧 Configuración Técnica
-
-### Componentes R3F
-- `WheelScene`: Escena principal con iluminación y controles de cámara
-- `Wheel`: Componente de la ruleta con lógica de rotación
-- Geometría dinámica generada por el número de paneles
-- Materiales físicos con efectos de metal y claridad
-
-### Componentes HTML
-- `WheelControls`: Gestión de paneles y controles
-- `WheelResult`: Visualización del resultado
-- Estados reactivos para sincronización
-
-### Algoritmo de Rotación
-1. **Inicio**: Velocidad inicial aleatoria
-2. **Rotación**: Múltiples vueltas completas (5-10)
-3. **Desaceleración**: Reducción gradual de velocidad
-4. **Detección**: Cálculo preciso del panel final
-5. **Resultado**: Callback con el panel ganador
-
-## 🎨 Personalización
-
-### Colores de Paneles
-Los colores se asignan automáticamente de una paleta predefinida:
 ```typescript
-const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#FF9FF3', '#54A0FF', '#5F27CD', '#00D2D3']
+// Acciones tipadas
+const action = updatePanelText(panelId, newText)
+
+// Reducer puro
+const newState = wheelReducer(currentState, action)
+
+// Hook para componentes
+const { config, ui, updatePanelText } = useWheelManager()
 ```
 
-### Configuración de Rotación
-- Velocidad inicial: `0.3`
-- Factor de desaceleración: `0.95`
-- Vueltas completas: `5-10` (aleatorio)
+### 2. **Servicios con Inversión de Dependencias**
 
-## 🚀 Próximas Mejoras
+```typescript
+// Interfaces abstractas
+interface IPanelService {
+  createPanel(text: string, color: string): WheelPanel
+  updatePanelText(panel: WheelPanel, text: string): WheelPanel
+}
 
-- [ ] Sonidos de rotación y resultado
-- [ ] Efectos de partículas al ganar
-- [ ] Temas de color personalizables
-- [ ] Guardado de configuraciones
-- [ ] Modo multijugador
-- [ ] Estadísticas de resultados
+// Implementaciones concretas
+class PanelService implements IPanelService {
+  // Implementación específica
+}
+
+// Factory para inyección de dependencias
+const panelService = ServiceFactory.getPanelService()
+```
+
+### 3. **Componentes Componibles**
+
+```typescript
+// Componentes pequeños y especializados
+<PanelItem
+  panel={panel}
+  onUpdateText={handleUpdateText}
+  onUpdateColor={handleUpdateColor}
+  // ... más props
+/>
+
+// Composición de componentes
+<PanelList
+  panels={panels}
+  onAddPanel={handleAddPanel}
+  onRemovePanel={handleRemovePanel}
+  // ... más props
+/>
+```
+
+### 4. **Tipos Seguros con Validación**
+
+```typescript
+// Tipos con marca para seguridad
+type PanelId = string & { readonly __brand: 'PanelId' }
+type ColorHex = string & { readonly __brand: 'ColorHex' }
+
+// Validación en tiempo de ejecución
+function createPanelId(id: string): PanelId {
+  if (!/^[a-zA-Z0-9_-]+$/.test(id)) {
+    throw new Error('Invalid panel ID format')
+  }
+  return id as PanelId
+}
+```
+
+### 5. **Manejo Robusto de Errores**
+
+```typescript
+// Sistema centralizado de errores
+const errorHandler = ErrorHandler.getInstance()
+
+// Reporte de errores con contexto
+errorHandler.reportError(error, {
+  component: 'PanelItem',
+  action: 'updateText',
+  data: { panelId, newText }
+})
+
+// Recuperación automática
+const result = await handleErrorWithRecovery(
+  () => riskyOperation(),
+  () => fallbackValue(),
+  { component: 'WheelControls' }
+)
+```
+
+### 6. **Optimización de Rendimiento**
+
+```typescript
+// Caché LRU para texturas y cálculos
+const textureCache = new TextureCache()
+const calculationCache = new CalculationCache()
+
+// Hooks de optimización
+const debouncedValue = useDebounce(value, 300)
+const throttledCallback = useThrottle(callback, 100)
+
+// Memoización profunda
+const memoizedValue = useDeepMemo(() => expensiveCalculation(), [deps])
+```
+
+## 📊 Beneficios de la Nueva Arquitectura
+
+### ✅ **Mantenibilidad**
+- Código organizado por responsabilidades
+- Fácil localización y modificación de funcionalidades
+- Separación clara entre lógica de negocio y presentación
+
+### ✅ **Testabilidad**
+- Servicios inyectables para testing unitario
+- Funciones puras en el reducer
+- Componentes aislados y componibles
+
+### ✅ **Escalabilidad**
+- Arquitectura modular que crece con los requisitos
+- Patrones establecidos para nuevas funcionalidades
+- Servicios extensibles sin modificar código existente
+
+### ✅ **Seguridad de Tipos**
+- TypeScript estricto con tipos con marca
+- Validación en tiempo de ejecución
+- Interfaces bien definidas
+
+### ✅ **Rendimiento**
+- Caché inteligente para operaciones costosas
+- Optimizaciones de React (memo, callback, etc.)
+- Lazy loading y virtualización
+
+### ✅ **Robustez**
+- Manejo centralizado de errores
+- Recuperación automática de fallos
+- Validación exhaustiva de datos
+
+## 🔧 Uso
+
+### Instalación
+
+```bash
+# Los componentes están listos para usar
+import { useWheelManager, WheelControls } from '@/features/wheel-of-fortune'
+```
+
+### Ejemplo Básico
+
+```tsx
+import React from 'react'
+import { useWheelManager, WheelControls } from '@/features/wheel-of-fortune'
+
+function WheelOfFortunePage() {
+  const wheelManager = useWheelManager()
+
+  return (
+    <div className="wheel-container">
+      <WheelControls />
+      {/* Tu componente de escena 3D */}
+    </div>
+  )
+}
+```
+
+### Ejemplo Avanzado
+
+```tsx
+import React from 'react'
+import { 
+  useWheelManager, 
+  PanelList, 
+  SpinControls,
+  ErrorBoundary 
+} from '@/features/wheel-of-fortune'
+
+function CustomWheelPage() {
+  const wheelManager = useWheelManager()
+
+  return (
+    <ErrorBoundary>
+      <div className="custom-wheel">
+        <SpinControls
+          onSpin={wheelManager.startSpin}
+          isSpinning={wheelManager.ui.isSpinning}
+          canSpin={wheelManager.canSpin()}
+        />
+        
+        <PanelList
+          panels={wheelManager.config.panels}
+          onAddPanel={wheelManager.addPanel}
+          onUpdateText={wheelManager.updatePanelText}
+          // ... más props
+        />
+      </div>
+    </ErrorBoundary>
+  )
+}
+```
+
+## 🧪 Testing
+
+### Testing de Servicios
+
+```typescript
+import { PanelService } from '@/features/wheel-of-fortune/services'
+
+describe('PanelService', () => {
+  let panelService: PanelService
+
+  beforeEach(() => {
+    panelService = new PanelService()
+  })
+
+  it('should create a valid panel', () => {
+    const panel = panelService.createPanel('Test', '#FF0000')
+    expect(panel.text).toBe('Test')
+    expect(panel.color).toBe('#FF0000')
+  })
+
+  it('should validate panel data', () => {
+    const panel = panelService.createPanel('Test', '#FF0000')
+    expect(panelService.validatePanel(panel)).toBe(true)
+  })
+})
+```
+
+### Testing de Componentes
+
+```typescript
+import { render, screen } from '@testing-library/react'
+import { PanelItem } from '@/features/wheel-of-fortune/components'
+
+describe('PanelItem', () => {
+  it('should render panel text', () => {
+    const mockPanel = {
+      id: '1',
+      text: 'Test Panel',
+      color: '#FF0000'
+    }
+
+    render(
+      <PanelItem
+        panel={mockPanel}
+        onUpdateText={jest.fn()}
+        onUpdateColor={jest.fn()}
+        // ... más props
+      />
+    )
+
+    expect(screen.getByText('Test Panel')).toBeInTheDocument()
+  })
+})
+```
+
+## 📈 Monitoreo y Métricas
+
+### Estadísticas de Caché
+
+```typescript
+import { cacheManager } from '@/features/wheel-of-fortune/utils'
+
+const stats = cacheManager.getAllStats()
+console.log('Cache hit rate:', stats.textureCache.hitRate)
+console.log('Memory usage:', stats.textureCache.memoryUsage)
+```
+
+### Monitoreo de Errores
+
+```typescript
+import { errorHandler } from '@/features/wheel-of-fortune/utils'
+
+const errorStats = errorHandler.getErrorStats()
+console.log('Total errors:', errorStats.total)
+console.log('Errors by severity:', errorStats.bySeverity)
+```
+
+## 🔮 Futuras Mejoras
+
+- **Web Workers**: Para cálculos pesados en background
+- **Service Workers**: Para caché offline y sincronización
+- **Micro-frontends**: Arquitectura de microservicios frontend
+- **GraphQL**: API más eficiente para datos complejos
+- **Real-time**: WebSockets para colaboración en tiempo real
+
+## 📚 Referencias
+
+- [Clean Code - Robert C. Martin](https://www.amazon.com/Clean-Code-Handbook-Software-Craftsmanship/dp/0132350882)
+- [SOLID Principles](https://en.wikipedia.org/wiki/SOLID)
+- [Flux Architecture](https://facebook.github.io/flux/)
+- [React Performance](https://react.dev/learn/render-and-commit)
+- [TypeScript Advanced Types](https://www.typescriptlang.org/docs/handbook/advanced-types.html)
+
+---
+
+**Desarrollado con ❤️ aplicando las mejores prácticas de desarrollo de software**
