@@ -12,6 +12,8 @@ interface WheelSceneProps {
   onCurrentPanelChange?: (panel: WheelPanel | null) => void
   onRaycastHit?: (panel: WheelPanel | null) => void
   enableOrbitControls?: boolean
+  autorotate?: boolean
+  autorotateSpeed?: number
 }
 
 interface WheelProps extends WheelSceneProps {
@@ -465,7 +467,7 @@ const Wheel = memo(({ panels, isSpinning, onSpinComplete, spinDuration, onCurren
 
 Wheel.displayName = 'Wheel'
 
-export const WheelScene = memo(({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPanelChange, onRaycastHit, enableOrbitControls = false }: WheelSceneProps) => {
+export const WheelScene = memo(({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPanelChange, onRaycastHit, enableOrbitControls = false, autorotate = false, autorotateSpeed = 0.5 }: WheelSceneProps) => {
   const pointerRef = useRef<THREE.Mesh | null>(null)
   const { camera } = useThree()
 
@@ -536,6 +538,8 @@ export const WheelScene = memo(({ panels, isSpinning, onSpinComplete, spinDurati
           minDistance={1}
           maxDistance={12}
           target={[0, 0, 0]}
+          autoRotate={autorotate}
+          autoRotateSpeed={autorotateSpeed}
         />
       )}
 

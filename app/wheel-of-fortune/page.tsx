@@ -101,6 +101,8 @@ export default function WheelOfFortunePage() {
   const [isClient, setIsClient] = useState(false)
   const [showPerformanceMonitor, setShowPerformanceMonitor] = useState(false)
   const [showSceneSelector, setShowSceneSelector] = useState(true)
+  const [autorotate, setAutorotate] = useState(false)
+  const [autorotateSpeed, setAutorotateSpeed] = useState(0.5)
 
   // Efecto para limpiar automáticamente el storage de escenas al cargar la página
   // useEffect(() => {
@@ -322,7 +324,9 @@ export default function WheelOfFortunePage() {
                       spinDuration: config.spinDuration,
                       onCurrentPanelChange: handleCurrentPanelChange,
                       onRaycastHit: handleRaycastHit,
-                      enableOrbitControls: config.enableOrbitControls
+                      enableOrbitControls: config.enableOrbitControls,
+                      autorotate: autorotate,
+                      autorotateSpeed: autorotateSpeed
                     }}
                   />
                   <Common color={'#1a1a2e'} />
@@ -373,6 +377,41 @@ export default function WheelOfFortunePage() {
                 >
                   {config.enableOrbitControls ? '🎮 Controles Activados' : '🚫 Controles Desactivados'}
                 </button>
+
+                {/* Controles de autorotate */}
+                {config.enableOrbitControls && (
+                  <div className="space-y-3">
+                    <button
+                      onClick={() => setAutorotate(!autorotate)}
+                      className={`w-full rounded-lg px-6 py-3 text-base font-bold text-white transition-all duration-300 ${autorotate
+                        ? 'bg-gradient-to-r from-green-500 to-emerald-600 shadow-lg hover:scale-105 hover:from-green-600 hover:to-emerald-700'
+                        : 'bg-gradient-to-r from-gray-500 to-slate-600 shadow-lg hover:scale-105 hover:from-gray-600 hover:to-slate-700'
+                        }`}
+                    >
+                      {autorotate ? '🔄 Autorotación Activada' : '⏸️ Autorotación Desactivada'}
+                    </button>
+
+                    <div>
+                      <label className='mb-2 block text-sm font-medium text-gray-300'>
+                        Velocidad de Autorotación: {autorotateSpeed.toFixed(1)}
+                      </label>
+                      <input
+                        type='range'
+                        min='0.1'
+                        max='2.0'
+                        step='0.1'
+                        value={autorotateSpeed}
+                        onChange={(e) => setAutorotateSpeed(parseFloat(e.target.value))}
+                        disabled={!autorotate}
+                        className='slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200'
+                      />
+                      <div className='mt-1 flex justify-between text-xs text-gray-400'>
+                        <span>0.1x</span>
+                        <span>2.0x</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
               {config.panels.length === 0 && (
                 <p className='mt-2 text-sm text-red-300'>Agrega al menos un panel para poder girar</p>
