@@ -1,5 +1,6 @@
 import { WheelMaterial } from '@/types/material-manager'
 import { createMaterialWithPreset, createMaterialBuilder } from '../factories/MaterialFactory'
+import { createTransparentMovingMaterial } from './TransparentMovingMaterial'
 
 /**
  * Registro automático de todos los materiales disponibles
@@ -113,6 +114,9 @@ const stoneMaterial: WheelMaterial = createMaterialBuilder('stone', 'Piedra')
     })
     .build()
 
+// Material personalizado transparente con efectos de movimiento
+const transparentMovingMaterial: WheelMaterial = createTransparentMovingMaterial()
+
 // Array de todos los materiales disponibles
 const allMaterials = [
     classicMaterial,
@@ -125,7 +129,8 @@ const allMaterials = [
     emissiveMaterial,
     holographicMaterial,
     woodMaterial,
-    stoneMaterial
+    stoneMaterial,
+    transparentMovingMaterial
 ]
 
 /**
@@ -142,7 +147,8 @@ export {
     emissiveMaterial,
     holographicMaterial,
     woodMaterial,
-    stoneMaterial
+    stoneMaterial,
+    transparentMovingMaterial
 }
 
 /**
@@ -163,7 +169,7 @@ export const getMaterialById = (id: string): WheelMaterial | undefined => {
 export const getMaterialsByCategory = (category: 'basic' | 'special' | 'natural'): WheelMaterial[] => {
     const categories = {
         basic: ['classic', 'metallic', 'matte', 'shiny'],
-        special: ['glass', 'neon', 'transparent', 'emissive', 'holographic'],
+        special: ['glass', 'neon', 'transparent', 'emissive', 'holographic', 'transparent-moving'],
         natural: ['wood', 'stone']
     }
 

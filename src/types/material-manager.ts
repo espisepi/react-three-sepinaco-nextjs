@@ -1,6 +1,20 @@
 import * as THREE from 'three'
 
 /**
+ * Interfaz para parámetros de transformación de textura
+ */
+export interface TextureTransformParams {
+    /** Escala de la textura (0.1 = pequeña, 1 = normal, 30 = máxima) */
+    textureScale?: number
+    /** Rotación de la textura en grados (0-360) */
+    textureRotation?: number
+    /** Desplazamiento horizontal de la textura (-1 a 1) */
+    textureOffsetX?: number
+    /** Desplazamiento vertical de la textura (-1 a 1) */
+    textureOffsetY?: number
+}
+
+/**
  * Interfaz base para todos los materiales de la ruleta
  * Define el contrato que deben cumplir todos los materiales
  */
@@ -14,7 +28,7 @@ export interface WheelMaterial {
     /** Icono para representar el material en la UI */
     icon: string
     /** Función que crea el material Three.js */
-    createMaterial: (panelColor?: string, texture?: THREE.Texture) => THREE.Material
+    createMaterial: (panelColor?: string, texture?: THREE.Texture, transformParams?: TextureTransformParams) => THREE.Material
     /** Configuración específica del material */
     config?: Record<string, any>
 }

@@ -207,7 +207,13 @@ const Wheel = memo(({ panels, isSpinning, onSpinComplete, spinDuration, onCurren
 
       // Si hay un material activo, usarlo
       if (activeMaterial) {
-        return activeMaterial.createMaterial(panel.color, texture)
+        const transformParams = {
+          textureScale: panel.textureScale,
+          textureRotation: panel.textureRotation,
+          textureOffsetX: panel.textureOffsetX,
+          textureOffsetY: panel.textureOffsetY
+        }
+        return activeMaterial.createMaterial(panel.color, texture, transformParams)
       }
 
       // Fallback al sistema original si no hay material activo

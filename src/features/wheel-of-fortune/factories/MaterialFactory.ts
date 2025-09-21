@@ -6,7 +6,8 @@ import {
   MaterialCreationProps,
   DEFAULT_MATERIAL_CONFIG,
   MaterialPreset,
-  MATERIAL_PRESETS
+  MATERIAL_PRESETS,
+  TextureTransformParams
 } from '@/types/material-manager'
 
 /**
@@ -22,8 +23,8 @@ class WheelMaterialFactory implements MaterialFactory {
   createMaterial(materialData: Omit<WheelMaterial, 'createMaterial'>): WheelMaterial {
     const material: WheelMaterial = {
       ...materialData,
-      createMaterial: (panelColor?: string, texture?: THREE.Texture) => {
-        return this.createThreeMaterial(materialData.id, panelColor, texture, materialData.config)
+      createMaterial: (panelColor?: string, texture?: THREE.Texture, transformParams?: TextureTransformParams) => {
+        return this.createThreeMaterial(materialData.id, panelColor, texture, materialData.config, transformParams)
       }
     }
 
@@ -91,7 +92,8 @@ class WheelMaterialFactory implements MaterialFactory {
     materialId: string,
     panelColor?: string,
     texture?: THREE.Texture,
-    config?: Record<string, any>
+    config?: Record<string, any>,
+    transformParams?: TextureTransformParams
   ): THREE.Material {
     const baseConfig = { ...DEFAULT_MATERIAL_CONFIG, ...config }
 
@@ -109,6 +111,19 @@ class WheelMaterialFactory implements MaterialFactory {
     // Solo agregar propiedades opcionales si tienen valores válidos
     if (texture) {
       materialConfig.map = texture
+
+      // Aplicar transformaciones de textura si están disponibles
+      if (transformParams) {
+        const scale = transformParams.textureScale || 1
+        const rotation = transformParams.textureRotation || 0
+        const offsetX = transformParams.textureOffsetX || 0
+        const offsetY = transformParams.textureOffsetY || 0
+
+        // Aplicar transformaciones a la textura
+        texture.repeat.set(scale, scale)
+        texture.rotation = (rotation * Math.PI) / 180
+        texture.offset.set(offsetX, offsetY)
+      }
     }
 
     if ((baseConfig as any).opacity !== undefined) {
@@ -281,12 +296,13 @@ export class MaterialBuilder {
       description: this.materialData.description || '',
       icon: this.materialData.icon || '🎨',
       config: this.materialData.config || DEFAULT_MATERIAL_CONFIG,
-      createMaterial: (panelColor?: string, texture?: THREE.Texture) => {
+      createMaterial: (panelColor?: string, texture?: THREE.Texture, transformParams?: TextureTransformParams) => {
         return materialFactory['createThreeMaterial'](
           this.materialData.id!,
           panelColor,
           texture,
-          this.materialData.config
+          this.materialData.config,
+          transformParams
         )
       }
     }
