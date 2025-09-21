@@ -191,3 +191,4 @@ export const getMaterialsByProperty = (property: 'transparent' | 'emissive' | 'm
         }
     })
 }
+
