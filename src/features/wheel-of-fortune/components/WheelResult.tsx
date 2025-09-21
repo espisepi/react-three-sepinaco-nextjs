@@ -29,7 +29,7 @@ export const WheelResult = memo(({ result, raycastResult }: WheelResultProps) =>
               />
             </div>
           ) : (
-            <div className='mx-auto mb-3 size-16 rounded-full border-4 border-white/30' style={{ backgroundColor: displayResult.color }} />
+            <div className='mx-auto mb-3 size-16 rounded-full border-4 border-white/30' style={{ backgroundColor: displayResult.color }} data-testid="color-indicator" />
           )}
           <h4 className='text-2xl font-bold text-white'>{displayResult.text}</h4>
         </div>
