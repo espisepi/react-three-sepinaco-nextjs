@@ -16,7 +16,6 @@ interface WheelSceneProps {
   enableOrbitControls?: boolean
   autorotate?: boolean
   autorotateSpeed?: number
-  /** Material activo para los paneles */
   activeMaterial?: WheelMaterial
 }
 
@@ -24,7 +23,9 @@ interface WheelProps extends WheelSceneProps {
   pointerRef: React.RefObject<THREE.Mesh | null>
 }
 
-// Componente optimizado para mostrar los ejes X, Y, Z visualmente
+/**
+ * Componente optimizado para mostrar los ejes X, Y, Z visualmente
+ */
 const AxesHelper = memo(() => {
   const axesGeometry = useMemo(() => new THREE.ConeGeometry(0.1, 0.3, 8), [])
   const cylinderGeometry = useMemo(() => new THREE.CylinderGeometry(0.02, 0.02, 1), [])
@@ -81,7 +82,19 @@ const AxesHelper = memo(() => {
 
 AxesHelper.displayName = 'AxesHelper'
 
-const Wheel = memo(({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPanelChange, onRaycastHit, pointerRef, activeMaterial }: WheelProps) => {
+/**
+ * Componente principal de la ruleta optimizado para performance
+ */
+const Wheel = memo(({
+  panels,
+  isSpinning,
+  onSpinComplete,
+  spinDuration,
+  onCurrentPanelChange,
+  onRaycastHit,
+  pointerRef,
+  activeMaterial
+}: WheelProps) => {
   const wheelRef = useRef<THREE.Group>(null)
   const [rotationSpeed, setRotationSpeed] = useState(0)
   const [isDecelerating, setIsDecelerating] = useState(false)
@@ -89,7 +102,6 @@ const Wheel = memo(({ panels, isSpinning, onSpinComplete, spinDuration, onCurren
   const spinStartTime = useRef<number>(0)
   const spinTimer = useRef<NodeJS.Timeout | null>(null)
   const hasStartedSpinning = useRef<boolean>(false)
-  const hasLoggedSegments = useRef<boolean>(false)
 
   // Referencias para raycasting optimizadas
   const { raycaster, camera, scene } = useThree()
@@ -145,7 +157,7 @@ const Wheel = memo(({ panels, isSpinning, onSpinComplete, spinDuration, onCurren
 
             return { id: panel.id, texture }
           } catch (error) {
-            // console.warn(`Error loading texture for panel ${panel.id}:`, error)
+            // Silently handle texture loading errors
             return null
           }
         })
@@ -166,12 +178,10 @@ const Wheel = memo(({ panels, isSpinning, onSpinComplete, spinDuration, onCurren
   // Aplicar rotación inicial aleatoria SOLO cuando se monta el componente
   useEffect(() => {
     if (wheelRef.current) {
-      const randomInitialRotation = Math.random() * Math.PI * 2 // Rotación aleatoria completa (0 a 2π)
+      const randomInitialRotation = Math.random() * Math.PI * 2
       wheelRef.current.rotation.y = randomInitialRotation
-      // console.log('🎲 Rotación inicial aleatoria aplicada:', randomInitialRotation.toFixed(3), 'radianes')
-      // console.log('🎲 Rotación inicial aleatoria aplicada:', (randomInitialRotation * 180 / Math.PI).toFixed(1), 'grados')
     }
-  }, []) // Solo se ejecuta una vez al montar el componente
+  }, [])
 
   // Crear geometría de la ruleta
   const wheelGeometry = useMemo(() => {
@@ -319,24 +329,19 @@ const Wheel = memo(({ panels, isSpinning, onSpinComplete, spinDuration, onCurren
   // Lógica de rotación continua durante toda la duración
   useEffect(() => {
     if (isSpinning && !hasStartedSpinning.current) {
-      // console.log('🚀 Iniciando giro continuo con duración:', spinDuration, 'segundos')
       hasStartedSpinning.current = true
 
       // Velocidad constante basada en la duración
-      // Más tiempo = más vueltas, pero velocidad constante
       const baseSpeed = 3.0 // Velocidad base constante
       const durationFactor = Math.min(spinDuration * 0.5, 2.0) // Factor limitado
       const constantSpeed = baseSpeed + durationFactor
 
-      // console.log('💪 Velocidad constante calculada:', constantSpeed.toFixed(2), 'rad/s')
-      // console.log('📏 Duración:', spinDuration, 's - Factor:', durationFactor.toFixed(2))
       setRotationSpeed(constantSpeed)
       setIsDecelerating(true) // Mantener el estado para la lógica de rotación
       spinStartTime.current = Date.now()
 
       // Timer único para parar completamente
       spinTimer.current = setTimeout(() => {
-        // console.log('⏰ Parando completamente')
         setIsDecelerating(false)
         setRotationSpeed(0)
         hasStartedSpinning.current = false
@@ -351,13 +356,6 @@ const Wheel = memo(({ panels, isSpinning, onSpinComplete, spinDuration, onCurren
           const selectedIndex = Math.floor(compensatedRotation / anglePerSegment) % panels.length
           const selectedPanel = panels[selectedIndex]
 
-          // console.log('🎯 Panel seleccionado:', selectedPanel)
-          // console.log('🔄 Rotación normalizada:', normalizedRotation.toFixed(3))
-          // console.log('🔧 Rotación compensada:', compensatedRotation.toFixed(3))
-          // console.log('📐 Ángulo por segmento:', anglePerSegment.toFixed(3))
-          // console.log('🎲 Índice seleccionado:', selectedIndex)
-          // console.log('📊 Cálculo directo:', (compensatedRotation / anglePerSegment).toFixed(3))
-          // console.log('🎯 Panel que debería estar arriba:', panels[0])
           if (selectedPanel) {
             onSpinComplete(selectedPanel)
           }
@@ -375,13 +373,12 @@ const Wheel = memo(({ panels, isSpinning, onSpinComplete, spinDuration, onCurren
         spinTimer.current = null
       }
     }
-  }, [isSpinning, spinDuration, onSpinComplete, panels]) // Depende de isSpinning, spinDuration, onSpinComplete y panels
+  }, [isSpinning, spinDuration, onSpinComplete, panels])
 
   // Cleanup del timer solo cuando el componente se desmonta
   useEffect(() => {
     return () => {
       if (spinTimer.current) {
-        // console.log('🧹 Limpiando timer al desmontar')
         clearTimeout(spinTimer.current)
         spinTimer.current = null
       }
@@ -457,7 +454,7 @@ const Wheel = memo(({ panels, isSpinning, onSpinComplete, spinDuration, onCurren
 
   return (
     // @ts-ignore - Three.js JSX elements
-    <group ref={wheelRef} rotation={[Math.PI / 2, 0, 0]}> {/* Rotación de 90° en X para orientar la ruleta frontalmente */}
+    <group ref={wheelRef} rotation={[Math.PI / 2, 0, 0]}>
       {/* Segmentos de la ruleta */}
       {wheelSegments}
 
@@ -477,7 +474,21 @@ const Wheel = memo(({ panels, isSpinning, onSpinComplete, spinDuration, onCurren
 
 Wheel.displayName = 'Wheel'
 
-export const WheelScene = memo(({ panels, isSpinning, onSpinComplete, spinDuration, onCurrentPanelChange, onRaycastHit, enableOrbitControls = false, autorotate = false, autorotateSpeed = 0.5, activeMaterial }: WheelSceneProps) => {
+/**
+ * Componente principal de la escena de la ruleta
+ */
+export const WheelScene = memo(({
+  panels,
+  isSpinning,
+  onSpinComplete,
+  spinDuration,
+  onCurrentPanelChange,
+  onRaycastHit,
+  enableOrbitControls = false,
+  autorotate = false,
+  autorotateSpeed = 0.5,
+  activeMaterial
+}: WheelSceneProps) => {
   const pointerRef = useRef<THREE.Mesh | null>(null)
   const { camera } = useThree()
 
@@ -496,8 +507,8 @@ export const WheelScene = memo(({ panels, isSpinning, onSpinComplete, spinDurati
 
   // Configurar posición inicial de la cámara más alejada
   useEffect(() => {
-    camera.position.set(0, 0, 8) // Posición inicial más alejada en el eje Z
-    camera.lookAt(0, 0, 0) // Mirar hacia el centro de la ruleta
+    camera.position.set(0, 0, 8)
+    camera.lookAt(0, 0, 0)
   }, [camera])
 
   // Memoizar geometrías y materiales para mejor performance
@@ -528,7 +539,6 @@ export const WheelScene = memo(({ panels, isSpinning, onSpinComplete, spinDurati
       {/* Puntero fijo - Fuera del grupo de la ruleta para que no gire */}
       {/* @ts-ignore - Three.js JSX elements */}
       <mesh ref={pointerRef} position={[0, 2.2, 0]} rotation={[Math.PI, 0, 0]} geometry={coneGeometry} material={pointerMaterial} castShadow />
-
 
       {/* Controles de cámara */}
       {enableOrbitControls && (

@@ -1,7 +1,6 @@
 import { ClassicWheelScene } from './ClassicWheelScene'
 import { DarkWheelScene } from './DarkWheelScene'
 import { MinimalWheelScene } from './MinimalWheelScene'
-import { WheelScene } from '@/types/scene-manager'
 
 /**
  * Registro automático de todas las escenas disponibles
@@ -9,7 +8,7 @@ import { WheelScene } from '@/types/scene-manager'
  */
 
 // Crear escenas directamente sin usar el factory complejo
-const classicScene: WheelScene = {
+const classicScene: any = {
   id: 'classic',
   name: 'Clásica',
   description: 'Escena tradicional con iluminación equilibrada y efectos estándar',
@@ -34,7 +33,7 @@ const classicScene: WheelScene = {
   }
 }
 
-const darkScene: WheelScene = {
+const darkScene: any = {
   id: 'dark',
   name: 'Oscura',
   description: 'Ambiente misterioso con efectos de neón y iluminación dramática',
@@ -59,7 +58,7 @@ const darkScene: WheelScene = {
   }
 }
 
-const minimalScene: WheelScene = {
+const minimalScene: any = {
   id: 'minimal',
   name: 'Minimalista',
   description: 'Diseño limpio y elegante con geometrías simples',

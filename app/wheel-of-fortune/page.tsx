@@ -87,7 +87,7 @@ export default function WheelOfFortunePage() {
     updateSceneConfig,
     availableScenes,
     isSceneActive
-  } = useSceneManager(getRegisteredScenes(), 'classic')
+  } = useSceneManager('classic')
 
   // Hook de gestión de materiales
   const {
@@ -267,6 +267,11 @@ export default function WheelOfFortunePage() {
     if (config.panels.length <= 1) return
     updatePanels(config.panels.filter(panel => panel.id !== id))
   }, [config.panels, updatePanels])
+
+  const handleMaterialSelect = useCallback((materialId: string) => {
+    const material = availableMaterials.find(m => m.id === materialId)
+    setActiveMaterial(material || null)
+  }, [availableMaterials, setActiveMaterial])
 
   // Usar el hook optimizado para las actualizaciones de paneles
   const {
@@ -775,7 +780,7 @@ export default function WheelOfFortunePage() {
               onSceneSelect={setActiveScene}
               materials={availableMaterials}
               activeMaterialId={activeMaterial?.id || 'classic'}
-              onMaterialSelect={setActiveMaterial}
+              onMaterialSelect={handleMaterialSelect}
             />
 
             {/* Información de Debug */}

@@ -1,17 +1,17 @@
 import React from 'react'
-import { WheelScene, SceneFactory, WheelSceneProps, DEFAULT_SCENE_CONFIG } from '@/types/scene-manager'
+import { SceneFactory, WheelSceneProps, DEFAULT_SCENE_CONFIG } from '@/types/scene-manager'
 
 /**
  * Factory para crear y gestionar escenas de la ruleta
  * Implementa el patrón Factory con registro dinámico de escenas
  */
 class WheelSceneFactory implements SceneFactory {
-    private scenes: Map<string, WheelScene> = new Map()
+    private scenes: Map<string, any> = new Map()
 
     /**
      * Crear una nueva escena con configuración por defecto
      */
-    createScene(sceneData: Omit<WheelScene, 'component'>): WheelScene {
+    createScene(sceneData: Omit<any, 'component'>): any {
         // Esta función requiere que se proporcione el componente
         throw new Error('createScene requires a component. Use createSceneWithPreset or SceneBuilder instead.')
     }
@@ -19,7 +19,7 @@ class WheelSceneFactory implements SceneFactory {
     /**
      * Registrar una escena en el factory
      */
-    registerScene(scene: WheelScene): void {
+    registerScene(scene: any): void {
         if (this.scenes.has(scene.id)) {
             // Scene already exists, overwriting silently
         }
@@ -30,14 +30,14 @@ class WheelSceneFactory implements SceneFactory {
     /**
      * Obtener una escena por su ID
      */
-    getScene(sceneId: string): WheelScene | null {
+    getScene(sceneId: string): any | null {
         return this.scenes.get(sceneId) || null
     }
 
     /**
      * Listar todas las escenas registradas
      */
-    listScenes(): WheelScene[] {
+    listScenes(): any[] {
         return Array.from(this.scenes.values())
     }
 
@@ -77,11 +77,11 @@ export const sceneFactory = new WheelSceneFactory()
  * Hook para usar el factory de escenas
  */
 export const useSceneFactory = () => {
-    const createScene = React.useCallback((sceneData: Omit<WheelScene, 'component'>) => {
+    const createScene = React.useCallback((sceneData: Omit<any, 'component'>) => {
         return sceneFactory.createScene(sceneData)
     }, [])
 
-    const registerScene = React.useCallback((scene: WheelScene) => {
+    const registerScene = React.useCallback((scene: any) => {
         sceneFactory.registerScene(scene)
     }, [])
 
@@ -125,7 +125,7 @@ export const useSceneFactory = () => {
  * Builder pattern para crear escenas de forma fluida
  */
 export class SceneBuilder {
-    private sceneData: Partial<WheelScene> = {}
+    private sceneData: Partial<any> = {}
 
     constructor(id: string, name: string) {
         this.sceneData.id = id
@@ -170,12 +170,12 @@ export class SceneBuilder {
     /**
      * Construir la escena final
      */
-    build(): WheelScene {
+    build(): any {
         if (!this.sceneData.component) {
             throw new Error('Scene component is required')
         }
 
-        const scene: WheelScene = {
+        const scene: any = {
             id: this.sceneData.id!,
             name: this.sceneData.name!,
             description: this.sceneData.description || '',
@@ -278,7 +278,7 @@ export const createSceneWithPreset = (
     name: string,
     component: React.ComponentType<WheelSceneProps>,
     preset: keyof typeof SCENE_PRESETS = 'CLASSIC'
-): WheelScene => {
+): any => {
     return createSceneBuilder(id, name)
         .withComponent(component)
         .withConfig(SCENE_PRESETS[preset])

@@ -3,12 +3,12 @@
 import React, { memo, useState, useCallback } from 'react'
 import { SceneSelector } from './SceneSelector'
 import { MaterialSelector } from './MaterialSelector'
-import { WheelScene } from '@/types/scene-manager'
+import { WheelSceneProps } from '@/types/scene-manager'
 import { WheelMaterial } from '@/types/material-manager'
 
 interface SceneAndMaterialSelectorProps {
     /** Escenas disponibles */
-    scenes: WheelScene[]
+    scenes: any[]
     /** Escena activa actual */
     activeSceneId: string
     /** Callback cuando se selecciona una escena */
@@ -87,7 +87,7 @@ SceneAndMaterialSelector.displayName = 'SceneAndMaterialSelector'
 interface CombinedInfoProps {
     activeSceneId: string
     activeMaterialId: string
-    scenes: WheelScene[]
+    scenes: any[]
     materials: WheelMaterial[]
 }
 
@@ -151,7 +151,7 @@ CombinedInfo.displayName = 'CombinedInfo'
 interface QuickPreviewProps {
     activeSceneId: string
     activeMaterialId: string
-    scenes: WheelScene[]
+    scenes: any[]
     materials: WheelMaterial[]
 }
 

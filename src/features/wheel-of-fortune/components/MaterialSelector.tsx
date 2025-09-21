@@ -222,7 +222,7 @@ export const MaterialInfo = memo(({ materials, activeMaterialId }: MaterialInfoP
                 {config.transparent && (
                     <div className="flex justify-between">
                         <span>Transparencia:</span>
-                        <span className="text-white">{(config.opacity * 100).toFixed(0)}%</span>
+                        <span className="text-white">{((config.opacity || 1) * 100).toFixed(0)}%</span>
                     </div>
                 )}
                 {config.emissive && (

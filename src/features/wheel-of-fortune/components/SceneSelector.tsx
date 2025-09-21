@@ -1,12 +1,11 @@
 'use client'
 
 import React, { memo, useCallback } from 'react'
-import { WheelScene } from '@/types/scene-manager'
 import { CollapsibleBlock } from '@/components/ui/CollapsibleBlock'
 
 interface SceneSelectorProps {
   /** Escenas disponibles */
-  scenes: WheelScene[]
+  scenes: any[]
   /** Escena activa actual */
   activeSceneId: string
   /** Callback cuando se selecciona una escena */
@@ -106,7 +105,7 @@ SceneSelector.displayName = 'SceneSelector'
  * Implementa estados visuales claros y feedback táctil
  */
 interface SceneButtonProps {
-  scene: WheelScene
+  scene: any
   isActive: boolean
   onClick: () => void
 }
@@ -184,7 +183,7 @@ SceneButton.displayName = 'SceneButton'
  * Muestra estadísticas y detalles técnicos
  */
 interface SceneInfoProps {
-  scenes: WheelScene[]
+  scenes: any[]
   activeSceneId: string
 }
 

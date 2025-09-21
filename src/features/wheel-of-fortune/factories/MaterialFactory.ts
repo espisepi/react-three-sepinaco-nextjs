@@ -6,12 +6,14 @@ import {
   MaterialCreationProps,
   DEFAULT_MATERIAL_CONFIG,
   MaterialPreset,
-  MATERIAL_PRESETS
+  MATERIAL_PRESETS,
+  MaterialConfig
 } from '@/types/material-manager'
 
 /**
  * Factory para crear y gestionar materiales de la ruleta
  * Implementa el patrón Factory con registro dinámico de materiales
+ * Refactorizado con tipos mejorados y eliminación de any types
  */
 class WheelMaterialFactory implements MaterialFactory {
   private materials: Map<string, WheelMaterial> = new Map()
@@ -86,17 +88,18 @@ class WheelMaterialFactory implements MaterialFactory {
 
   /**
    * Crear material Three.js basado en configuración
+   * Refactorizado con tipos seguros
    */
   private createThreeMaterial(
     materialId: string,
     panelColor?: string,
     texture?: THREE.Texture,
-    config?: Record<string, any>
+    config?: Partial<MaterialConfig>
   ): THREE.Material {
     const baseConfig = { ...DEFAULT_MATERIAL_CONFIG, ...config }
 
     // Crear objeto de configuración del material solo con propiedades válidas
-    const materialConfig: any = {
+    const materialConfig: Record<string, unknown> = {
       color: panelColor || '#ffffff',
       metalness: baseConfig.metalness,
       roughness: baseConfig.roughness,
@@ -111,37 +114,37 @@ class WheelMaterialFactory implements MaterialFactory {
       materialConfig.map = texture
     }
 
-    if ((baseConfig as any).opacity !== undefined) {
-      materialConfig.opacity = (baseConfig as any).opacity
+    if (baseConfig.opacity !== undefined) {
+      materialConfig.opacity = baseConfig.opacity
     }
 
-    if ((baseConfig as any).emissive !== undefined) {
-      materialConfig.emissive = (baseConfig as any).emissive
+    if (baseConfig.emissive !== undefined) {
+      materialConfig.emissive = baseConfig.emissive
     }
 
-    if ((baseConfig as any).emissiveIntensity !== undefined) {
-      materialConfig.emissiveIntensity = (baseConfig as any).emissiveIntensity
+    if (baseConfig.emissiveIntensity !== undefined) {
+      materialConfig.emissiveIntensity = baseConfig.emissiveIntensity
     }
 
     // Propiedades avanzadas para materiales físicos
-    if ((baseConfig as any).transmission !== undefined) {
-      materialConfig.transmission = (baseConfig as any).transmission
+    if (baseConfig.transmission !== undefined) {
+      materialConfig.transmission = baseConfig.transmission
     }
 
-    if ((baseConfig as any).thickness !== undefined) {
-      materialConfig.thickness = (baseConfig as any).thickness
+    if (baseConfig.thickness !== undefined) {
+      materialConfig.thickness = baseConfig.thickness
     }
 
-    if ((baseConfig as any).ior !== undefined) {
-      materialConfig.ior = (baseConfig as any).ior
+    if (baseConfig.ior !== undefined) {
+      materialConfig.ior = baseConfig.ior
     }
 
-    if ((baseConfig as any).reflectivity !== undefined) {
-      materialConfig.reflectivity = (baseConfig as any).reflectivity
+    if (baseConfig.reflectivity !== undefined) {
+      materialConfig.reflectivity = baseConfig.reflectivity
     }
 
     // Crear material físico con configuración
-    const material = new THREE.MeshPhysicalMaterial(materialConfig)
+    const material = new THREE.MeshPhysicalMaterial(materialConfig as THREE.MeshPhysicalMaterialParameters)
 
     return material
   }
@@ -202,7 +205,7 @@ export const createMaterialWithPreset = (
   description: string,
   icon: string,
   preset: MaterialPreset,
-  customConfig?: Record<string, any>
+  customConfig?: Partial<MaterialConfig>
 ): WheelMaterial => {
   const presetConfig = MATERIAL_PRESETS[preset]
   const finalConfig = { ...presetConfig, ...customConfig }
@@ -246,7 +249,7 @@ export class MaterialBuilder {
   /**
    * Establecer configuración del material
    */
-  withConfig(config: Record<string, any>): MaterialBuilder {
+  withConfig(config: Partial<MaterialConfig>): MaterialBuilder {
     this.materialData.config = {
       ...DEFAULT_MATERIAL_CONFIG,
       ...config

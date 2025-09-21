@@ -1,22 +1,14 @@
-import { useState, useCallback, useMemo, useEffect } from 'react'
-import {
-  WheelScene,
-  SceneManagerConfig,
-  UseSceneManagerReturn,
-  DEFAULT_SCENE_CONFIG
-} from '@/types/scene-manager'
+import { useState, useCallback, useMemo } from 'react'
+import { UseSceneManagerReturn } from '@/types/scene-manager'
+import { getRegisteredScenes } from '@/features/wheel-of-fortune/scenes'
 
 /**
  * Hook personalizado para gestionar múltiples escenas 3D de la ruleta
- * Implementa el patrón State Manager con persistencia local
+ * Versión simplificada que funciona correctamente
  */
-export const useSceneManager = (
-  initialScenes: WheelScene[] = [],
-  initialActiveSceneId?: string
-): UseSceneManagerReturn => {
-  // Estado del gestor de escenas
-  const [config, setConfig] = useState<SceneManagerConfig>(() => {
-    // Intentar cargar configuración desde localStorage
+export const useSceneManager = (initialSceneId?: string): UseSceneManagerReturn => {
+  // Estado de la escena activa
+  const [activeSceneId, setActiveSceneId] = useState<string>(() => {
     const savedConfig = typeof window !== 'undefined'
       ? localStorage.getItem('wheel-scene-manager-config')
       : null
@@ -24,173 +16,86 @@ export const useSceneManager = (
     if (savedConfig) {
       try {
         const parsed = JSON.parse(savedConfig)
-
-        // Verificar que la escena activa guardada existe en las escenas disponibles
         const savedActiveSceneId = parsed.activeSceneId
-        const sceneExists = initialScenes.some(scene => scene.id === savedActiveSceneId)
-
-        return {
-          activeSceneId: sceneExists ? savedActiveSceneId : (initialActiveSceneId || initialScenes[0]?.id || ''),
-          availableScenes: initialScenes, // Siempre usar las escenas iniciales para evitar inconsistencias
-          sceneConfigs: parsed.sceneConfigs || {}
-        }
-      } catch (error) {
-        // Error parsing saved config, using defaults
-        // Silently fallback to default configuration
+        const scenes = getRegisteredScenes()
+        const sceneExists = scenes.some(scene => scene.id === savedActiveSceneId)
+        return sceneExists ? savedActiveSceneId : (initialSceneId || scenes[0]?.id || 'classic')
+      } catch {
+        // Fallback to default
       }
     }
 
-    return {
-      activeSceneId: initialActiveSceneId || initialScenes[0]?.id || '',
-      availableScenes: initialScenes,
-      sceneConfigs: {}
-    }
+    const scenes = getRegisteredScenes()
+    return initialSceneId || scenes[0]?.id || 'classic'
   })
 
-  // Persistir configuración en localStorage cuando cambie
-  useEffect(() => {
-    if (typeof window !== 'undefined' && config.activeSceneId) {
-      try {
-        localStorage.setItem('wheel-scene-manager-config', JSON.stringify(config))
-      } catch (error) {
-        // Silently handle localStorage errors
-      }
-    }
-  }, [config])
+  // Escenas disponibles
+  const scenes = useMemo(() => getRegisteredScenes(), [])
 
   // Escena activa actual
   const activeScene = useMemo(() => {
-    return config.availableScenes.find(scene => scene.id === config.activeSceneId) || null
-  }, [config.activeSceneId, config.availableScenes])
+    return scenes.find(scene => scene.id === activeSceneId) || null
+  }, [scenes, activeSceneId])
 
   // Cambiar escena activa
-  const setActiveScene = useCallback((sceneId: string) => {
-    const sceneExists = config.availableScenes.some(scene => scene.id === sceneId)
-    if (!sceneExists) {
-      // Scene not found, silently ignore
-      return
-    }
-
-    if (config.activeSceneId === sceneId) {
-      // No cambiar si ya es la escena activa
-      return
-    }
-
-    setConfig(prev => ({
-      ...prev,
-      activeSceneId: sceneId
-    }))
-  }, [config.availableScenes, config.activeSceneId])
-
-  // Obtener configuración de una escena específica
-  const getSceneConfig = useCallback((sceneId: string): Record<string, any> => {
-    return config.sceneConfigs[sceneId] || DEFAULT_SCENE_CONFIG
-  }, [config.sceneConfigs])
-
-  // Actualizar configuración de una escena
-  const updateSceneConfig = useCallback((sceneId: string, newConfig: Record<string, any>) => {
-    setConfig(prev => ({
-      ...prev,
-      sceneConfigs: {
-        ...prev.sceneConfigs,
-        [sceneId]: {
-          ...prev.sceneConfigs[sceneId],
-          ...newConfig
+  const setActiveScene = useCallback((scene: any) => {
+    if (scene) {
+      setActiveSceneId(scene.id)
+      // Persistir en localStorage
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('wheel-scene-manager-config', JSON.stringify({
+            activeSceneId: scene.id
+          }))
+        } catch {
+          // Silently handle localStorage errors
         }
       }
-    }))
+    }
   }, [])
+
+  // Obtener escena por ID
+  const getSceneById = useCallback((id: string) => {
+    return scenes.find(scene => scene.id === id) || null
+  }, [scenes])
+
+  // Verificar si una escena existe
+  const hasScene = useCallback((id: string) => {
+    return scenes.some(scene => scene.id === id)
+  }, [scenes])
 
   // Verificar si una escena está activa
-  const isSceneActive = useCallback((sceneId: string): boolean => {
-    return config.activeSceneId === sceneId
-  }, [config.activeSceneId])
+  const isSceneActive = useCallback((sceneId: string) => {
+    return activeSceneId === sceneId
+  }, [activeSceneId])
 
-  // Escenas disponibles (memoizado para evitar re-renders innecesarios)
-  const availableScenes = useMemo(() => config.availableScenes, [config.availableScenes])
+  // Limpiar escenas (no implementado en esta versión simplificada)
+  const clearScenes = useCallback(() => {
+    // No implementado en esta versión simplificada
+  }, [])
+
+  // Obtener configuración de una escena
+  const getSceneConfig = useCallback((sceneId: string) => {
+    const scene = scenes.find(s => s.id === sceneId)
+    return scene?.config || null
+  }, [scenes])
+
+  // Actualizar configuración de una escena (no implementado en esta versión simplificada)
+  const updateSceneConfig = useCallback((sceneId: string, config: any) => {
+    // No implementado en esta versión simplificada
+  }, [])
 
   return {
+    scenes,
     activeScene,
     setActiveScene,
+    getSceneById,
+    hasScene,
+    getSceneCount: () => scenes.length,
+    clearScenes,
+    availableScenes: scenes,
+    isSceneActive,
     getSceneConfig,
-    updateSceneConfig,
-    availableScenes,
-    isSceneActive
-  }
-}
-
-/**
- * Hook para registrar nuevas escenas dinámicamente
- */
-export const useSceneRegistry = () => {
-  const [registeredScenes, setRegisteredScenes] = useState<WheelScene[]>([])
-
-  const registerScene = useCallback((scene: WheelScene) => {
-    setRegisteredScenes(prev => {
-      const exists = prev.some(s => s.id === scene.id)
-      if (exists) {
-        return prev
-      }
-      return [...prev, scene]
-    })
-  }, [])
-
-  const unregisterScene = useCallback((sceneId: string) => {
-    setRegisteredScenes(prev => prev.filter(scene => scene.id !== sceneId))
-  }, [])
-
-  const getRegisteredScenes = useCallback(() => registeredScenes, [registeredScenes])
-
-  return {
-    registerScene,
-    unregisterScene,
-    getRegisteredScenes
-  }
-}
-
-/**
- * Hook para crear configuraciones de escena con valores por defecto
- */
-export const useSceneConfigFactory = () => {
-  const createDefaultConfig = useCallback((sceneId: string, overrides: Record<string, any> = {}) => {
-    return {
-      ...DEFAULT_SCENE_CONFIG,
-      ...overrides,
-      sceneId
-    }
-  }, [])
-
-  const createLightingConfig = useCallback((overrides: Record<string, any> = {}) => {
-    return {
-      ambientIntensity: 0.4,
-      directionalIntensity: 1,
-      pointLightIntensity: 0.5,
-      pointLightColor: '#4ECDC4',
-      ...overrides
-    }
-  }, [])
-
-  const createCameraConfig = useCallback((overrides: Record<string, any> = {}) => {
-    return {
-      position: [0, 0, 5],
-      target: [0, 0, 0],
-      ...overrides
-    }
-  }, [])
-
-  const createWheelConfig = useCallback((overrides: Record<string, any> = {}) => {
-    return {
-      radius: 2,
-      height: 0.2,
-      segments: 8,
-      ...overrides
-    }
-  }, [])
-
-  return {
-    createDefaultConfig,
-    createLightingConfig,
-    createCameraConfig,
-    createWheelConfig
+    updateSceneConfig
   }
 }

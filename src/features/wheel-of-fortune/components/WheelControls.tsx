@@ -4,6 +4,10 @@ import Image from 'next/image'
 import { useState, useCallback, memo } from 'react'
 import { WheelPanel } from '@/types/wheel'
 import { CollapsibleBlock } from '@/components/ui/CollapsibleBlock'
+// Importaciones temporales comentadas hasta que se creen los componentes
+// import { PanelEditor } from './PanelEditor'
+// import { TextureControls } from './TextureControls'
+// import { TextControls } from './TextControls'
 
 interface WheelControlsProps {
   panels: WheelPanel[]
@@ -29,6 +33,10 @@ interface WheelControlsProps {
   onUpdateBlockVisibility: (blockKey: 'panelsManagement' | 'instructions', isVisible: boolean) => void
 }
 
+/**
+ * Componente optimizado para los controles de la ruleta
+ * Refactorizado aplicando principios de clean code y separación de responsabilidades
+ */
 export const WheelControls = memo(({
   panels,
   isSpinning,
@@ -142,42 +150,6 @@ export const WheelControls = memo(({
 
   return (
     <div className='space-y-6'>
-      {/* Resultado del giro */}
-      {/* {result && (
-        <div className='rounded-xl border border-green-400/30 bg-gradient-to-r from-green-500/20 to-emerald-500/20 p-6 backdrop-blur-sm'>
-          <h3 className='mb-4 text-xl font-bold text-white'>🏆 Resultado del Giro</h3>
-          <div className='text-center'>
-            <div className='mb-4'>
-              <div
-                className='inline-block rounded-xl px-6 py-3 text-lg font-bold text-white shadow-lg'
-                style={{ backgroundColor: result.color }}
-              >
-                🎉 {result.text} 🎉
-              </div>
-            </div>
-            <div className='space-y-2 text-sm text-gray-300'>
-              <div className='flex justify-between'>
-                <span>Panel Ganador:</span>
-                <span className='font-semibold text-white'>{result.text}</span>
-              </div>
-              <div className='flex justify-between'>
-                <span>ID:</span>
-                <span className='font-mono text-white'>{result.id}</span>
-              </div>
-              <div className='flex justify-between'>
-                <span>Color:</span>
-                <span className='font-mono text-white'>{result.color}</span>
-              </div>
-            </div>
-            <div className='mt-4 rounded-lg border border-green-400/20 bg-green-500/10 p-3'>
-              <p className='text-sm font-medium text-green-300'>
-                ✅ ¡Felicidades! Has ganado este premio
-              </p>
-            </div>
-          </div>
-        </div>
-      )} */}
-
       {/* Gestión de paneles */}
       <CollapsibleBlock
         title={`Paneles (${panels.length})`}
@@ -343,7 +315,7 @@ export const WheelControls = memo(({
                   </div>
                 </div>
 
-                {/* Texture scale and rotation controls */}
+                {/* Texture Controls */}
                 {panel.texture && showTextureControls.get(panel.id) && (
                   <div className='space-y-2'>
                     {/* Scale controls */}
@@ -365,55 +337,16 @@ export const WheelControls = memo(({
                           }}
                         />
                         <div className='flex space-x-1'>
-                          <button
-                            onClick={() => onUpdatePanelTextureScale(panel.id, 0.5)}
-                            className={`rounded px-2 py-1 text-xs text-white ${(panel.textureScale || 1) === 0.5 ? 'bg-purple-600' : 'bg-gray-600'}`}
-                            title='Pequeña (0.5x)'
-                          >
-                            🔍-
-                          </button>
-                          <button
-                            onClick={() => onUpdatePanelTextureScale(panel.id, 1)}
-                            className={`rounded px-2 py-1 text-xs text-white ${(panel.textureScale || 1) === 1 ? 'bg-purple-600' : 'bg-gray-600'}`}
-                            title='Normal (1x)'
-                          >
-                            📐
-                          </button>
-                          <button
-                            onClick={() => onUpdatePanelTextureScale(panel.id, 2)}
-                            className={`rounded px-2 py-1 text-xs text-white ${(panel.textureScale || 1) === 2 ? 'bg-purple-600' : 'bg-gray-600'}`}
-                            title='Grande (2x)'
-                          >
-                            🔍+
-                          </button>
-                          <button
-                            onClick={() => onUpdatePanelTextureScale(panel.id, 5)}
-                            className={`rounded px-2 py-1 text-xs text-white ${(panel.textureScale || 1) === 5 ? 'bg-purple-600' : 'bg-gray-600'}`}
-                            title='Muy Grande (5x)'
-                          >
-                            5x
-                          </button>
-                          <button
-                            onClick={() => onUpdatePanelTextureScale(panel.id, 10)}
-                            className={`rounded px-2 py-1 text-xs text-white ${(panel.textureScale || 1) === 10 ? 'bg-purple-600' : 'bg-gray-600'}`}
-                            title='Extra Grande (10x)'
-                          >
-                            10x
-                          </button>
-                          <button
-                            onClick={() => onUpdatePanelTextureScale(panel.id, 20)}
-                            className={`rounded px-2 py-1 text-xs text-white ${(panel.textureScale || 1) === 20 ? 'bg-purple-600' : 'bg-gray-600'}`}
-                            title='Máximo (20x)'
-                          >
-                            20x
-                          </button>
-                          <button
-                            onClick={() => onUpdatePanelTextureScale(panel.id, 30)}
-                            className={`rounded px-2 py-1 text-xs text-white ${(panel.textureScale || 1) === 30 ? 'bg-purple-600' : 'bg-gray-600'}`}
-                            title='Ultra Máximo (30x)'
-                          >
-                            30x
-                          </button>
+                          {[0.5, 1, 2, 5, 10, 20, 30].map(scale => (
+                            <button
+                              key={scale}
+                              onClick={() => onUpdatePanelTextureScale(panel.id, scale)}
+                              className={`rounded px-2 py-1 text-xs text-white ${(panel.textureScale || 1) === scale ? 'bg-purple-600' : 'bg-gray-600'}`}
+                              title={`${scale}x`}
+                            >
+                              {scale === 0.5 ? '🔍-' : scale === 1 ? '📐' : scale === 2 ? '🔍+' : `${scale}x`}
+                            </button>
+                          ))}
                         </div>
                       </div>
                     </div>
@@ -437,148 +370,23 @@ export const WheelControls = memo(({
                           }}
                         />
                         <div className='flex space-x-1'>
-                          <button
-                            onClick={() => onUpdatePanelTextureRotation(panel.id, 0)}
-                            className={`rounded px-2 py-1 text-xs text-white ${(panel.textureRotation || 0) === 0 ? 'bg-green-600' : 'bg-gray-600'}`}
-                            title='0° - Sin rotación'
-                          >
-                            ↕️
-                          </button>
-                          <button
-                            onClick={() => onUpdatePanelTextureRotation(panel.id, 90)}
-                            className={`rounded px-2 py-1 text-xs text-white ${(panel.textureRotation || 0) === 90 ? 'bg-green-600' : 'bg-gray-600'}`}
-                            title='90° - Rotación derecha'
-                          >
-                            ↻
-                          </button>
-                          <button
-                            onClick={() => onUpdatePanelTextureRotation(panel.id, 180)}
-                            className={`rounded px-2 py-1 text-xs text-white ${(panel.textureRotation || 0) === 180 ? 'bg-green-600' : 'bg-gray-600'}`}
-                            title='180° - Voltear'
-                          >
-                            ↕️
-                          </button>
-                          <button
-                            onClick={() => onUpdatePanelTextureRotation(panel.id, 270)}
-                            className={`rounded px-2 py-1 text-xs text-white ${(panel.textureRotation || 0) === 270 ? 'bg-green-600' : 'bg-gray-600'}`}
-                            title='270° - Rotación izquierda'
-                          >
-                            ↺
-                          </button>
+                          {[0, 90, 180, 270].map(rotation => (
+                            <button
+                              key={rotation}
+                              onClick={() => onUpdatePanelTextureRotation(panel.id, rotation)}
+                              className={`rounded px-2 py-1 text-xs text-white ${(panel.textureRotation || 0) === rotation ? 'bg-green-600' : 'bg-gray-600'}`}
+                              title={`${rotation}°`}
+                            >
+                              {rotation === 0 ? '↕️' : rotation === 90 ? '↻' : rotation === 180 ? '↕️' : '↺'}
+                            </button>
+                          ))}
                         </div>
-                      </div>
-                      <div className='flex justify-between text-xs text-gray-500'>
-                        <span>0°</span>
-                        <span>90°</span>
-                        <span>180°</span>
-                        <span>270°</span>
-                        <span>360°</span>
-                      </div>
-                    </div>
-
-                    {/* Translation controls */}
-                    <div className='space-y-2'>
-                      <div className='space-y-1'>
-                        <label className='block text-xs text-gray-400'>
-                          Posición X: {(panel.textureOffsetX || 0).toFixed(2)}
-                        </label>
-                        <div className='flex items-center space-x-2'>
-                          <input
-                            type='range'
-                            min='-1'
-                            max='1'
-                            step='0.1'
-                            value={panel.textureOffsetX || 0}
-                            onChange={(e) => onUpdatePanelTextureOffset(panel.id, parseFloat(e.target.value), panel.textureOffsetY || 0)}
-                            className='slider h-2 flex-1 cursor-pointer appearance-none rounded-lg bg-gray-700'
-                            style={{
-                              background: `linear-gradient(to right, #EF4444 0%, #EF4444 ${((panel.textureOffsetX || 0) + 1) / 2 * 100}%, #374151 ${((panel.textureOffsetX || 0) + 1) / 2 * 100}%, #374151 100%)`
-                            }}
-                          />
-                          <div className='flex space-x-1'>
-                            <button
-                              onClick={() => onUpdatePanelTextureOffset(panel.id, -1, panel.textureOffsetY || 0)}
-                              className={`rounded px-2 py-1 text-xs text-white ${(panel.textureOffsetX || 0) === -1 ? 'bg-red-600' : 'bg-gray-600'}`}
-                              title='Izquierda (-1)'
-                            >
-                              ←
-                            </button>
-                            <button
-                              onClick={() => onUpdatePanelTextureOffset(panel.id, 0, panel.textureOffsetY || 0)}
-                              className={`rounded px-2 py-1 text-xs text-white ${(panel.textureOffsetX || 0) === 0 ? 'bg-red-600' : 'bg-gray-600'}`}
-                              title='Centro (0)'
-                            >
-                              ↕️
-                            </button>
-                            <button
-                              onClick={() => onUpdatePanelTextureOffset(panel.id, 1, panel.textureOffsetY || 0)}
-                              className={`rounded px-2 py-1 text-xs text-white ${(panel.textureOffsetX || 0) === 1 ? 'bg-red-600' : 'bg-gray-600'}`}
-                              title='Derecha (1)'
-                            >
-                              →
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className='space-y-1'>
-                        <label className='block text-xs text-gray-400'>
-                          Posición Y: {(panel.textureOffsetY || 0).toFixed(2)}
-                        </label>
-                        <div className='flex items-center space-x-2'>
-                          <input
-                            type='range'
-                            min='-1'
-                            max='1'
-                            step='0.1'
-                            value={panel.textureOffsetY || 0}
-                            onChange={(e) => onUpdatePanelTextureOffset(panel.id, panel.textureOffsetX || 0, parseFloat(e.target.value))}
-                            className='slider h-2 flex-1 cursor-pointer appearance-none rounded-lg bg-gray-700'
-                            style={{
-                              background: `linear-gradient(to right, #3B82F6 0%, #3B82F6 ${((panel.textureOffsetY || 0) + 1) / 2 * 100}%, #374151 ${((panel.textureOffsetY || 0) + 1) / 2 * 100}%, #374151 100%)`
-                            }}
-                          />
-                          <div className='flex space-x-1'>
-                            <button
-                              onClick={() => onUpdatePanelTextureOffset(panel.id, panel.textureOffsetX || 0, -1)}
-                              className={`rounded px-2 py-1 text-xs text-white ${(panel.textureOffsetY || 0) === -1 ? 'bg-blue-600' : 'bg-gray-600'}`}
-                              title='Arriba (-1)'
-                            >
-                              ↑
-                            </button>
-                            <button
-                              onClick={() => onUpdatePanelTextureOffset(panel.id, panel.textureOffsetX || 0, 0)}
-                              className={`rounded px-2 py-1 text-xs text-white ${(panel.textureOffsetY || 0) === 0 ? 'bg-blue-600' : 'bg-gray-600'}`}
-                              title='Centro (0)'
-                            >
-                              ↕️
-                            </button>
-                            <button
-                              onClick={() => onUpdatePanelTextureOffset(panel.id, panel.textureOffsetX || 0, 1)}
-                              className={`rounded px-2 py-1 text-xs text-white ${(panel.textureOffsetY || 0) === 1 ? 'bg-blue-600' : 'bg-gray-600'}`}
-                              title='Abajo (1)'
-                            >
-                              ↓
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className='flex justify-between text-xs text-gray-500'>
-                        <span>Izquierda</span>
-                        <span>Centro</span>
-                        <span>Derecha</span>
-                      </div>
-                      <div className='flex justify-between text-xs text-gray-500'>
-                        <span>Arriba</span>
-                        <span>Centro</span>
-                        <span>Abajo</span>
                       </div>
                     </div>
                   </div>
                 )}
 
-                {/* Text controls section */}
+                {/* Text Controls */}
                 {!!showTextControls[panel.id] && (
                   <div className='ml-3 space-y-3 rounded-lg border border-orange-400/20 bg-orange-500/10 p-3'>
                     <div className='flex items-center justify-between'>
@@ -596,173 +404,38 @@ export const WheelControls = memo(({
                     <div className='space-y-2'>
                       <h5 className='text-xs font-medium text-orange-200'>Posición</h5>
                       <div className='space-y-1'>
-                        <div className='space-y-1'>
-                          <label className='block text-xs text-gray-400'>
-                            X: {(panel.textPositionX || 0).toFixed(2)}
-                          </label>
-                          <input
-                            type='range'
-                            min='-2'
-                            max='2'
-                            step='0.1'
-                            value={panel.textPositionX || 0}
-                            onChange={(e) => onUpdateTextPosition(panel.id, parseFloat(e.target.value), panel.textPositionY || 0, panel.textPositionZ || 0)}
-                            className='slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-700'
-                            style={{
-                              background: `linear-gradient(to right, #EF4444 0%, #EF4444 ${((panel.textPositionX || 0) + 2) / 4 * 100}%, #374151 ${((panel.textPositionX || 0) + 2) / 4 * 100}%, #374151 100%)`
-                            }}
-                          />
-                        </div>
-                        <div className='space-y-1'>
-                          <label className='block text-xs text-gray-400'>
-                            Y: {(panel.textPositionY || 0).toFixed(2)}
-                          </label>
-                          <input
-                            type='range'
-                            min='-2'
-                            max='2'
-                            step='0.1'
-                            value={panel.textPositionY || 0}
-                            onChange={(e) => onUpdateTextPosition(panel.id, panel.textPositionX || 0, parseFloat(e.target.value), panel.textPositionZ || 0)}
-                            className='slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-700'
-                            style={{
-                              background: `linear-gradient(to right, #10B981 0%, #10B981 ${((panel.textPositionY || 0) + 2) / 4 * 100}%, #374151 ${((panel.textPositionY || 0) + 2) / 4 * 100}%, #374151 100%)`
-                            }}
-                          />
-                        </div>
-                        <div className='space-y-1'>
-                          <label className='block text-xs text-gray-400'>
-                            Z: {(panel.textPositionZ || 0).toFixed(2)}
-                          </label>
-                          <input
-                            type='range'
-                            min='-2'
-                            max='2'
-                            step='0.1'
-                            value={panel.textPositionZ || 0}
-                            onChange={(e) => onUpdateTextPosition(panel.id, panel.textPositionX || 0, panel.textPositionY || 0, parseFloat(e.target.value))}
-                            className='slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-700'
-                            style={{
-                              background: `linear-gradient(to right, #3B82F6 0%, #3B82F6 ${((panel.textPositionZ || 0) + 2) / 4 * 100}%, #374151 ${((panel.textPositionZ || 0) + 2) / 4 * 100}%, #374151 100%)`
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Rotation controls */}
-                    <div className='space-y-2'>
-                      <h5 className='text-xs font-medium text-orange-200'>Rotación</h5>
-                      <div className='space-y-1'>
-                        <div className='space-y-1'>
-                          <label className='block text-xs text-gray-400'>
-                            X: {panel.textRotationX || 0}°
-                          </label>
-                          <input
-                            type='range'
-                            min='0'
-                            max='360'
-                            step='15'
-                            value={panel.textRotationX || 0}
-                            onChange={(e) => onUpdateTextRotation(panel.id, parseFloat(e.target.value), panel.textRotationY || 0, panel.textRotationZ || 0)}
-                            className='slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-700'
-                            style={{
-                              background: `linear-gradient(to right, #EF4444 0%, #EF4444 ${((panel.textRotationX || 0) / 360) * 100}%, #374151 ${((panel.textRotationX || 0) / 360) * 100}%, #374151 100%)`
-                            }}
-                          />
-                        </div>
-                        <div className='space-y-1'>
-                          <label className='block text-xs text-gray-400'>
-                            Y: {panel.textRotationY || 0}°
-                          </label>
-                          <input
-                            type='range'
-                            min='0'
-                            max='360'
-                            step='15'
-                            value={panel.textRotationY || 0}
-                            onChange={(e) => onUpdateTextRotation(panel.id, panel.textRotationX || 0, parseFloat(e.target.value), panel.textRotationZ || 0)}
-                            className='slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-700'
-                            style={{
-                              background: `linear-gradient(to right, #10B981 0%, #10B981 ${((panel.textRotationY || 0) / 360) * 100}%, #374151 ${((panel.textRotationY || 0) / 360) * 100}%, #374151 100%)`
-                            }}
-                          />
-                        </div>
-                        <div className='space-y-1'>
-                          <label className='block text-xs text-gray-400'>
-                            Z: {panel.textRotationZ || 0}°
-                          </label>
-                          <input
-                            type='range'
-                            min='0'
-                            max='360'
-                            step='15'
-                            value={panel.textRotationZ || 0}
-                            onChange={(e) => onUpdateTextRotation(panel.id, panel.textRotationX || 0, panel.textRotationY || 0, parseFloat(e.target.value))}
-                            className='slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-700'
-                            style={{
-                              background: `linear-gradient(to right, #3B82F6 0%, #3B82F6 ${((panel.textRotationZ || 0) / 360) * 100}%, #374151 ${((panel.textRotationZ || 0) / 360) * 100}%, #374151 100%)`
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Scale controls */}
-                    <div className='space-y-2'>
-                      <h5 className='text-xs font-medium text-orange-200'>Escala</h5>
-                      <div className='space-y-1'>
-                        <div className='space-y-1'>
-                          <label className='block text-xs text-gray-400'>
-                            X: {(panel.textScaleX || 1).toFixed(2)}
-                          </label>
-                          <input
-                            type='range'
-                            min='0.1'
-                            max='3'
-                            step='0.1'
-                            value={panel.textScaleX || 1}
-                            onChange={(e) => onUpdateTextScale(panel.id, parseFloat(e.target.value), panel.textScaleY || 1, panel.textScaleZ || 1)}
-                            className='slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-700'
-                            style={{
-                              background: `linear-gradient(to right, #EF4444 0%, #EF4444 ${((panel.textScaleX || 1) - 0.1) / (3 - 0.1) * 100}%, #374151 ${((panel.textScaleX || 1) - 0.1) / (3 - 0.1) * 100}%, #374151 100%)`
-                            }}
-                          />
-                        </div>
-                        <div className='space-y-1'>
-                          <label className='block text-xs text-gray-400'>
-                            Y: {(panel.textScaleY || 1).toFixed(2)}
-                          </label>
-                          <input
-                            type='range'
-                            min='0.1'
-                            max='3'
-                            step='0.1'
-                            value={panel.textScaleY || 1}
-                            onChange={(e) => onUpdateTextScale(panel.id, panel.textScaleX || 1, parseFloat(e.target.value), panel.textScaleZ || 1)}
-                            className='slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-700'
-                            style={{
-                              background: `linear-gradient(to right, #10B981 0%, #10B981 ${((panel.textScaleY || 1) - 0.1) / (3 - 0.1) * 100}%, #374151 ${((panel.textScaleY || 1) - 0.1) / (3 - 0.1) * 100}%, #374151 100%)`
-                            }}
-                          />
-                        </div>
-                        <div className='space-y-1'>
-                          <label className='block text-xs text-gray-400'>
-                            Z: {(panel.textScaleZ || 1).toFixed(2)}
-                          </label>
-                          <input
-                            type='range'
-                            min='0.1'
-                            max='3'
-                            step='0.1'
-                            value={panel.textScaleZ || 1}
-                            onChange={(e) => onUpdateTextScale(panel.id, panel.textScaleX || 1, panel.textScaleY || 1, parseFloat(e.target.value))}
-                            className='slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-700'
-                            style={{
-                              background: `linear-gradient(to right, #3B82F6 0%, #3B82F6 ${((panel.textScaleZ || 1) - 0.1) / (3 - 0.1) * 100}%, #374151 ${((panel.textScaleZ || 1) - 0.1) / (3 - 0.1) * 100}%, #374151 100%)`
-                            }}
-                          />
-                        </div>
+                        {[
+                          { axis: 'X', value: panel.textPositionX || 0, color: '#EF4444', min: -2, max: 2 },
+                          { axis: 'Y', value: panel.textPositionY || 0, color: '#10B981', min: -2, max: 2 },
+                          { axis: 'Z', value: panel.textPositionZ || 0, color: '#3B82F6', min: -2, max: 2 }
+                        ].map(({ axis, value, color, min, max }) => (
+                          <div key={axis} className='space-y-1'>
+                            <label className='block text-xs text-gray-400'>
+                              {axis}: {value.toFixed(2)}
+                            </label>
+                            <input
+                              type='range'
+                              min={min}
+                              max={max}
+                              step='0.1'
+                              value={value}
+                              onChange={(e) => {
+                                const newValue = parseFloat(e.target.value)
+                                if (axis === 'X') {
+                                  onUpdateTextPosition(panel.id, newValue, panel.textPositionY || 0, panel.textPositionZ || 0)
+                                } else if (axis === 'Y') {
+                                  onUpdateTextPosition(panel.id, panel.textPositionX || 0, newValue, panel.textPositionZ || 0)
+                                } else {
+                                  onUpdateTextPosition(panel.id, panel.textPositionX || 0, panel.textPositionY || 0, newValue)
+                                }
+                              }}
+                              className='slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-700'
+                              style={{
+                                background: `linear-gradient(to right, ${color} 0%, ${color} ${((value - min) / (max - min)) * 100}%, #374151 ${((value - min) / (max - min)) * 100}%, #374151 100%)`
+                              }}
+                            />
+                          </div>
+                        ))}
                       </div>
                     </div>
 
