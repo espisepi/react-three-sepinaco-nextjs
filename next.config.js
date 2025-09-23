@@ -16,6 +16,7 @@ const nextConfig = {
   // compiler: {
   //   styledComponents: true,
   // },
+  output: 'export',
   reactStrictMode: true, // Recommended for the `pages` directory, default in `app`.
   images: {},
   typescript: {
