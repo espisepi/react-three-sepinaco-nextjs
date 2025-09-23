@@ -42,6 +42,15 @@ export default function Page() {
             </Suspense>
           </View>
         </div>
+
+        <div className='w-full text-center md:w-3/5'>
+          <View className='flex h-96 w-full flex-col items-center justify-center'>
+            <Suspense fallback={null}>
+              <Logo route='/wheel-of-fortune' scale={0.6} position={[0, 0, 0]} />
+              <Common />
+            </Suspense>
+          </View>
+        </div>
       </div>
 
       <div className='mx-auto flex w-full flex-col flex-wrap items-center p-12 md:flex-row  lg:w-4/5'>
