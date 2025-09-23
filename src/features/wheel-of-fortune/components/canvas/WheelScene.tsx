@@ -260,6 +260,17 @@ const Wheel = memo(({ panels, isSpinning, onSpinComplete, spinDuration, onCurren
     })
   }, [panels, textures, activeMaterial])
 
+  // Actualizar tiempo solo para el material transparente animado
+  useFrame((_, delta) => {
+    if (activeMaterial?.id === 'transparent-moving') {
+      materials.forEach(material => {
+        if (material && (material as any).updateTime) {
+          ; (material as any).updateTime(delta)
+        }
+      })
+    }
+  })
+
   // Memoizar geometrías base para evitar recreaciones
   const baseCylinderGeometry = useMemo(() => new THREE.CylinderGeometry(2.05, 2.05, 0.1, 32, 1), [])
 

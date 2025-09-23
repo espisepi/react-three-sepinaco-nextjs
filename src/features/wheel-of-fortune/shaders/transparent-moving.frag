@@ -21,8 +21,8 @@ float wave(vec2 pos, float frequency, float amplitude, float speed) {
 
 // Función para crear efecto de distorsión
 vec2 distortion(vec2 uv, float intensity) {
-  float wave1 = wave(uv, 3.0, intensity * 0.1, speed);
-  float wave2 = wave(uv, 5.0, intensity * 0.05, speed * 1.5);
+  float wave1 = wave(uv, 3.0, intensity * 0.3, speed);  // Aumentar amplitud
+  float wave2 = wave(uv, 5.0, intensity * 0.2, speed * 1.5);  // Aumentar amplitud
   
   return uv + vec2(wave1, wave2);
 }
@@ -70,7 +70,7 @@ void main() {
   
   // Añadir efecto de pulso para mayor dinamismo
   float pulseEffect = pulse(time, 2.0);
-  alpha *= (0.7 + 0.3 * pulseEffect);
+  alpha *= (0.5 + 0.5 * pulseEffect);  // Hacer el pulso más dramático
   
   // Crear efecto de gradiente radial para mayor profundidad
   float radialGradient = 1.0 - length(vUv - 0.5) * 2.0;
@@ -78,6 +78,14 @@ void main() {
   
   // Mezclar color base con textura
   vec3 finalColor = mix(color, textureColor.rgb, textureColor.a);
+  
+  // Añadir efecto de color animado para hacer visible el movimiento
+  vec3 animatedColor = vec3(
+    0.5 + 0.5 * sin(time * 2.0),
+    0.5 + 0.5 * sin(time * 2.0 + 2.0),
+    0.5 + 0.5 * sin(time * 2.0 + 4.0)
+  );
+  finalColor = mix(finalColor, animatedColor, 0.3);  // Mezclar con color animado
   
   // Añadir efecto de brillo sutil basado en la normal
   float fresnel = 1.0 - abs(dot(vNormal, vec3(0.0, 0.0, 1.0)));

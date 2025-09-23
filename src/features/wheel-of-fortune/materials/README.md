@@ -331,3 +331,4 @@ El sistema incluye información de debug integrada:
 5. **Accesibilidad**: Materiales optimizados para diferentes necesidades visuales
 
 Este sistema proporciona una base sólida y escalable para la gestión de materiales 3D, manteniendo la consistencia arquitectónica con el resto de la aplicación.
+
