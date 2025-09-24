@@ -18,7 +18,9 @@ const nextConfig = {
   // },
   output: 'export',
   reactStrictMode: true, // Recommended for the `pages` directory, default in `app`.
-  images: {},
+  images: {
+    unoptimized: true
+  },
   typescript: {
     // !! WARN !!
     // Dangerously allow production builds to successfully complete even if

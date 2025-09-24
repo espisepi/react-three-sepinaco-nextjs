@@ -1,0 +1,17 @@
+appId: "com.react-three-next.electron"
+productName: "React Three Next"
+copyright: "Copyright (c) 2024 Renaud ROHLINGER"
+directories:
+  output: "dist"
+files:
+  - "main/**/*"
+  - "out/**/*"
+  - "package.json"
+asar: false
+npmRebuild: false
+nodeGypRebuild: false
+buildDependenciesFromSource: false
+mac:
+  target: ["dir"]
+  icon: "public/icons/favicon.ico"
+  category: "public.app-category.graphics-design"
