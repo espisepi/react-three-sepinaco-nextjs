@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react'
 import { Canvas, extend, useThree, useLoader, useFrame } from '@react-three/fiber'
-import { Box, OrbitControls, Sky, useGLTF, PerspectiveCamera, RoundedBox, Environment, useTexture, useAspect, Stats } from '@react-three/drei'
+import { Box, OrbitControls, Sky, useGLTF, PerspectiveCamera, RoundedBox, Environment, useTexture, useAspect, Stats, KeyboardControls, useKeyboardControls } from '@react-three/drei'
 import { Physics, useSphere, useBox, usePlane, Api, PublicApi } from "@react-three/cannon"
 
 
@@ -74,19 +74,68 @@ function Paddle({ args = [5, 1.5, 4] }: PaddleProps) {
   return <Block ref={api} args={args} material={{ restitution: 1.3 }} />
 }
 
+interface PaddlePinballProps {
+  args?: [number, number, number],
+  position?: [number, number, number]
+}
+
+function PaddlePinballLeft({ args = [5, 1.5, 4], position = [0, 0, 0] }: PaddlePinballProps) {
+  const api = useRef<PublicApi>(null)
+  const [, get] = useKeyboardControls()
+
+  useFrame((state) => {
+    if (api.current) {
+      const { forward, backward, left, right, jump } = get()
+
+      api.current.position.set(position[0], position[1], position[2])
+      api.current.rotation.set(0, 0, left ? 0.5 : -0.5)
+    }
+  })
+  return <Block ref={api} args={args} material={{ restitution: 1.3 }} />
+}
+
+function PaddlePinballRight({ args = [5, 1.5, 4], position = [0, 0, 0] }: PaddlePinballProps) {
+  const api = useRef<PublicApi>(null)
+  const [, get] = useKeyboardControls()
+
+  useFrame((state) => {
+    if (api.current) {
+      const { forward, backward, left, right, jump } = get()
+
+      api.current.position.set(position[0], position[1], position[2])
+      api.current.rotation.set(0, 0, right ? 2.5 : 0.5)
+    }
+  })
+  return <Block ref={api} args={args} material={{ restitution: 1.3 }} />
+}
+
+
+
 
 export function PinballScene() {
   return (
     <>
-      {/* <Sky scale={1000} sunPosition={[500, 150, -1000]} turbidity={0.1} /> */}
-      <OrbitControls target={new THREE.Vector3(0, 0.1, 0)} />
-      <Box />
-      <Stats />
-      <Physics iterations={5} gravity={[0, -30, 0]}>
-        <BallAndCollisions />
-        <Paddle />
-        {/* <Block /> */}
-      </Physics>
+      <KeyboardControls
+        map={[
+          { name: "forward", keys: ["ArrowUp", "w", "W"] },
+          { name: "backward", keys: ["ArrowDown", "s", "S"] },
+          { name: "left", keys: ["ArrowLeft", "a", "A"] },
+          { name: "right", keys: ["ArrowRight", "d", "D"] },
+          { name: "jump", keys: ["Space"] },
+        ]}>
+        {/* <Sky scale={1000} sunPosition={[500, 150, -1000]} turbidity={0.1} /> */}
+        <OrbitControls target={new THREE.Vector3(0, 0.1, 0)} />
+        <Box />
+        <Stats />
+        <Physics iterations={5} gravity={[0, -30, 0]}>
+          <BallAndCollisions />
+          <Paddle />
+          <Block args={[50, 2, 50]} position={[0, -15, 0]} material={{ restitution: 1.3 }} />
+          <PaddlePinballLeft position={[-5, -10, 0]} />
+          <PaddlePinballRight position={[2, -10, 0]} />
+
+        </Physics>
+      </KeyboardControls>
     </>
   )
 }
